@@ -12,6 +12,7 @@
 #include "MyVolumeCtrl.h"
 
 #include "WinDefine.h"
+#include "EasyWindow.h"
 
 using namespace std;
 
@@ -60,6 +61,7 @@ WinControlTool::WinControlTool(void)
 	: myVolumeCtrl_(new CMyVolumeCtrl)
 	, forcegroundWindowNotScreenSaveHwnd_(NULL)
     , notScreenSaveCanTryCntLeave_(0)
+	, easyWindow_(new EasyWindow())
 {
 }
 
@@ -86,6 +88,10 @@ WinControlTool::~WinControlTool(void)
 		delete myVolumeCtrl_;
 		myVolumeCtrl_ = NULL;
 	}	
+	if (easyWindow_)
+	{
+		delete easyWindow_;
+	}
 }
 
 
@@ -99,8 +105,8 @@ string WinControlTool::toupperString(const string& strLower)
 	return strRet;
 }
 
-
-string WinControlTool::GetValueFromConfig(const string& strAppName, const string& strKeyName, const string& strDefault, const string& strFileName)
+string WinControlTool::GetValueFromConfig(const string& strAppName,
+	const string& strKeyName, const string& strDefault, const string& strFileName)
 {
 	char szPath[2048] = {0};
 	//char szFileName[MAX_PATH] = "\\VolScrConfig.ini";
@@ -125,7 +131,19 @@ string WinControlTool::GetValueFromConfig(const string& strAppName, const string
 		fclose(fp);
 
 	char szVolume[2048] = {0};
-	GetPrivateProfileString(strAppName.c_str(), strKeyName.c_str(), strDefault.c_str(), szVolume, sizeof(szVolume)-1, strFullPath.c_str() );	
+	if (WinDefine::GetInstance()->useJobConfig_)
+	{
+		const string defaultValue = "UseJobConfig@#$#%@#$^$%%$&^#^%!!";
+		GetPrivateProfileString(strAppName.c_str(), (strKeyName + "_job").c_str(), 
+			defaultValue.c_str(), szVolume, sizeof(szVolume)-1, strFullPath.c_str() );	
+		if (defaultValue != szVolume)
+		{
+			return szVolume;
+		}
+	}
+
+	GetPrivateProfileString(strAppName.c_str(), strKeyName.c_str(), 
+		strDefault.c_str(), szVolume, sizeof(szVolume)-1, strFullPath.c_str() );	
 	return string(szVolume);
 }
 
@@ -347,14 +365,14 @@ void WinControlTool::OnCreate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 
 	string strValue = GetValueFromConfig(CONFIG_SET, "InitVolume", "30", CONFIG_INF_FILENAME); 	
 	WinDefine* winDefine = WinDefine::GetInstance();
-	winDefine->g_initVolumeConst = winDefine->g_initVolume = atoi(strValue.c_str());
+	winDefine->initVolumeConst_ = winDefine->initVolume_ = atoi(strValue.c_str());
 	strValue = GetValueFromConfig(CONFIG_SET, "PerVolumeGap", "3", CONFIG_INF_FILENAME); 	
-	winDefine->g_perVoulumeGap = atoi(strValue.c_str());
+	winDefine->perVoulumeGap_ = atoi(strValue.c_str());
 	strValue = GetValueFromConfig(CONFIG_SET, "InitTime", "5000", CONFIG_INF_FILENAME); 	
-	winDefine->g_iInitTime = atoi(strValue.c_str());
+	winDefine->iInitTime_ = atoi(strValue.c_str());
 	strValue = GetValueFromConfig(CONFIG_SET, "IsInitVolume", "1", CONFIG_INF_FILENAME); 	
-	winDefine->g_iIsInitVolume = atoi(strValue.c_str());	
-	SetTimer(hWnd, TIMER_INIT_VOLUME, winDefine->g_iInitTime, TimerProc);	
+	winDefine->iIsInitVolume_ = atoi(strValue.c_str());	
+	SetTimer(hWnd, TIMER_INIT_VOLUME, winDefine->iInitTime_, TimerProc);	
 
     //不屏保
     strValue = GetValueFromConfig(CONFIG_SET, "notScreenSavePerInputTime", "3", CONFIG_INF_FILENAME);
@@ -466,6 +484,7 @@ VOID CALLBACK WinControlTool::PowerOnStartProgressTimeProc( HWND hwnd, UINT uMsg
 
 void WinControlTool::StopNotScreenSave(HWND hwnd, bool playSound)
 {
+	easyWindow_->Close();
     KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE); 
     KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE_MAX); 
     forcegroundWindowNotScreenSaveHwnd_ = nullptr;
@@ -487,12 +506,12 @@ VOID CALLBACK WinControlTool::TimerProc( HWND hwnd, UINT uMsg, UINT_PTR idEvent,
 	else if ( TIMER_INIT_VOLUME==idEvent )
 	{	
 		WinDefine* winDefine = WinDefine::GetInstance();
-		if ( FALSE == winDefine->g_bFinishInitVolume && winDefine->g_iIsInitVolume == 1)
+		if ( FALSE == winDefine->bFinishInitVolume_ && winDefine->iIsInitVolume_ == 1)
 		{	
-			GetInstance()->GetMyVolumeCtrl()->SetVolume(winDefine->g_initVolume);
-			winDefine->g_initVolume = 0;
+			GetInstance()->GetMyVolumeCtrl()->SetVolume(winDefine->initVolume_);
+			winDefine->initVolume_ = 0;
 		}
-		winDefine->g_bFinishInitVolume = TRUE;
+		winDefine->bFinishInitVolume_ = TRUE;
 		KillTimer(hwnd, idEvent);
 	}
 	else if (TIMER_GET_WEB_TIME == idEvent)
@@ -507,7 +526,7 @@ VOID CALLBACK WinControlTool::TimerProc( HWND hwnd, UINT uMsg, UINT_PTR idEvent,
 		WaitForSingleObject(stExecInfo.hProcess, INFINITE);
 		DWORD dwCode = -2;
 		bRet = GetExitCodeProcess(stExecInfo.hProcess, &dwCode);
-		if ( dwCode == 0 || ++WinDefine::GetInstance()->g_iGetWebTimeCnt>5)
+		if ( dwCode == 0 || ++WinDefine::GetInstance()->iGetWebTimeCnt_>5)
 		{
 			KillTimer(hwnd, idEvent);
 		}
@@ -655,7 +674,7 @@ void WinControlTool::OnHotKeyNotScreenSave(HWND hWnd, UINT message, WPARAM wPara
         StopNotScreenSave(hWnd, true);
         return;
     }
-
+	
     HWND foregroundWindow = GetForegroundWindow();
     if (foregroundWindow)
     {
@@ -663,8 +682,13 @@ void WinControlTool::OnHotKeyNotScreenSave(HWND hWnd, UINT message, WPARAM wPara
         SetTimer(hWnd, TIMER_NOT_SCREEN_SAVE, WinDefine::GetInstance()->notScreenSavePerInputTime_*1000, TimerProc);
         string strValue = GetValueFromConfig(CONFIG_SET, "notScreenSavePerInputMAXTime", "120", CONFIG_INF_FILENAME);
         SetTimer(hWnd, TIMER_NOT_SCREEN_SAVE_MAX, atoi(strValue.c_str())*60*1000, TimerProc);
-        notScreenSaveCanTryCntLeave_ = WinDefine::GetInstance()->notScreenSaveCanTryCnt_;
-        PlaySoundHappy(0, 6);
+        notScreenSaveCanTryCntLeave_ = WinDefine::GetInstance()->notScreenSaveCanTryCnt_;	
+		strValue = GetValueFromConfig(CONFIG_SET, "notScreeenSaveMsgBox", "0", CONFIG_INF_FILENAME);
+		if (strValue != "0")
+		{
+			easyWindow_->Create(nullptr, 600, 0, 200, 50);
+		}
+		PlaySoundHappy(0, 6);
     }
 }
 
@@ -701,21 +725,21 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		{
 			iVolume = GetMyVolumeCtrl()->GetVolume();	//得到的值偏小1						
 			sprintf_s(szVolume,sizeof(szVolume), "iVolume = %d\n", iVolume);
-			iVolume += winDefine->g_perVoulumeGap;
+			iVolume += winDefine->perVoulumeGap_;
 			GetMyVolumeCtrl()->SetVolume(iVolume);
 			break;
 		}
 	case HOTKEY_VOLUME_DOWN:
 		{			
-			if ( FALSE == winDefine->g_bFinishInitVolume )
+			if ( FALSE == winDefine->bFinishInitVolume_ )
 			{
-				GetMyVolumeCtrl()->SetVolume(winDefine->g_initVolume*1/3);
-				winDefine->g_initVolume = 0;
-				winDefine->g_bFinishInitVolume = TRUE;
+				GetMyVolumeCtrl()->SetVolume(winDefine->initVolume_*1/3);
+				winDefine->initVolume_ = 0;
+				winDefine->bFinishInitVolume_ = TRUE;
 			}			
 			iVolume = GetMyVolumeCtrl()->GetVolume();	//得到的值偏小1						
 			sprintf_s(szVolume,sizeof(szVolume), "iVolume = %d\n", iVolume);
-			iVolume -= winDefine->g_perVoulumeGap;
+			iVolume -= winDefine->perVoulumeGap_;
 			if ( iVolume < 0 )
 			{
 				iVolume = 0;

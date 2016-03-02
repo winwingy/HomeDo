@@ -87,6 +87,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EasyWindow.cpp" />
     <ClCompile Include="MyVolumeCtrl.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -97,6 +98,7 @@
     <ClCompile Include="WinDefine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EasyWindow.h" />
     <ClInclude Include="MyVolumeCtrl.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />

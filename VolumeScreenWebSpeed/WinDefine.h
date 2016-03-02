@@ -60,14 +60,14 @@ public:
 
 	static WinDefine* GetInstance();
 	
-
-	int g_initVolume;
-	int g_initVolumeConst;
-	int g_perVoulumeGap;
-	int g_iInitTime;
-	int g_iIsInitVolume;
-	BOOL g_bFinishInitVolume;
-	int g_iGetWebTimeCnt;
+	bool useJobConfig_;
+	int initVolume_;
+	int initVolumeConst_;
+	int perVoulumeGap_;
+	int iInitTime_;
+	int iIsInitVolume_;
+	BOOL bFinishInitVolume_;
+	int iGetWebTimeCnt_;
 	vector<string> powerOnStartProgress_;
 	int powerOnStartProgressTime_;
 

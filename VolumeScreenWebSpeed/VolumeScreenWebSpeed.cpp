@@ -5,6 +5,7 @@
 
 #include "WinDefine.h"
 #include "WinContorlTool.h"
+#include <assert.h>
 
 
 #define MAX_LOADSTRING 100
@@ -84,6 +85,26 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassEx(&wcex);
 }
 
+void InitUseJobConfig()
+{
+	WinDefine* winDefine = WinDefine::GetInstance();
+	char userName[1024];
+	DWORD nameLength = 1024;
+	BOOL ret = GetUserName(userName, &nameLength);
+	DWORD err = GetLastError();
+	assert(ret);
+	if (ret)
+	{
+		string congfigName = WinControlTool::GetInstance()->
+			GetValueFromConfig(CONFIG_SET, 
+			"JobConfigName", "NotConfigName@#$%!##", CONFIG_INF_FILENAME); 
+		if (congfigName == userName)
+		{
+			WinDefine::GetInstance()->useJobConfig_ = true;
+		}
+	}
+}
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    HWND hWnd;
@@ -97,6 +118,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
+
+   InitUseJobConfig();
    string strValue = WinControlTool::GetInstance()->GetValueFromConfig(CONFIG_SET, "IsShow", "0", CONFIG_INF_FILENAME); 
    ShowWindow(hWnd, atoi(strValue.c_str()));
    UpdateWindow(hWnd);

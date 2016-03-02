@@ -7,6 +7,7 @@ using std::string;
 using std::wstring;
 using std::vector;
 class CMyVolumeCtrl;
+class EasyWindow;
 
 class WinControlTool
 {
@@ -74,6 +75,7 @@ private:
 	vector<ProgressToIDHotKey> progressToIDHotkeyList_;
 	HWND forcegroundWindowNotScreenSaveHwnd_;
     int notScreenSaveCanTryCntLeave_;
+	EasyWindow* easyWindow_;
 
 	
 };

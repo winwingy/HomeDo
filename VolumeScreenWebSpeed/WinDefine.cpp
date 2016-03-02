@@ -4,17 +4,19 @@
 WinDefine* WinDefine::windefine_ = NULL;
 
 WinDefine::WinDefine(void)
+	: useJobConfig_(false)
+	, initVolume_(0)
+	, initVolumeConst_(0)
+	, perVoulumeGap_(10)
+	, iInitTime_(1000)
+	, iIsInitVolume_(1)
+	, bFinishInitVolume_(FALSE)
+	, iGetWebTimeCnt_(0)
+	, powerOnStartProgressTime_(5000)
+	, notScreenSavePerInputTime_(0)
+	, notScreenSaveCanTryCnt_(0)
 {
-	g_initVolume = 0;
-	g_initVolumeConst = 0;
-	g_perVoulumeGap = 10;
-	g_iInitTime = 1000;
-	g_iIsInitVolume = 1;
-	g_bFinishInitVolume = FALSE;
-	g_iGetWebTimeCnt = 0;
-	powerOnStartProgressTime_ = 5000;
-    notScreenSavePerInputTime_ = 0;
-    notScreenSaveCanTryCnt_ = 0;
+
 }
 
 
