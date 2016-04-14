@@ -7,14 +7,64 @@
 #include <TlHelp32.h>
 #include <shellapi.h>
 #include <assert.h>
+#include <sstream>
 #pragma comment(lib, "Kernel32.lib")
 
 #include "MyVolumeCtrl.h"
 
 #include "WinDefine.h"
 #include "EasyWindow.h"
+#include "ShutDownDlg.h"
 
 using namespace std;
+
+namespace
+{
+struct HotKeyData
+{
+    string keyString;
+    int KeyValue;
+};
+
+HotKeyData HotKeyStringMap[] =
+{
+    {"F1", VK_F1},
+    {"F2", VK_F2},
+    {"F3", VK_F3},
+    {"F4", VK_F4},
+    {"F5", VK_F5},
+    {"F6", VK_F6},
+    {"F7", VK_F7},
+    {"F8", VK_F8},
+    {"F9", VK_F9},
+    {"F10", VK_F10},
+    {"F11", VK_F11},
+    {"F12", VK_F12},
+    {"num0", VK_NUMPAD0},
+    {"num1", VK_NUMPAD1},
+    {"num2", VK_NUMPAD2},
+    {"num3", VK_NUMPAD3},
+    {"num4", VK_NUMPAD4},
+    {"num5", VK_NUMPAD5},
+    {"num6", VK_NUMPAD6},
+    {"num7", VK_NUMPAD7},
+    {"num8", VK_NUMPAD8},
+    {"num9", VK_NUMPAD9},
+};
+
+int HotKeyStrigToInt(const string& hotKeyString)
+{
+    for (int i = 0; i < sizeof(HotKeyStringMap)/sizeof(HotKeyStringMap[0]); ++i)
+    {
+        if (HotKeyStringMap[i].keyString == hotKeyString)
+        {
+            return HotKeyStringMap[i].KeyValue;
+        }
+    }
+    return -1;
+}
+
+
 
 void PlaySoundHappy(int beg, int end)
 {
@@ -31,6 +81,7 @@ void PlaySoundHappy(int beg, int end)
     {  
         Beep(FREQUENCY[i], DELAY[i]);  
     }  
+}
 }
 
 // HWND GetFullScreenHwnd()
@@ -178,14 +229,18 @@ void WinControlTool::SplitStringBySign(vector<string>& result, const string& str
 		result.push_back(childOut);
 	}
 }
-
 void WinControlTool::TranslateStringToVKKey(const string& stringIn, UINT* vkCtrl, UINT* vkKey)
 {
 	vector<string> vklist;
 	SplitStringBySign(vklist, stringIn, "+");
 	for (vector<string>::iterator it = vklist.begin(); it != vklist.end(); ++it)
 	{
-		if (!_stricmp(it->c_str(), "ctrl")) 
+        int key = HotKeyStrigToInt(*it);
+        if (key != -1)
+        {
+            *vkKey = key;
+        }
+        else if (!_stricmp(it->c_str(), "ctrl")) 
 		{
 			*vkCtrl |= MOD_CONTROL;
 		}
@@ -221,17 +276,6 @@ void WinControlTool::TranslateStringToVKKey(const string& stringIn, UINT* vkCtrl
         {
             *vkKey = VK_RIGHT;
         }
-		else if (it->length() == 4) 
-		{
-			if (it->find("num") != -1)
-			{
-				*vkKey = (*it)[3] - '0' + VK_NUMPAD0;				
-			}
-			else
-			{
-				assert(0 && "no support key!!!");
-			}				
-		}		
 		else if(it->length() == 1) 
 		{
 			*vkKey = toupperString(*it)[0];			
@@ -329,6 +373,14 @@ void WinControlTool::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
         bRet = RegisterHotKey(hWnd, HOTKEY_NOT_SCREEN_SAVE, vkCtrl, vkKey);
     }
+
+    {
+        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyShutDown", "", CONFIG_INF_FILENAME); 
+        UINT vkCtrl = 0;
+        UINT vkKey = 0; 
+        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
+        bRet = RegisterHotKey(hWnd, HOTKEY_NOT_SHUT_DOWN, vkCtrl, vkKey);
+    }
 	//³ÌÐòHotkey
 	InitProgressHotKey(hWnd);
 }
@@ -380,11 +432,11 @@ void WinControlTool::OnCreate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
     strValue = GetValueFromConfig(CONFIG_SET, "notScreenSaveCanTryCnt", "3", CONFIG_INF_FILENAME); 
     winDefine->notScreenSaveCanTryCnt_ = atoi(strValue.c_str());
 
-	strValue = GetValueFromConfig(CONFIG_SET, "GetWebTimeSpace", "20000", CONFIG_INF_FILENAME); 
-	if ( strValue != "-1" )
-	{
-		SetTimer(hWnd, TIMER_GET_WEB_TIME, atoi(strValue.c_str()), TimerProc);	
-	}	
+// 	strValue = GetValueFromConfig(CONFIG_SET, "GetWebTimeSpace", "20000", CONFIG_INF_FILENAME); 
+// 	if ( strValue != "-1" )
+// 	{
+// 		SetTimer(hWnd, TIMER_GET_WEB_TIME, atoi(strValue.c_str()), TimerProc);	
+// 	}	
 }
 
 string WinControlTool::W2A(wstring strWide)
@@ -764,7 +816,13 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			OnHotKeyNotScreenSave(hWnd, message, wParam, lParam);
 			break;
 		}		
-	}
+		case HOTKEY_NOT_SHUT_DOWN:
+		{
+            ShutDownDlg dlg;
+            dlg.DoModal(NULL);
+			break;
+		}
+    }
 
 	if (iIDHotKey >= HOTKEY_PROGRESS_BEGIN && iIDHotKey <= HOTKEY_PROGRESS_END)
 	{

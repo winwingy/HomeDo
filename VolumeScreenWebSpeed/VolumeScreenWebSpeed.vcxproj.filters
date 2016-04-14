@@ -36,6 +36,9 @@
     <ClCompile Include="EasyWindow.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
+    <ClCompile Include="ShutDownDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="EasyWindow.h">
       <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="ShutDownDlg.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

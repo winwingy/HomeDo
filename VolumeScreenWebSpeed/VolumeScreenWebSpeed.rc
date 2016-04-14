@@ -18,13 +18,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(中华人民共和国) resources
+// 中文(简体，中国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
-#ifdef _WIN32
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 #pragma code_page(936)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -40,7 +38,7 @@ IDI_ICON_SHOW           ICON                    "icon_show.ico"
 // Menu
 //
 
-IDC_VOLUMESCREENWEBSPEED MENU 
+IDC_VOLUMESCREENWEBSPEED MENU
 BEGIN
     POPUP "文件(&F)"
     BEGIN
@@ -58,7 +56,7 @@ END
 // Accelerator
 //
 
-IDC_VOLUMESCREENWEBSPEED ACCELERATORS 
+IDC_VOLUMESCREENWEBSPEED ACCELERATORS
 BEGIN
     "?",            IDM_ABOUT,              ASCII,  ALT
     "/",            IDM_ABOUT,              ASCII,  ALT
@@ -81,6 +79,21 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,113,41,50,14,WS_GROUP
 END
 
+IDD_DIALOG_SHUT_DOWN DIALOGEX 0, 0, 316, 183
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "定时关机"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,205,162,50,14
+    PUSHBUTTON      "取消",IDCANCEL,259,162,50,14
+    EDITTEXT        IDC_EDIT_HOUR,129,74,26,16,ES_AUTOHSCROLL
+    LTEXT           "关机时间:",IDC_STATIC,89,78,38,14
+    LTEXT           "时",IDC_STATIC,161,79,8,10
+    LTEXT           "分",IDC_STATIC,217,79,29,10
+    EDITTEXT        IDC_EDIT_MIN,185,74,21,16,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "取消关机",ID_CANCEL_SHUTDOW,117,162,50,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -88,7 +101,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -96,6 +109,14 @@ BEGIN
         RIGHTMARGIN, 163
         TOPMARGIN, 7
         BOTTOMMARGIN, 55
+    END
+
+    IDD_DIALOG_SHUT_DOWN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 176
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -137,13 +158,13 @@ END
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_APP_TITLE           "VolumeScreenWebSpeed"
     IDC_VOLUMESCREENWEBSPEED "VOLUMESCREENWEBSPEED"
 END
 
-#endif    // 中文(中华人民共和国) resources
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
