@@ -4,6 +4,7 @@
 #include "ShutDownDlg.h"
 #include "resource.h"
 #include <time.h>
+#include <assert.h>
 
 
 ShutDownDlg::ShutDownDlg(void)
@@ -78,7 +79,9 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wP
                     min = atoi(szbuf);
                 }
                 INT64 sec = hour*60*60 + min*60;
-                ShutDownDlg::RunShutDownCMD(sec, false);
+                if (sec != 0)
+                    ShutDownDlg::RunShutDownCMD(sec, false);
+                
                 break;
             }
         case ID_CANCEL_SHUTDOW:
@@ -95,6 +98,7 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wP
     }
     else if (message == WM_INITDIALOG)
     {
+        SetFocus(GetDlgItem(hWnd, IDC_EDIT_HOUR));
         int x = GetSystemMetrics ( SM_CXSCREEN ); 
         int y = GetSystemMetrics ( SM_CYSCREEN ); 
         RECT rect;
@@ -109,7 +113,11 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wP
 
 bool ShutDownDlg::DoModal( HWND hwnd )
 {
-    DialogBoxParamA((HINSTANCE)GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN), hwnd, 
-        ShutDownWndProc, 0);
+    HWND dlg= CreateDialogParamA((HINSTANCE)GetModuleHandle(NULL), 
+        MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN), hwnd, ShutDownWndProc, 0);
+    assert(dlg);
+    UpdateWindow(dlg);
+    ShowWindow(dlg, SW_SHOW);
+
     return true;
 }

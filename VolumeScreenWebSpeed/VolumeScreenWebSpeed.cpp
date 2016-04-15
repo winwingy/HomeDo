@@ -109,7 +109,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    HWND hWnd;
 
-   hInst = hInstance; // 将实例句柄存储在全局变量中
+   hInst = hInstance; // 将实例句柄存储在全局变量中 
+   InitUseJobConfig();
 
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       500, 300, 500, 300, NULL, NULL, hInstance, NULL);
@@ -119,8 +120,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   InitUseJobConfig();
-   string strValue = WinControlTool::GetInstance()->GetValueFromConfig(CONFIG_SET, "IsShow", "0", CONFIG_INF_FILENAME); 
+   string strValue = WinControlTool::GetInstance()->GetValueFromConfig(
+       CONFIG_SET, "IsShow", "0", CONFIG_INF_FILENAME); 
    ShowWindow(hWnd, atoi(strValue.c_str()));
    UpdateWindow(hWnd);
    return TRUE;

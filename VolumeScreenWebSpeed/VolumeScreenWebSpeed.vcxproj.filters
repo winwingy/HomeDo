@@ -37,7 +37,7 @@
       <Filter>Tool</Filter>
     </ClCompile>
     <ClCompile Include="ShutDownDlg.cpp">
-      <Filter>源文件</Filter>
+      <Filter>Tool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,7 +66,7 @@
       <Filter>Tool</Filter>
     </ClInclude>
     <ClInclude Include="ShutDownDlg.h">
-      <Filter>头文件</Filter>
+      <Filter>Tool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
