@@ -75,12 +75,15 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wP
                 {
                     const int len = 100;
                     TCHAR szbuf[len] = {0};
-                    GetWindowText(GetDlgItem(hWnd, IDC_EDIT_HOUR), szbuf, len);
+                    GetWindowText(GetDlgItem(hWnd, IDC_EDIT_MIN), szbuf, len);
                     min = atoi(szbuf);
                 }
-                INT64 sec = hour*60*60 + min*60;
+                INT64 sec = static_cast<INT64>(hour*60*60) + 
+                            static_cast<INT64>(min*60);
                 if (sec != 0)
                     ShutDownDlg::RunShutDownCMD(sec, false);
+                else 
+                    assert(sec == 0);
                 
                 break;
             }
