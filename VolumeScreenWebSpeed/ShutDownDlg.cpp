@@ -120,7 +120,8 @@ bool ShutDownDlg::DoModal( HWND hwnd )
         MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN), hwnd, ShutDownWndProc, 0);
     assert(dlg);
     UpdateWindow(dlg);
-    ShowWindow(dlg, SW_SHOW);
+    SetWindowPos(dlg, HWND_TOP, 0, 0, 0, 0, 
+            SWP_SHOWWINDOW|SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOSIZE);
 
     return true;
 }
