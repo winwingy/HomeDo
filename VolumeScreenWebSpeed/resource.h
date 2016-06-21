@@ -14,8 +14,12 @@
 #define IDI_ICON_SHOW                   129
 #define IDD_DIALOG_SHUT_DOWN            131
 #define IDC_EDIT_HOUR                   1000
-#define IDC_EDIT_SEC                    1001
 #define IDC_EDIT_MIN                    1001
+#define IDC_EDIT_MIN2                   1002
+#define IDC_EDIT_SEC                    1002
+#define IDC_STATIC_                     1003
+#define IDC_STATIC_SEC                  1003
+#define IDC_STATIC_MIN                  1004
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -25,7 +29,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

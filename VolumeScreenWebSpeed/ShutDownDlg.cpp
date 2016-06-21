@@ -78,12 +78,19 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wP
                     GetWindowText(GetDlgItem(hWnd, IDC_EDIT_MIN), szbuf, len);
                     min = atoi(szbuf);
                 }
-                INT64 sec = static_cast<INT64>(hour*60*60) + 
-                            static_cast<INT64>(min*60);
-                if (sec != 0)
-                    ShutDownDlg::RunShutDownCMD(sec, false);
+                int sec = 0;
+                {
+                    const int len = 100;
+                    TCHAR szbuf[len] = {0};
+                    GetWindowText(GetDlgItem(hWnd, IDC_EDIT_SEC), szbuf, len);
+                    sec = atoi(szbuf);
+                }
+                INT64 totalSec = static_cast<INT64>(hour*60*60) + 
+                            static_cast<INT64>(min*60) + static_cast<INT64>(sec);
+                if (totalSec != 0)
+                    ShutDownDlg::RunShutDownCMD(totalSec, false);
                 else 
-                    assert(sec == 0);
+                    assert(totalSec);
                 
                 break;
             }
@@ -121,7 +128,7 @@ bool ShutDownDlg::DoModal( HWND hwnd )
     assert(dlg);
     UpdateWindow(dlg);
     SetWindowPos(dlg, HWND_TOP, 0, 0, 0, 0, 
-            SWP_SHOWWINDOW|SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOSIZE);
+                 SWP_SHOWWINDOW|SWP_NOMOVE|SWP_NOSIZE);
 
     return true;
 }
