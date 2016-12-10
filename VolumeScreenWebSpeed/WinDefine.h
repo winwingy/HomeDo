@@ -9,8 +9,10 @@ using std::string;
 
 #define  TRACE_WW OutputDebugString
 
-#define TRACE_ZZ(szText, strShow) {char szBuffer[1024]={0}; sprintf_s(szBuffer, _countof(szBuffer), szText, strShow); OutputDebugString(szBuffer);}
-
+#define TRACE_ZZ(szText, strShow) \
+{char szBuffer[1024]={0}; \
+sprintf_s(szBuffer, _countof(szBuffer), szText, strShow);\
+ OutputDebugString(szBuffer);}
 
 
 enum HOTKEY
@@ -36,9 +38,9 @@ enum HOTKEY
 #define CONFIG_SET_HOTKEY "HotKey"
 #define CONFIG_SET_PROGRESS_HOTKEY "ProgressHotKey"
 #define CONFIG_INF_FILENAME "VolScrConfig.ini"
+#define CONFIG_INF_FILENAME_JOB "VolScrConfigJob.ini"
 #define CONFIG_SET_KILLNAME_BEGIN "[KillNameBegin]"
 #define CONFIG_SET_KILLNAME_END "[KillNameEnd]"
-
 
 
 enum MSG_ID
@@ -81,7 +83,5 @@ private:
 	WinDefine(void);
 	static WinDefine* windefine_;
 };
-
-
 
 #endif

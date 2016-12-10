@@ -53,7 +53,7 @@ bool NotSCreenSaveDlg::RunShutDownCMD(INT64 sec, bool Cancel)
     return ret;
 }
 
-INT_PTR CALLBACK NotSCreenSaveDlg::ShutDownWndProc(HWND hWnd, UINT message, 
+INT_PTR CALLBACK NotSCreenSaveDlg::ScreenWndProc(HWND hWnd, UINT message, 
     WPARAM wParam, LPARAM lParam)
 {
     int wmId, wmEvent;
@@ -70,25 +70,20 @@ INT_PTR CALLBACK NotSCreenSaveDlg::ShutDownWndProc(HWND hWnd, UINT message,
                 {
                     const int len = 100;
                     TCHAR szbuf[len] = {0};
-                    GetWindowText(GetDlgItem(hWnd, IDC_EDIT_HOUR), szbuf, len);
+                    GetWindowText(GetDlgItem(hWnd, IDC_EDIT_NOTSCREENSAVE_HOUR), 
+                                  szbuf, len);
                     hour = atoi(szbuf);
                 }
                 int min = 0;
                 {
                     const int len = 100;
                     TCHAR szbuf[len] = {0};
-                    GetWindowText(GetDlgItem(hWnd, IDC_EDIT_MIN), szbuf, len);
+                    GetWindowText(GetDlgItem(hWnd, IDC_EDIT_NOTSCREENSAVE_MIN),
+                                  szbuf, len);
                     min = atoi(szbuf);
                 }
-                int sec = 0;
-                {
-                    const int len = 100;
-                    TCHAR szbuf[len] = {0};
-                    GetWindowText(GetDlgItem(hWnd, IDC_EDIT_SEC), szbuf, len);
-                    sec = atoi(szbuf);
-                }
                 INT64 totalSec = static_cast<INT64>(hour*60*60) + 
-                            static_cast<INT64>(min*60) + static_cast<INT64>(sec);
+                            static_cast<INT64>(min*60);
                 if (totalSec != 0)
                     NotSCreenSaveDlg::RunShutDownCMD(totalSec, false);
                 else 
@@ -126,7 +121,7 @@ HWND NotSCreenSaveDlg::Create(HWND hWndParent)
 {
     HWND dlg= CreateDialogParamA((HINSTANCE)GetModuleHandle(NULL), 
         MAKEINTRESOURCE(IDD_DIALOG_NOT_SCREEN_SAVE), hWndParent, 
-        ShutDownWndProc, 0);
+        ScreenWndProc, 0);
     assert(dlg);
     UpdateWindow(dlg);
     return dlg;

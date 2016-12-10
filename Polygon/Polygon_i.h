@@ -3,18 +3,18 @@
 /* this ALWAYS GENERATED file contains the definitions for the interfaces */
 
 
- /* File created by MIDL compiler version 7.00.0500 */
-/* at Sun Jul 22 13:50:30 2012
+ /* File created by MIDL compiler version 8.00.0603 */
+/* at Sat Dec 10 10:04:14 2016
  */
-/* Compiler settings for .\Polygon.idl:
-    Oicf, W1, Zp8, env=Win32 (32b run)
+/* Compiler settings for Polygon.idl:
+    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
     protocol : dce , ms_ext, c_ext, robust
-    error checks: stub_data 
+    error checks: allocation ref bounds_check enum stub_data 
     VC __declspec() decoration level: 
          __declspec(uuid()), __declspec(selectany), __declspec(novtable)
          DECLSPEC_UUID(), MIDL_INTERFACE()
 */
-//@@MIDL_FILE_HEADING(  )
+/* @@MIDL_FILE_HEADING(  ) */
 
 #pragma warning( disable: 4049 )  /* more than 64k source lines */
 
@@ -48,12 +48,14 @@
 #ifndef __IPolyCtrl_FWD_DEFINED__
 #define __IPolyCtrl_FWD_DEFINED__
 typedef interface IPolyCtrl IPolyCtrl;
+
 #endif 	/* __IPolyCtrl_FWD_DEFINED__ */
 
 
 #ifndef ___IPolyCtrlEvents_FWD_DEFINED__
 #define ___IPolyCtrlEvents_FWD_DEFINED__
 typedef interface _IPolyCtrlEvents _IPolyCtrlEvents;
+
 #endif 	/* ___IPolyCtrlEvents_FWD_DEFINED__ */
 
 
@@ -99,7 +101,14 @@ EXTERN_C const IID IID_IPolyCtrl;
         virtual /* [id][requestedit][bindable][propget] */ HRESULT STDMETHODCALLTYPE get_FillColor( 
             /* [retval][out] */ OLE_COLOR *pclr) = 0;
         
+        virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Sides( 
+            /* [retval][out] */ SHORT *pVal) = 0;
+        
+        virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Sides( 
+            /* [in] */ SHORT newVal) = 0;
+        
     };
+    
     
 #else 	/* C style interface */
 
@@ -110,8 +119,8 @@ EXTERN_C const IID IID_IPolyCtrl;
         HRESULT ( STDMETHODCALLTYPE *QueryInterface )( 
             IPolyCtrl * This,
             /* [in] */ REFIID riid,
-            /* [iid_is][out] */ 
-            __RPC__deref_out  void **ppvObject);
+            /* [annotation][iid_is][out] */ 
+            _COM_Outptr_  void **ppvObject);
         
         ULONG ( STDMETHODCALLTYPE *AddRef )( 
             IPolyCtrl * This);
@@ -139,14 +148,22 @@ EXTERN_C const IID IID_IPolyCtrl;
         
         /* [local] */ HRESULT ( STDMETHODCALLTYPE *Invoke )( 
             IPolyCtrl * This,
-            /* [in] */ DISPID dispIdMember,
-            /* [in] */ REFIID riid,
-            /* [in] */ LCID lcid,
-            /* [in] */ WORD wFlags,
-            /* [out][in] */ DISPPARAMS *pDispParams,
-            /* [out] */ VARIANT *pVarResult,
-            /* [out] */ EXCEPINFO *pExcepInfo,
-            /* [out] */ UINT *puArgErr);
+            /* [annotation][in] */ 
+            _In_  DISPID dispIdMember,
+            /* [annotation][in] */ 
+            _In_  REFIID riid,
+            /* [annotation][in] */ 
+            _In_  LCID lcid,
+            /* [annotation][in] */ 
+            _In_  WORD wFlags,
+            /* [annotation][out][in] */ 
+            _In_  DISPPARAMS *pDispParams,
+            /* [annotation][out] */ 
+            _Out_opt_  VARIANT *pVarResult,
+            /* [annotation][out] */ 
+            _Out_opt_  EXCEPINFO *pExcepInfo,
+            /* [annotation][out] */ 
+            _Out_opt_  UINT *puArgErr);
         
         /* [id][requestedit][bindable][propput] */ HRESULT ( STDMETHODCALLTYPE *put_FillColor )( 
             IPolyCtrl * This,
@@ -155,6 +172,14 @@ EXTERN_C const IID IID_IPolyCtrl;
         /* [id][requestedit][bindable][propget] */ HRESULT ( STDMETHODCALLTYPE *get_FillColor )( 
             IPolyCtrl * This,
             /* [retval][out] */ OLE_COLOR *pclr);
+        
+        /* [helpstring][id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_Sides )( 
+            IPolyCtrl * This,
+            /* [retval][out] */ SHORT *pVal);
+        
+        /* [helpstring][id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_Sides )( 
+            IPolyCtrl * This,
+            /* [in] */ SHORT newVal);
         
         END_INTERFACE
     } IPolyCtrlVtbl;
@@ -197,6 +222,12 @@ EXTERN_C const IID IID_IPolyCtrl;
 
 #define IPolyCtrl_get_FillColor(This,pclr)	\
     ( (This)->lpVtbl -> get_FillColor(This,pclr) ) 
+
+#define IPolyCtrl_get_Sides(This,pVal)	\
+    ( (This)->lpVtbl -> get_Sides(This,pVal) ) 
+
+#define IPolyCtrl_put_Sides(This,newVal)	\
+    ( (This)->lpVtbl -> put_Sides(This,newVal) ) 
 
 #endif /* COBJMACROS */
 
@@ -244,8 +275,8 @@ EXTERN_C const IID DIID__IPolyCtrlEvents;
         HRESULT ( STDMETHODCALLTYPE *QueryInterface )( 
             _IPolyCtrlEvents * This,
             /* [in] */ REFIID riid,
-            /* [iid_is][out] */ 
-            __RPC__deref_out  void **ppvObject);
+            /* [annotation][iid_is][out] */ 
+            _COM_Outptr_  void **ppvObject);
         
         ULONG ( STDMETHODCALLTYPE *AddRef )( 
             _IPolyCtrlEvents * This);
@@ -273,14 +304,22 @@ EXTERN_C const IID DIID__IPolyCtrlEvents;
         
         /* [local] */ HRESULT ( STDMETHODCALLTYPE *Invoke )( 
             _IPolyCtrlEvents * This,
-            /* [in] */ DISPID dispIdMember,
-            /* [in] */ REFIID riid,
-            /* [in] */ LCID lcid,
-            /* [in] */ WORD wFlags,
-            /* [out][in] */ DISPPARAMS *pDispParams,
-            /* [out] */ VARIANT *pVarResult,
-            /* [out] */ EXCEPINFO *pExcepInfo,
-            /* [out] */ UINT *puArgErr);
+            /* [annotation][in] */ 
+            _In_  DISPID dispIdMember,
+            /* [annotation][in] */ 
+            _In_  REFIID riid,
+            /* [annotation][in] */ 
+            _In_  LCID lcid,
+            /* [annotation][in] */ 
+            _In_  WORD wFlags,
+            /* [annotation][out][in] */ 
+            _In_  DISPPARAMS *pDispParams,
+            /* [annotation][out] */ 
+            _Out_opt_  VARIANT *pVarResult,
+            /* [annotation][out] */ 
+            _Out_opt_  EXCEPINFO *pExcepInfo,
+            /* [annotation][out] */ 
+            _Out_opt_  UINT *puArgErr);
         
         END_INTERFACE
     } _IPolyCtrlEventsVtbl;

@@ -9,7 +9,7 @@ public:
 
 private:
     static bool RunShutDownCMD(INT64 sec, bool Cancel);
-    static INT_PTR CALLBACK ShutDownWndProc(
+    static INT_PTR CALLBACK ScreenWndProc(
         HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     HWND hWnd_;
 };

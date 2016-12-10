@@ -570,18 +570,6 @@ VOID CALLBACK WinControlTool::PowerOnStartProgressTimeProc( HWND hwnd, UINT uMsg
 	}
 }
 
-void WinControlTool::StopNotScreenSave(HWND hwnd, bool playSound)
-{
-	easyWindow_->Close();
-    KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE); 
-    KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE_MAX); 
-    forcegroundWindowNotScreenSaveHwnd_ = nullptr;
-    if (playSound)
-    {
-        PlaySoundHappy(0, 2);
-    }
-}
-
 VOID CALLBACK WinControlTool::TimerProc( HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime )
 {
     WinControlTool* thisClass =  WinControlTool::GetInstance(); 

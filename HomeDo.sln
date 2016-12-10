@@ -1,8 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VolumeAndScreen", "VolumeAndScreen\VolumeAndScreen.vcxproj", "{865E61FF-9BF0-4A74-BAAA-232D725C18E5}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookThisProgress", "HookThisProgress\HookThisProgress.vcxproj", "{9C903D08-A2C8-4AD6-8CC0-A7762CE0201D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Polygon", "Polygon\Polygon.vcxproj", "{042525BD-464F-4B5D-BCBD-EC628D41BB2B}"
@@ -35,10 +35,6 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{865E61FF-9BF0-4A74-BAAA-232D725C18E5}.Debug|Win32.ActiveCfg = Debug|Win32
-		{865E61FF-9BF0-4A74-BAAA-232D725C18E5}.Debug|Win32.Build.0 = Debug|Win32
-		{865E61FF-9BF0-4A74-BAAA-232D725C18E5}.Release|Win32.ActiveCfg = Release|Win32
-		{865E61FF-9BF0-4A74-BAAA-232D725C18E5}.Release|Win32.Build.0 = Release|Win32
 		{9C903D08-A2C8-4AD6-8CC0-A7762CE0201D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{9C903D08-A2C8-4AD6-8CC0-A7762CE0201D}.Debug|Win32.Build.0 = Debug|Win32
 		{9C903D08-A2C8-4AD6-8CC0-A7762CE0201D}.Release|Win32.ActiveCfg = Release|Win32

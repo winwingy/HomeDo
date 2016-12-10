@@ -1,8 +1,62 @@
+// VolumeScreenWebSpeed.cpp : 定义应用程序的入口点。
+//
 #include "stdafx.h"
 #include "VolumeScreenWebSpeed.h"
 
-ATOM VolumeScreenWebSpeed::MyRegisterClass(HINSTANCE hInstance, 
-                                           TCHAR* szWindowClass)
+#define MAX_LOADSTRING 100
+
+// 全局变量:
+HINSTANCE hInst;								// 当前实例
+TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
+TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
+
+
+// 此代码模块中包含的函数的前向声明:
+ATOM				MyRegisterClass(HINSTANCE hInstance);
+BOOL				InitInstance(HINSTANCE, int);
+LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+
+int APIENTRY _tWinMain(HINSTANCE hInstance,
+                     HINSTANCE hPrevInstance,
+                     LPTSTR    lpCmdLine,
+                     int       nCmdShow)
+{
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
+
+ 	// TODO: 在此放置代码。
+	MSG msg;
+	HACCEL hAccelTable;
+
+	// 初始化全局字符串
+	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+	LoadString(hInstance, IDC_VOLUMESCREENWEBSPEED, szWindowClass, MAX_LOADSTRING);
+	MyRegisterClass(hInstance);
+
+	// 执行应用程序初始化:
+	if (!InitInstance (hInstance, nCmdShow))
+	{
+		return FALSE;
+	}
+
+	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOLUMESCREENWEBSPEED));
+
+	// 主消息循环:
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+
+	return (int) msg.wParam;
+}
+
+//
+ATOM MyRegisterClass(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex;
 
@@ -14,16 +68,14 @@ ATOM VolumeScreenWebSpeed::MyRegisterClass(HINSTANCE hInstance,
 	wcex.cbWndExtra		= 0;
 	wcex.hInstance		= hInstance;
 	//任务切换时看到的图标（16*16）、 exe上的图标（32*32）
-	wcex.hIcon			= (HICON)LoadImage(NULL,"icon_show.ico",
-                                           IMAGE_ICON,0,0,LR_LOADFROMFILE);
+	//wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_VOLUMESCREENWEBSPEED));
+	wcex.hIcon			= (HICON)LoadImage(NULL,"icon_show.ico",IMAGE_ICON,0,0,LR_LOADFROMFILE);
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
 	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_VOLUMESCREENWEBSPEED);
 	wcex.lpszClassName	= szWindowClass;
 	//窗口右上角图标、 任务栏图标、 任务管理器看到的图标（16*16）
-	wcex.hIconSm		= (HICON)LoadImage(NULL,"icon_show.ico",
-                                           IMAGE_ICON,0,0,LR_LOADFROMFILE);
-    //(HICON)LoadImage(NULL,"icon_show.ico",IMAGE_ICON,0,0,LR_LOADFROMFILE);
+	wcex.hIconSm		= (HICON)LoadImage(NULL,"icon_show.ico",IMAGE_ICON,0,0,LR_LOADFROMFILE);//(HICON)LoadImage(NULL,"icon_show.ico",IMAGE_ICON,0,0,LR_LOADFROMFILE);
 
 	return RegisterClassEx(&wcex);
 }
