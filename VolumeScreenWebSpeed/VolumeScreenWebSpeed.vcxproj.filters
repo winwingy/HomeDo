@@ -16,12 +16,12 @@
     <Filter Include="Tool">
       <UniqueIdentifier>{1033b04b-f85d-4f8c-9cf1-e7eb260e3639}</UniqueIdentifier>
     </Filter>
+    <Filter Include="view">
+      <UniqueIdentifier>{dd9f175e-a65f-4446-b52c-dc2dad172fc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="VolumeScreenWebSpeed.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WinContorlTool.cpp">
@@ -33,14 +33,29 @@
     <ClCompile Include="MyVolumeCtrl.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
-    <ClCompile Include="EasyWindow.cpp">
+    <ClCompile Include="NotScreenSaveControllor.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
-    <ClCompile Include="ShutDownDlg.cpp">
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="config.cpp">
       <Filter>Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="StringPathHelper.cpp">
+      <Filter>Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyWindow.cpp">
+      <Filter>view</Filter>
     </ClCompile>
     <ClCompile Include="NotScreenSaveDlg.cpp">
-      <Filter>Tool</Filter>
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="ShutDownDlg.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeScreenWebSpeed.cpp">
+      <Filter>view</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -65,14 +80,23 @@
     <ClInclude Include="MyVolumeCtrl.h">
       <Filter>Tool</Filter>
     </ClInclude>
-    <ClInclude Include="EasyWindow.h">
+    <ClInclude Include="NotScreenSaveControllor.h">
       <Filter>Tool</Filter>
     </ClInclude>
-    <ClInclude Include="ShutDownDlg.h">
+    <ClInclude Include="config.h">
       <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="StringPathHelper.h">
+      <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyWindow.h">
+      <Filter>view</Filter>
     </ClInclude>
     <ClInclude Include="NotScreenSaveDlg.h">
-      <Filter>Tool</Filter>
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="ShutDownDlg.h">
+      <Filter>view</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

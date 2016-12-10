@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "config.h"
 #include "StringPathHelper.h"
+#include <memory>
+#include <assert.h>
 
 const TCHAR* CONFIG_SET = "Set";
 const TCHAR* CONFIG_POWER_ON_START_PROGRESS = "PowerOnStartProgress";
@@ -12,7 +14,7 @@ const TCHAR* CONFIG_INF_FILENAME_JOB = "VolScrConfigJob.ini";
 const TCHAR* CONFIG_SET_KILLNAME_BEGIN = "[KillNameBegin]";
 const TCHAR* CONFIG_SET_KILLNAME_END = "[KillNameEnd]";
 
-string Config::GetPrivateProfileValue(
+string GetPrivateProfileValue(
     const string& strAppName, const string& strKeyName, const string& strDefault,
     const string& strFileName)
 {
@@ -34,7 +36,7 @@ Config::~Config(void)
 
 }
 
-bool Config::UseJobConfig()
+bool IsUseJobConfig(const string& jobCongfigFile)
 {
     char userName[1024];
     DWORD nameLength = 1024;
@@ -43,18 +45,26 @@ bool Config::UseJobConfig()
     {
         string jobName = GetPrivateProfileValue(
             CONFIG_SET, "JobConfigName", "NotConfigName@#$%!##",
-            CONFIG_INF_FILENAME_JOB)
-        string congfigName = WinControlTool::GetInstance()->
-            GetValueFromConfig(CONFIG_SET,
-            "JobConfigName", "NotConfigName@#$%!##", CONFIG_INF_FILENAME);
-        if (congfigName == userName)
+            jobCongfigFile);
+
+        if (jobName == userName)
         {
-            WinDefine::GetInstance()->useJobConfig_ = true;
+            return true;
         }
     }
+    return false;
 }
 
 
+bool FileExist(const string& path)
+{
+    FILE* fp = nullptr;
+    fopen_s(&fp, path.c_str(), "r");
+    if (fp)
+        fclose(fp);
+
+    return !!fp;
+}
 
 bool Config::Init()
 {
@@ -62,6 +72,19 @@ bool Config::Init()
     GetModuleFileName(NULL, szPath, sizeof(szPath));
     string strPath = StringPathHelper::RemoveOnelastPath(szPath);
     string strPathConfig = strPath + CONFIG_INF_FILENAME;
+    if (!FileExist(strPathConfig))
+    {
+        strPathConfig =
+            StringPathHelper::RemoveOnelastPath(strPath) + CONFIG_INF_FILENAME;
+    }
+    if (!FileExist(strPathConfig))
+    {
+        assert(0 && "Config File NotExist");
+        return false;
+    }
+
+    string strPathConfigJob = strPath + CONFIG_INF_FILENAME_JOB;
+
 
 
     string strFileNameAdd(strFileName);

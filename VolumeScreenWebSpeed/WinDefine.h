@@ -33,14 +33,7 @@ enum HOTKEY
 	HOTKEY_PROGRESS_KILL_END = 8000,
 };
 
-#define CONFIG_SET "Set"
-#define CONFIG_POWER_ON_START_PROGRESS "PowerOnStartProgress"
-#define CONFIG_SET_HOTKEY "HotKey"
-#define CONFIG_SET_PROGRESS_HOTKEY "ProgressHotKey"
-#define CONFIG_INF_FILENAME "VolScrConfig.ini"
-#define CONFIG_INF_FILENAME_JOB "VolScrConfigJob.ini"
-#define CONFIG_SET_KILLNAME_BEGIN "[KillNameBegin]"
-#define CONFIG_SET_KILLNAME_END "[KillNameEnd]"
+
 
 
 enum MSG_ID
