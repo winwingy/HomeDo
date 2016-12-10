@@ -2,50 +2,46 @@
 #include "VolumeScreenWebSpeed.h"
 
 ATOM VolumeScreenWebSpeed::MyRegisterClass(HINSTANCE hInstance, 
-                                           TCHAR* szWindowClass)
+                                           const TCHAR* szWindowClass)
 {
-	WNDCLASSEX wcex;
-
-	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	//任务切换时看到的图标（16*16）、 exe上的图标（32*32）
-	wcex.hIcon			= (HICON)LoadImage(NULL,"icon_show.ico",
-                                           IMAGE_ICON,0,0,LR_LOADFROMFILE);
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_VOLUMESCREENWEBSPEED);
-	wcex.lpszClassName	= szWindowClass;
-	//窗口右上角图标、 任务栏图标、 任务管理器看到的图标（16*16）
-	wcex.hIconSm		= (HICON)LoadImage(NULL,"icon_show.ico",
-                                           IMAGE_ICON,0,0,LR_LOADFROMFILE);
+    WNDCLASSEX wcex;
+    wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.style			= CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc	= WndProc;
+    wcex.cbClsExtra		= 0;
+    wcex.cbWndExtra		= 0;
+    wcex.hInstance		= hInstance;
+    //任务切换时看到的图标（16*16）、 exe上的图标（32*32）
+    wcex.hIcon			= (HICON)LoadImage(NULL,"icon_show.ico",
+                                            IMAGE_ICON,0,0,LR_LOADFROMFILE);
+    wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
+    wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_VOLUMESCREENWEBSPEED);
+    wcex.lpszClassName	= szWindowClass;
+    //窗口右上角图标、 任务栏图标、 任务管理器看到的图标（16*16）
+    wcex.hIconSm		= (HICON)LoadImage(NULL,"icon_show.ico",
+                                            IMAGE_ICON,0,0,LR_LOADFROMFILE);
     //(HICON)LoadImage(NULL,"icon_show.ico",IMAGE_ICON,0,0,LR_LOADFROMFILE);
 
-	return RegisterClassEx(&wcex);
+    return RegisterClassEx(&wcex);
 }
 
-void InitUseJobConfig()
-{
-	WinDefine* winDefine = WinDefine::GetInstance();
-	char userName[1024];
-	DWORD nameLength = 1024;
-	BOOL ret = GetUserName(userName, &nameLength);
-	DWORD err = GetLastError();
-	assert(ret);
-	if (ret)
-	{
-		string congfigName = WinControlTool::GetInstance()->
-			GetValueFromConfig(CONFIG_SET, 
-			"JobConfigName", "NotConfigName@#$%!##", CONFIG_INF_FILENAME); 
-		if (congfigName == userName)
-		{
-			WinDefine::GetInstance()->useJobConfig_ = true;
-		}
-	}
+HWND Create(HWND hWnd)
+{   
+    ATOM MyRegisterClass(HINSTANCE hInstance, const TCHAR* szWindowClass);
+    HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+                        500, 300, 500, 300, NULL, NULL, hInstance, NULL);
+
+    if (!hWnd)
+    {
+        return FALSE;
+    }
+
+    string strValue = WinControlTool::GetInstance()->GetValueFromConfig(
+        CONFIG_SET, "IsShow", "0", CONFIG_INF_FILENAME);
+    ShowWindow(hWnd, atoi(strValue.c_str()));
+    UpdateWindow(hWnd);
+    return TRUE;
 }
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
@@ -69,14 +65,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
    return TRUE;
 }
-
-// “关于”框的消息处理程序。
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(lParam);
-	return (INT_PTR)FALSE;
-}
-
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

@@ -1,18 +1,9 @@
 #include "StdAfx.h"
 #include "config.h"
-#include "StringPathHelper.h"
+
 #include <memory>
 #include <assert.h>
-
-const TCHAR* CONFIG_SET = "Set";
-const TCHAR* CONFIG_POWER_ON_START_PROGRESS = "PowerOnStartProgress";
-const TCHAR* CONFIG_SET_HOTKEY = "HotKey";
-const TCHAR* CONFIG_SET_PROGRESS_HOTKEY = "ProgressHotKey";
-const TCHAR* CONFIG_INF_FILENAME = "VolScrConfig.ini";
-const TCHAR* CONFIG_INF_FILENAME_JOB = "VolScrConfigJob.ini";
-
-const TCHAR* CONFIG_SET_KILLNAME_BEGIN = "[KillNameBegin]";
-const TCHAR* CONFIG_SET_KILLNAME_END = "[KillNameEnd]";
+#include "StringPathHelper.h"
 
 string GetPrivateProfileValue(
     const string& strAppName, const string& strKeyName, const string& strDefault,
@@ -20,13 +11,14 @@ string GetPrivateProfileValue(
 {
     TCHAR valueBuf[1024] = { 0 };
     ::GetPrivateProfileString(strAppName.c_str(), strKeyName.c_str(),
-                              strDefault.c_str(), valueBuf, sizeof(valueBuf) - 1,
-                              strFileName.c_str());
+                              strDefault.c_str(), valueBuf, 
+                              sizeof(valueBuf) - 1, strFileName.c_str());
     return valueBuf;
 }
 
-
-Config::Config(const string& strFileName)
+Config::Config()
+    : cache_()
+    , configPath_()
 {
 
 }
@@ -44,7 +36,7 @@ bool IsUseJobConfig(const string& jobCongfigFile)
     if (ret)
     {
         string jobName = GetPrivateProfileValue(
-            CONFIG_SET, "JobConfigName", "NotConfigName@#$%!##",
+            "Set", "JobConfigName", "NotConfigName@#$%!##",
             jobCongfigFile);
 
         if (jobName == userName)
@@ -54,7 +46,6 @@ bool IsUseJobConfig(const string& jobCongfigFile)
     }
     return false;
 }
-
 
 bool FileExist(const string& path)
 {
@@ -66,68 +57,59 @@ bool FileExist(const string& path)
     return !!fp;
 }
 
-bool Config::Init()
+bool Config::Init(const string& strFileName, const string& fileNameJob)
 {
     char szPath[2048] = { 0 };
     GetModuleFileName(NULL, szPath, sizeof(szPath));
     string strPath = StringPathHelper::RemoveOnelastPath(szPath);
-    string strPathConfig = strPath + CONFIG_INF_FILENAME;
+    string strPathConfig = strPath + strFileName;
     if (!FileExist(strPathConfig))
     {
         strPathConfig =
-            StringPathHelper::RemoveOnelastPath(strPath) + CONFIG_INF_FILENAME;
-    }
-    if (!FileExist(strPathConfig))
-    {
-        assert(0 && "Config File NotExist");
-        return false;
-    }
-
-    string strPathConfigJob = strPath + CONFIG_INF_FILENAME_JOB;
-
-
-
-    string strFileNameAdd(strFileName);
-    if (WinDefine::GetInstance()->useJobConfig_)
-    {
-        string ext;
-        strFileNameAdd = RemoveLastExt(strFileNameAdd, &ext);
-        strFileNameAdd = strFileNameAdd + JOB_EXT + ext;
+            StringPathHelper::RemoveOnelastPath(strPath) + strFileName;
+        if (!FileExist(strPathConfig))
+        {
+            assert(0 && "Config File NotExist");
+            return false;
+        }
     }
 
-    string strFullPath = strPath + "\\" + strFileName;//szFileName;			
-    FILE* fp = NULL;
-    fopen_s(&fp, strFullPath.c_str(), "r");
-    if (fp == NULL)
+    string strPathConfigJob = strPath + fileNameJob;
+    if (IsUseJobConfig(strPathConfigJob))
     {
-        UINT iPos = strPath.rfind("\\");
-        strPath.erase(iPos);
-        strFullPath = strPath + "\\" + strFileName;//szFileName;		
+        configPath_ = strPathConfigJob;
     }
     else
-        fclose(fp);
+    {
+        configPath_ = strPath + strFileName;
+    }
+    return true;
 }
 
 string Config::GetValue(const string& strAppName, 
                         const string& strKeyName, const string& strDefault)
 {
-
+    return GetPrivateProfileValue(
+        strAppName, strKeyName, strDefault, configPath_);
 }
 
 int Config::GetValue(const string& strAppName,
                      const string& strKeyName, int defaultValue)
 {
-
+    string value =  GetPrivateProfileValue(
+        strAppName, strKeyName,StringPathHelper::IntToString(defaultValue), 
+        configPath_);
+    return StringPathHelper::StringToInt(value);
 }
 
 void Config::SetValue(const string& strAppName, 
                       const string& strKeyName, const string& value)
 {
-
+    assert(0);
 }
 
 void Config::SetValue(const string& strAppName,
                       const string& strKeyName, int value)
 {
-
+    assert(0);
 }

@@ -25,3 +25,15 @@ string StringPathHelper::RemoveOnelastPath(const string& pathString)
     }
     return pathString;
 }
+
+string StringPathHelper::IntToString(int inValue)
+{
+    char szBuf[20] = { 0 };
+    _itoa_s(inValue, szBuf, 10);
+    return szBuf;
+}
+
+int StringPathHelper::StringToInt(const string& valueStr)
+{
+    return atoi(valueStr.c_str());
+}

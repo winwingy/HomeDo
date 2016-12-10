@@ -5,5 +5,10 @@
 class VolumeScreenWebSpeed
 {
 public:
-    ATOM MyRegisterClass(HINSTANCE hInstance);
+
+    HWND Create(HWND hWnd);
+    void Show();
+
+private:
+    HINSTANCE hInst_;
 };

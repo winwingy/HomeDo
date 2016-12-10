@@ -14,6 +14,15 @@ using std::string;
 sprintf_s(szBuffer, _countof(szBuffer), szText, strShow);\
  OutputDebugString(szBuffer);}
 
+const TCHAR* CONFIG_SET = "Set";
+const TCHAR* CONFIG_POWER_ON_START_PROGRESS = "PowerOnStartProgress";
+const TCHAR* CONFIG_SET_HOTKEY = "HotKey";
+const TCHAR* CONFIG_SET_PROGRESS_HOTKEY = "ProgressHotKey";
+const TCHAR* CONFIG_INF_FILENAME = "VolScrConfig.ini";
+const TCHAR* CONFIG_INF_FILENAME_JOB = "VolScrConfigJob.ini";
+
+const TCHAR* CONFIG_SET_KILLNAME_BEGIN = "[KillNameBegin]";
+const TCHAR* CONFIG_SET_KILLNAME_END = "[KillNameEnd]";
 
 enum HOTKEY
 {

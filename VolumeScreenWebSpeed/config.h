@@ -8,9 +8,10 @@ using std::string;
 class Config
 {
 public:
-    Config(const string& strFileName);
+    Config();
     ~Config(void);
 
+    bool Init(const string& strFileName, const string& fileNameJob);
 
     string GetValue(
         const string& strAppName, const string& strKeyName, 
@@ -29,7 +30,7 @@ public:
         int value);
 
 private:
-    bool Init();
     std::map<std::string, std::string> cache_;
+    string configPath_;
 };
 #endif

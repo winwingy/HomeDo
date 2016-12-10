@@ -55,7 +55,7 @@
       <Filter>view</Filter>
     </ClCompile>
     <ClCompile Include="VolumeScreenWebSpeed.cpp">
-      <Filter>view</Filter>
+      <Filter>Tool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,9 +66,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="VolumeScreenWebSpeed.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WinDefine.h">
@@ -97,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="ShutDownDlg.h">
       <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeScreenWebSpeed.h">
+      <Filter>Tool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
