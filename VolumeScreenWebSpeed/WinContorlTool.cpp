@@ -20,6 +20,8 @@ using namespace std;
 
 namespace
 {
+const char* JOB_EXT = "_job";
+
 struct HotKeyData
 {
     string keyString;
@@ -156,6 +158,23 @@ string WinControlTool::toupperString(const string& strLower)
 	return strRet;
 }
 
+string RemoveLastExt(const string& fileName, string* ext)
+{
+    std::string ret(fileName);
+    string::size_type pos =  ret.rfind(".");
+    if (pos != string::npos)
+    {
+        if (ext)
+        {
+            ext->assign(ret, pos, ret.size() - pos);
+        }
+        ret.erase(pos);
+    }
+    return ret;
+}
+
+
+
 string WinControlTool::GetValueFromConfig(const string& strAppName,
 	const string& strKeyName, const string& strDefault, const string& strFileName)
 {
@@ -169,6 +188,15 @@ string WinControlTool::GetValueFromConfig(const string& strAppName,
 		*pDe = 0;
 		strPath.assign(szPath);
 	}
+
+    string strFileNameAdd(strFileName);
+    if (WinDefine::GetInstance()->useJobConfig_)
+    {
+        string ext;
+        strFileNameAdd = RemoveLastExt(strFileNameAdd, &ext);
+        strFileNameAdd = strFileNameAdd + JOB_EXT + ext;
+    }
+
 	string strFullPath = strPath + "\\" + strFileName;//szFileName;			
 	FILE* fp = NULL;
 	fopen_s(&fp, strFullPath.c_str(), "r");
@@ -351,7 +379,7 @@ void WinControlTool::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
     }
 
     {
-        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyCloseScreen", "", CONFIG_INF_FILENAME); 
+        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyNotScreenSave", "", CONFIG_INF_FILENAME); 
         UINT vkCtrl = 0;
         UINT vkKey = 0; 
         TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
@@ -372,6 +400,14 @@ void WinControlTool::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         UINT vkKey = 0; 
         TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
         bRet = RegisterHotKey(hWnd, HOTKEY_NOT_SCREEN_SAVE, vkCtrl, vkKey);
+    }
+
+    {
+        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyNotScreenSaveCustom", "", CONFIG_INF_FILENAME); 
+        UINT vkCtrl = 0;
+        UINT vkKey = 0; 
+        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
+        bRet = RegisterHotKey(hWnd, HOTKEY_NOT_SCREEN_SAVE_CUSTOM, vkCtrl, vkKey);
     }
 
     {
@@ -744,6 +780,12 @@ void WinControlTool::OnHotKeyNotScreenSave(HWND hWnd, UINT message, WPARAM wPara
     }
 }
 
+void WinControlTool::OnHotKeyNotScreenSaveCustom(hWnd, message, wParam, lParam)
+{
+
+
+}
+
 void WinControlTool::TipsSound()
 {	
 	Sleep(1000);
@@ -815,13 +857,18 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		{
 			OnHotKeyNotScreenSave(hWnd, message, wParam, lParam);
 			break;
-		}		
-		case HOTKEY_NOT_SHUT_DOWN:
-		{
-            ShutDownDlg dlg;
-            dlg.DoModal(NULL);
-			break;
-		}
+		}	
+    case HOTKEY_NOT_SCREEN_SAVE_CUSTOM:
+        {					
+            OnHotKeyNotScreenSaveCustom(hWnd, message, wParam, lParam);
+            break;
+        }
+	case HOTKEY_NOT_SHUT_DOWN:
+	{
+        ShutDownDlg dlg;
+        dlg.DoModal(NULL);
+		break;
+	}
     }
 
 	if (iIDHotKey >= HOTKEY_PROGRESS_BEGIN && iIDHotKey <= HOTKEY_PROGRESS_END)

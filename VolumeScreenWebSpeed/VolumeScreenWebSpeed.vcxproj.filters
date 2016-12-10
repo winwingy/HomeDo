@@ -39,6 +39,9 @@
     <ClCompile Include="ShutDownDlg.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
+    <ClCompile Include="NotScreenSaveDlg.cpp">
+      <Filter>Tool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -66,6 +69,9 @@
       <Filter>Tool</Filter>
     </ClInclude>
     <ClInclude Include="ShutDownDlg.h">
+      <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="NotScreenSaveDlg.h">
       <Filter>Tool</Filter>
     </ClInclude>
   </ItemGroup>
