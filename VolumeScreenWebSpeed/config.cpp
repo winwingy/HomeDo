@@ -113,3 +113,12 @@ void Config::SetValue(const string& strAppName,
 {
     assert(0);
 }
+
+Config* Config::GetShared()
+{
+    if (!pThis_)
+    {
+        pThis_ = new Config;
+    }
+    return pThis_;
+}

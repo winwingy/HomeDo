@@ -12,7 +12,6 @@ WinDefine::WinDefine(void)
 	, iIsInitVolume_(1)
 	, bFinishInitVolume_(FALSE)
 	, iGetWebTimeCnt_(0)
-	, powerOnStartProgressTime_(5000)
 	, notScreenSavePerInputTime_(0)
 	, notScreenSaveCanTryCnt_(0)
 {

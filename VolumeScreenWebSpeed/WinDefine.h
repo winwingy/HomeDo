@@ -75,7 +75,6 @@ public:
 	BOOL bFinishInitVolume_;
 	int iGetWebTimeCnt_;
 	vector<string> powerOnStartProgress_;
-	int powerOnStartProgressTime_;
 
     int notScreenSavePerInputTime_;
     int  notScreenSaveCanTryCnt_;

@@ -8,8 +8,7 @@ using std::string;
 class Config
 {
 public:
-    Config();
-    ~Config(void);
+    static Config* GetShared();
 
     bool Init(const string& strFileName, const string& fileNameJob);
 
@@ -30,6 +29,10 @@ public:
         int value);
 
 private:
+    Config();
+    ~Config(void);
+
+    static Config* pThis_;
     std::map<std::string, std::string> cache_;
     string configPath_;
 };
