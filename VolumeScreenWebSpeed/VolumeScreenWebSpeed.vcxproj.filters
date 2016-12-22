@@ -57,6 +57,9 @@
     <ClCompile Include="VolumeScreenWebSpeed.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
+    <ClCompile Include="VolumeCtrlWrapper.cpp">
+      <Filter>Tool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -96,6 +99,9 @@
       <Filter>view</Filter>
     </ClInclude>
     <ClInclude Include="VolumeScreenWebSpeed.h">
+      <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeCtrlWrapper.h">
       <Filter>Tool</Filter>
     </ClInclude>
   </ItemGroup>

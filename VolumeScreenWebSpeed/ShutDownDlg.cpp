@@ -20,10 +20,10 @@ ShutDownDlg::~ShutDownDlg(void)
 bool ShutDownDlg::RunShutDownCMD(INT64 sec, bool Cancel)
 {
     bool ret = false;
-    do 
+    do
     {
         const int len = 1024;
-        TCHAR buf[len] = {0};
+        TCHAR buf[len] = { 0 };
         UINT size = GetSystemDirectory(buf, len);
         if (size > 0 && size >= len)
         {
@@ -57,78 +57,78 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wP
     int wmId, wmEvent;
     if (message == WM_COMMAND)
     {
-        wmId    = LOWORD(wParam);
+        wmId = LOWORD(wParam);
         wmEvent = HIWORD(wParam);
         // ·ÖÎö²Ëµ¥Ñ¡Ôñ:
         switch (wmId)
         {
-        case IDOK:
+            case IDOK:
             {
                 int hour = 0;
                 {
                     const int len = 100;
-                    TCHAR szbuf[len] = {0};
+                    TCHAR szbuf[len] = { 0 };
                     GetWindowText(GetDlgItem(hWnd, IDC_EDIT_HOUR), szbuf, len);
                     hour = atoi(szbuf);
                 }
                 int min = 0;
                 {
                     const int len = 100;
-                    TCHAR szbuf[len] = {0};
+                    TCHAR szbuf[len] = { 0 };
                     GetWindowText(GetDlgItem(hWnd, IDC_EDIT_MIN), szbuf, len);
                     min = atoi(szbuf);
                 }
                 int sec = 0;
                 {
                     const int len = 100;
-                    TCHAR szbuf[len] = {0};
+                    TCHAR szbuf[len] = { 0 };
                     GetWindowText(GetDlgItem(hWnd, IDC_EDIT_SEC), szbuf, len);
                     sec = atoi(szbuf);
                 }
-                INT64 totalSec = static_cast<INT64>(hour*60*60) + 
-                            static_cast<INT64>(min*60) + static_cast<INT64>(sec);
+                INT64 totalSec = static_cast<INT64>(hour * 60 * 60) +
+                    static_cast<INT64>(min * 60) + static_cast<INT64>(sec);
                 if (totalSec != 0)
                     ShutDownDlg::RunShutDownCMD(totalSec, false);
-                else 
+                else
                     assert(totalSec);
-                
+
                 break;
             }
-        case ID_CANCEL_SHUTDOW:
+            case ID_CANCEL_SHUTDOW:
             {
                 ShutDownDlg::RunShutDownCMD(0, true);
                 break;
             }
-        case IDCANCEL:
+            case IDCANCEL:
             DestroyWindow(hWnd);
             break;
-        default:
+            default:
             return DefWindowProc(hWnd, message, wParam, lParam);
         }
     }
     else if (message == WM_INITDIALOG)
     {
         SetFocus(GetDlgItem(hWnd, IDC_EDIT_HOUR));
-        int x = GetSystemMetrics ( SM_CXSCREEN ); 
-        int y = GetSystemMetrics ( SM_CYSCREEN ); 
+        int x = GetSystemMetrics(SM_CXSCREEN);
+        int y = GetSystemMetrics(SM_CYSCREEN);
         RECT rect;
         GetWindowRect(hWnd, &rect);
-        int xPos = (x - (rect.right - rect.left))/2;
-        int yPos = (y - (rect.bottom - rect.top))/2;
+        int xPos = (x - (rect.right - rect.left)) / 2;
+        int yPos = (y - (rect.bottom - rect.top)) / 2;
         MoveWindow(hWnd, xPos, yPos, rect.right - rect.left, rect.bottom - rect.top, TRUE);
     }
     return 0;
 }
 
 
-bool ShutDownDlg::DoModal( HWND hwnd )
+bool ShutDownDlg::DoModal(HWND hwnd)
 {
-    HWND dlg= CreateDialogParamA((HINSTANCE)GetModuleHandle(NULL), 
-        MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN), hwnd, ShutDownWndProc, 0);
+    HWND dlg = CreateDialogParamA((HINSTANCE)GetModuleHandle(NULL),
+                                  MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN), hwnd, ShutDownWndProc, 0);
     assert(dlg);
     UpdateWindow(dlg);
-    SetWindowPos(dlg, HWND_TOP, 0, 0, 0, 0, 
-                 SWP_SHOWWINDOW|SWP_NOMOVE|SWP_NOSIZE);
+    SetWindowPos(dlg, HWND_TOP, 0, 0, 0, 0,
+                 SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE);
 
     return true;
 }

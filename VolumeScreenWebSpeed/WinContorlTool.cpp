@@ -8,67 +8,18 @@
 #include <shellapi.h>
 #include <assert.h>
 #include <sstream>
-#pragma comment(lib, "Kernel32.lib")
-
 #include "MyVolumeCtrl.h"
 
 #include "WinDefine.h"
 #include "EasyWindow.h"
 #include "ShutDownDlg.h"
 #include "config.h"
-
+#include "StringPathHelper.h"
+#pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
 namespace
 {
-    const char* JOB_EXT = "_job";
-
-    struct HotKeyData
-    {
-        string keyString;
-        int KeyValue;
-    };
-
-    HotKeyData HotKeyStringMap[] =
-    {
-        { "F1", VK_F1 },
-        { "F2", VK_F2 },
-        { "F3", VK_F3 },
-        { "F4", VK_F4 },
-        { "F5", VK_F5 },
-        { "F6", VK_F6 },
-        { "F7", VK_F7 },
-        { "F8", VK_F8 },
-        { "F9", VK_F9 },
-        { "F10", VK_F10 },
-        { "F11", VK_F11 },
-        { "F12", VK_F12 },
-        { "num0", VK_NUMPAD0 },
-        { "num1", VK_NUMPAD1 },
-        { "num2", VK_NUMPAD2 },
-        { "num3", VK_NUMPAD3 },
-        { "num4", VK_NUMPAD4 },
-        { "num5", VK_NUMPAD5 },
-        { "num6", VK_NUMPAD6 },
-        { "num7", VK_NUMPAD7 },
-        { "num8", VK_NUMPAD8 },
-        { "num9", VK_NUMPAD9 },
-    };
-
-    int HotKeyStrigToInt(const string& hotKeyString)
-    {
-        for (int i = 0; i < sizeof(HotKeyStringMap) / sizeof(HotKeyStringMap[0]); ++i)
-        {
-            if (HotKeyStringMap[i].keyString == hotKeyString)
-            {
-                return HotKeyStringMap[i].KeyValue;
-            }
-        }
-        return -1;
-    }
-
-
-
     void PlaySoundHappy(int beg, int end)
     {
         unsigned FREQUENCY[] = { 392, 392, 440, 392, 523, 494,
@@ -85,6 +36,51 @@ namespace
             Beep(FREQUENCY[i], DELAY[i]);
         }
     }
+
+    void TranslateStringToVKKey(const string& stringIn, UINT* vkCtrl, UINT* vkKey)
+    {
+        vector<string> vklist;
+        StringPathHelper::SplitStringBySign(stringIn, "+", &vklist);
+        for (vector<string>::iterator it = vklist.begin(); it != vklist.end(); ++it)
+        {
+            int key = WinDefine::GetInstance()->HotKeyStrigToVkKey(*it);
+            if (key != -1)
+            {
+                *vkKey = key;
+            }
+            else if (it->length() == 1)
+            {
+                //VK_0 thru VK_9 are the same as ASCII '0' thru '9' (0x30 - 0x39)
+                //VK_A thru VK_Z are the same as ASCII 'A' thru 'Z' (0x41 - 0x5A)
+                *vkKey = StringPathHelper::ToUpperString(*it)[0];
+            }
+            else if (!_stricmp(it->c_str(), "ctrl"))
+            {
+                *vkCtrl |= MOD_CONTROL;
+            }
+            else if (!_stricmp(it->c_str(), "shift"))
+            {
+                *vkCtrl |= MOD_SHIFT;
+            }
+            else if (!_stricmp(it->c_str(), "alt"))
+            {
+                *vkCtrl |= MOD_ALT;
+            }
+            else
+            {
+                assert(0 && "no support key!!!");
+            }
+        }
+    }
+
+    bool RgeisterStringHotKey(const string& hotKeyString, HWND hWnd, int hotKeyId)
+    {
+        UINT vkCtrl = 0;
+        UINT vkKey = 0;
+        TranslateStringToVKKey(hotKeyString, &vkCtrl, &vkKey);
+        ::RegisterHotKey(hWnd, hotKeyId, vkCtrl, vkKey);
+    }
+
 }
 
 // HWND GetFullScreenHwnd()
@@ -117,6 +113,7 @@ WinControlTool::WinControlTool(void)
     , notScreenSaveCanTryCntLeave_(0)
     , easyWindow_(new EasyWindow())
     , config_(Config::GetShared())
+    , powerOnStartProgress_()
 {
 }
 
@@ -137,17 +134,6 @@ WinControlTool::~WinControlTool(void)
     {
         delete easyWindow_;
     }
-}
-
-
-string WinControlTool::toupperString(const string& strLower)
-{
-    string strRet;
-    for (string::const_iterator iter = strLower.begin(); iter != strLower.end(); ++iter)
-    {
-        strRet.push_back(toupper(*iter));
-    }
-    return strRet;
 }
 
 string RemoveLastExt(const string& fileName, string* ext)
@@ -176,214 +162,136 @@ void WinControlTool::ReplaceString(string& orc, const string& findWhat, const st
     }
 }
 
-void WinControlTool::SplitStringBySign(vector<string>& result, const string& stringIn, const string& sign)
-{
-    string::size_type posBeg = 0;
-    string::size_type posEnd = -1;
-    while ((posEnd = stringIn.find(sign, posBeg)) != -1)//""  a++b++c a++b++ ++b++C++ a++++b
-    {
-        string child(stringIn, posBeg, posEnd - posBeg);
-        if (!child.empty())
-        {
-            result.push_back(child);
-        }
-        posBeg = posEnd + sign.length();
-    }
-
-    string childOut(stringIn, posBeg, stringIn.length() - posBeg);
-    if (!childOut.empty())
-    {
-        result.push_back(childOut);
-    }
-}
-void WinControlTool::TranslateStringToVKKey(const string& stringIn, UINT* vkCtrl, UINT* vkKey)
-{
-    vector<string> vklist;
-    SplitStringBySign(vklist, stringIn, "+");
-    for (vector<string>::iterator it = vklist.begin(); it != vklist.end(); ++it)
-    {
-        int key = HotKeyStrigToInt(*it);
-        if (key != -1)
-        {
-            *vkKey = key;
-        }
-        else if (!_stricmp(it->c_str(), "ctrl"))
-        {
-            *vkCtrl |= MOD_CONTROL;
-        }
-        else if (!_stricmp(it->c_str(), "shift"))
-        {
-            *vkCtrl |= MOD_SHIFT;
-        }
-        else if (!_stricmp(it->c_str(), "alt"))
-        {
-            *vkCtrl |= MOD_ALT;
-        }
-        else if (!_stricmp(it->c_str(), "PageUp"))
-        {
-            *vkKey = VK_PRIOR;
-        }
-        else if (!_stricmp(it->c_str(), "PageDown"))
-        {
-            *vkKey = VK_NEXT;
-        }
-        else if (!_stricmp(it->c_str(), "Up"))
-        {
-            *vkKey = VK_UP;
-        }
-        else if (!_stricmp(it->c_str(), "Down"))
-        {
-            *vkKey = VK_DOWN;
-        }
-        else if (!_stricmp(it->c_str(), "left"))
-        {
-            *vkKey = VK_LEFT;
-        }
-        else if (!_stricmp(it->c_str(), "right"))
-        {
-            *vkKey = VK_RIGHT;
-        }
-        else if (it->length() == 1)
-        {
-            *vkKey = toupperString(*it)[0];
-        }
-        else
-        {
-            assert(0 && "no support key!!!");
-        }
-    }
-}
-
 void WinControlTool::InitProgressHotKey(HWND hWnd)
 {
-    string strValue = GetValueFromConfig(CONFIG_SET_PROGRESS_HOTKEY, "HotKeyCount", "10", CONFIG_INF_FILENAME);
+    int hotKeyCount = config_->GetValue(CONFIG_SET_PROGRESS_HOTKEY,
+                                        "HotKeyCount", 10);
     BOOL bRet = FALSE;
-    for (int i = 1; i <= atoi(strValue.c_str()); ++i)
+    for (int i = 1; i <= hotKeyCount; ++i)
     {
-        string progressName = "Progress";
-        char szbuf[10];
-        _itoa_s(i, szbuf, 10);
-        progressName += szbuf;
-        string path = GetValueFromConfig(CONFIG_SET_PROGRESS_HOTKEY, progressName.c_str(), "", CONFIG_INF_FILENAME);
-        string hotKeyName = "ProgressHotKey" + string(szbuf);
-        string hotkey = GetValueFromConfig(CONFIG_SET_PROGRESS_HOTKEY, hotKeyName.c_str(), "", CONFIG_INF_FILENAME); //ctrl+num3
-        string killhotKeyName = "ProgressKillHotKey" + string(szbuf);
-        string killhotkey = GetValueFromConfig(CONFIG_SET_PROGRESS_HOTKEY, killhotKeyName.c_str(), "", CONFIG_INF_FILENAME); //ctrl+num3
+        string progressName = "Progress" + StringPathHelper::IntToString(i);
+        string path = config_->GetValue(CONFIG_SET_PROGRESS_HOTKEY, 
+                                        progressName.c_str(), "");
+        string hotKeyName = "ProgressHotKey" + StringPathHelper::IntToString(i);
+        string hotkey = config_->GetValue(CONFIG_SET_PROGRESS_HOTKEY,
+                                          hotKeyName.c_str(), ""); //ctrl+num3
+        string killhotKeyName = "ProgressKillHotKey" + 
+            StringPathHelper::IntToString(i);
+        string killhotkey = config_->GetValue(CONFIG_SET_PROGRESS_HOTKEY,
+                                              killhotKeyName.c_str(), ""); //ctrl+num3
 
         ProgressToIDHotKey idHotKey;
         idHotKey.path = path;
-
+        if (!hotkey.empty())
         {
-            idHotKey.ID = HOTKEY_PROGRESS_BEGIN + i;
-            UINT vkCtrl = 0;
-            UINT vkKey = 0;
-            TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
-            idHotKey.vkCtrl = vkCtrl;
-            idHotKey.vkKey = vkKey;
-            bRet = RegisterHotKey(hWnd, idHotKey.ID, idHotKey.vkCtrl, idHotKey.vkKey);
+            idHotKey.ID = HOTKEY_PROGRESS_BEGIN + i; 
+            TranslateStringToVKKey(hotkey, &idHotKey.vkCtrl, &idHotKey.vkKey);
+            bRet = RegisterHotKey(hWnd, idHotKey.ID, idHotKey.vkCtrl, 
+                                  idHotKey.vkKey);
         }
 
         if (!killhotkey.empty())
         {
             idHotKey.killID = HOTKEY_PROGRESS_KILL_BEGIN + i;
-            UINT vkCtrl = 0;
-            UINT vkKey = 0;
-            TranslateStringToVKKey(killhotkey, &vkCtrl, &vkKey);
-            idHotKey.vkKillCtrl = vkCtrl;
-            idHotKey.vkKillKey = vkKey;
-            bRet = RegisterHotKey(hWnd, idHotKey.killID, idHotKey.vkKillCtrl, idHotKey.vkKillKey);
+            TranslateStringToVKKey(killhotkey, &idHotKey.vkKillCtrl,
+                                   &idHotKey.vkKillKey);
+            bRet = RegisterHotKey(hWnd, idHotKey.killID, idHotKey.vkKillCtrl,
+                                  idHotKey.vkKillKey);
         }
         progressToIDHotkeyList_.push_back(idHotKey);
     }
 }
 
+void WinControlTool::InitGeneralHotKey(HWND hWnd)
+{
+    BOOL bRet = FALSE;
+    string hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyVolumeUp", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_VOLUME_UP);
+
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyVolumeDown", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_VOLUME_DOWN);
+
+
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyNotScreenSave", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_CLOSE_SCREEN);
+
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyNotScreenSave", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_NOT_SCREEN_SAVE);
+
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyKillProcess", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_KILL_PROCESS);
+
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyShutDown", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_NOT_SHUT_DOWN);
+}
 
 void WinControlTool::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    BOOL bRet = FALSE;
-    {
-        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyVolumeUp", "", CONFIG_INF_FILENAME);
-        UINT vkCtrl = 0;
-        UINT vkKey = 0;
-        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
-        bRet = RegisterHotKey(hWnd, HOTKEY_VOLUME_UP, vkCtrl, vkKey);
-    }
-
-    {
-        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyVolumeDown", "", CONFIG_INF_FILENAME);
-        UINT vkCtrl = 0;
-        UINT vkKey = 0;
-        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
-        bRet = RegisterHotKey(hWnd, HOTKEY_VOLUME_DOWN, vkCtrl, vkKey);
-    }
-
-    {
-        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyNotScreenSave", "", CONFIG_INF_FILENAME);
-        UINT vkCtrl = 0;
-        UINT vkKey = 0;
-        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
-        bRet = RegisterHotKey(hWnd, HOTKEY_CLOSE_SCREEN, vkCtrl, vkKey);
-    }
-
-    {
-        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyKillProcess", "", CONFIG_INF_FILENAME);
-        UINT vkCtrl = 0;
-        UINT vkKey = 0;
-        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
-        bRet = RegisterHotKey(hWnd, HOTKEY_KILL_PROCESS, vkCtrl, vkKey);
-    }
-
-    {
-        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyNotScreenSave", "", CONFIG_INF_FILENAME);
-        UINT vkCtrl = 0;
-        UINT vkKey = 0;
-        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
-        bRet = RegisterHotKey(hWnd, HOTKEY_NOT_SCREEN_SAVE, vkCtrl, vkKey);
-    }
-
-    {
-        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyNotScreenSaveCustom", "", CONFIG_INF_FILENAME);
-        UINT vkCtrl = 0;
-        UINT vkKey = 0;
-        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
-        bRet = RegisterHotKey(hWnd, HOTKEY_NOT_SCREEN_SAVE_CUSTOM, vkCtrl, vkKey);
-    }
-
-    {
-        string hotkey = GetValueFromConfig(CONFIG_SET_HOTKEY, "HotKeyShutDown", "", CONFIG_INF_FILENAME);
-        UINT vkCtrl = 0;
-        UINT vkKey = 0;
-        TranslateStringToVKKey(hotkey, &vkCtrl, &vkKey);
-        bRet = RegisterHotKey(hWnd, HOTKEY_NOT_SHUT_DOWN, vkCtrl, vkKey);
-    }
+    InitGeneralHotKey(hWnd);
     //程序Hotkey
     InitProgressHotKey(hWnd);
 }
 
 void WinControlTool::InitPowerOnStartProgress(HWND hWnd)
 {
-    int progressCount = config_->GetValue(
-        CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressCount", 10);
     int progressTime = config_->GetValue(
         CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressTime", 5000);
-    WinDefine::GetInstance()->powerOnStartProgressTime_ = progressTime;
-    BOOL bRet = FALSE;
+
+    int progressCount = config_->GetValue(
+        CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressCount", 10);
     for (int i = 1; i <= progressCount; ++i)
     {
-        string progressName = "StartProgress";
-        char szbuf[10];
-        _itoa_s(i, szbuf, 10);
-        progressName += szbuf;
-        string path = GetValueFromConfig(
-            CONFIG_POWER_ON_START_PROGRESS, progressName.c_str(), "", CONFIG_INF_FILENAME);
+        stringstream ss("StartProgress");
+        ss << i;
+        string path = config_->GetValue(
+            CONFIG_POWER_ON_START_PROGRESS, ss.str().c_str(), "");
         if (!path.empty())
-        {
-            WinDefine::GetInstance()->powerOnStartProgress_.push_back(path);
-        }
+            powerOnStartProgress_.push_back(path);
     }
-    SetTimer(hWnd, TIMER_POWER_ON_START_PROGRESS, WinDefine::GetInstance()->powerOnStartProgressTime_, PowerOnStartProgressTimeProc);
+    SetTimer(hWnd, TIMER_POWER_ON_START_PROGRESS, progressTime,
+             PowerOnStartProgressTimeProc);
 }
 
+VOID CALLBACK WinControlTool::VolumeTimerProc(
+    HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+    WinControlTool* pThis = reinterpret_cast<WinControlTool*>(
+        GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    WinDefine* winDefine = WinDefine::GetInstance();
+    int initVolume = pThis->config_->GetValue(CONFIG_SET, "InitVolume", 30);
+    if (FALSE == winDefine->bFinishInitVolume_ && winDefine->iIsInitVolume_ == 1)
+    {
+        GetInstance()->GetMyVolumeCtrl()->SetVolume(winDefine->initVolume_);
+        winDefine->initVolume_ = 0;
+    }
+    winDefine->bFinishInitVolume_ = TRUE;
+    KillTimer(hwnd, idEvent);
+}
+
+void WinControlTool::InitProgressConfig(HWND hWnd)
+{
+    WinDefine* winDefine = WinDefine::GetInstance();
+    int perVolumeGap = config_->GetValue(CONFIG_SET, "PerVolumeGap", 3);
+    winDefine->perVoulumeGap_ = perVolumeGap;
+ 
+    int isInitVolume = config_->GetValue(CONFIG_SET, "IsInitVolume", 1);
+    if (isInitVolume)
+    {
+        int initVolume = config_->GetValue(CONFIG_SET, "InitVolume", 30);
+        
+        winDefine->initVolume_ = initVolume;
+        int initTime = config_->GetValue(CONFIG_SET, "InitTime", 5000);
+    winDefine->iInitTime_ = initTime;
+    }
+    winDefine->iIsInitVolume_ = atoi(strValue.c_str());
+    SetTimer(hWnd, TIMER_INIT_VOLUME, winDefine->iInitTime_, TimerProc);
+
+    //不屏保
+    strValue = GetValueFromConfig(CONFIG_SET, "notScreenSavePerInputTime", "3", CONFIG_INF_FILENAME);
+    winDefine->notScreenSavePerInputTime_ = atoi(strValue.c_str());
+    strValue = GetValueFromConfig(CONFIG_SET, "notScreenSaveCanTryCnt", "3", CONFIG_INF_FILENAME);
+    winDefine->notScreenSaveCanTryCnt_ = atoi(strValue.c_str());
+}
 
 void WinControlTool::OnCreate(HWND hWnd, UINT message,
                               WPARAM wParam, LPARAM lParam)
@@ -394,28 +302,7 @@ void WinControlTool::OnCreate(HWND hWnd, UINT message,
 
     InitHotKey(hWnd, message, wParam, lParam);
 
-    string strValue = GetValueFromConfig(CONFIG_SET, "InitVolume", "30", CONFIG_INF_FILENAME);
-    WinDefine* winDefine = WinDefine::GetInstance();
-    winDefine->initVolumeConst_ = winDefine->initVolume_ = atoi(strValue.c_str());
-    strValue = GetValueFromConfig(CONFIG_SET, "PerVolumeGap", "3", CONFIG_INF_FILENAME);
-    winDefine->perVoulumeGap_ = atoi(strValue.c_str());
-    strValue = GetValueFromConfig(CONFIG_SET, "InitTime", "5000", CONFIG_INF_FILENAME);
-    winDefine->iInitTime_ = atoi(strValue.c_str());
-    strValue = GetValueFromConfig(CONFIG_SET, "IsInitVolume", "1", CONFIG_INF_FILENAME);
-    winDefine->iIsInitVolume_ = atoi(strValue.c_str());
-    SetTimer(hWnd, TIMER_INIT_VOLUME, winDefine->iInitTime_, TimerProc);
-
-    //不屏保
-    strValue = GetValueFromConfig(CONFIG_SET, "notScreenSavePerInputTime", "3", CONFIG_INF_FILENAME);
-    winDefine->notScreenSavePerInputTime_ = atoi(strValue.c_str());
-    strValue = GetValueFromConfig(CONFIG_SET, "notScreenSaveCanTryCnt", "3", CONFIG_INF_FILENAME);
-    winDefine->notScreenSaveCanTryCnt_ = atoi(strValue.c_str());
-
-    // 	strValue = GetValueFromConfig(CONFIG_SET, "GetWebTimeSpace", "20000", CONFIG_INF_FILENAME); 
-    // 	if ( strValue != "-1" )
-    // 	{
-    // 		SetTimer(hWnd, TIMER_GET_WEB_TIME, atoi(strValue.c_str()), TimerProc);	
-    // 	}	
+    InitProgressConfig(hWnd);
 }
 
 string WinControlTool::W2A(wstring strWide)
@@ -497,20 +384,24 @@ void WinControlTool::TerminateNameExe(string& strNameExe)
     KillProgressByNames(vecName, false);
 }
 
-
-VOID CALLBACK WinControlTool::PowerOnStartProgressTimeProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+VOID CALLBACK WinControlTool::PowerOnStartProgressTimeProc(
+    HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-    KillTimer(hwnd, idEvent);
-    for (vector<string>::iterator it = WinDefine::GetInstance()->powerOnStartProgress_.begin();
-         it != WinDefine::GetInstance()->powerOnStartProgress_.end(); ++it)
+    WinControlTool* pThis = reinterpret_cast<WinControlTool*>(
+        GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (!pThis->powerOnStartProgress_.empty())
     {
         SHELLEXECUTEINFOA stExecInfo = { 0 };
         stExecInfo.cbSize = sizeof(stExecInfo);
         stExecInfo.fMask = SEE_MASK_FLAG_NO_UI;
-        stExecInfo.lpFile = it->c_str();
+        stExecInfo.lpFile = WinDefine::GetInstance()->
+            powerOnStartProgress_[0].c_str();
         stExecInfo.nShow = SW_HIDE;
         BOOL bRet = ShellExecuteExA(&stExecInfo);
     }
+
+    if (pThis->powerOnStartProgress_.empty())
+        KillTimer(hwnd, idEvent);
 }
 
 VOID CALLBACK WinControlTool::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
@@ -524,14 +415,7 @@ VOID CALLBACK WinControlTool::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, 
     }
     else if (TIMER_INIT_VOLUME == idEvent)
     {
-        WinDefine* winDefine = WinDefine::GetInstance();
-        if (FALSE == winDefine->bFinishInitVolume_ && winDefine->iIsInitVolume_ == 1)
-        {
-            GetInstance()->GetMyVolumeCtrl()->SetVolume(winDefine->initVolume_);
-            winDefine->initVolume_ = 0;
-        }
-        winDefine->bFinishInitVolume_ = TRUE;
-        KillTimer(hwnd, idEvent);
+
     }
     else if (TIMER_GET_WEB_TIME == idEvent)
     {

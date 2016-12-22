@@ -5,14 +5,14 @@
 #include "WinDefine.h"
 
 
-NotScreenSaveControllor::NotScreenSaveControllor(void)
+VolumeCtrlWrapper::VolumeCtrlWrapper(void)
     : hWnd_(nullptr)
     , forcegroundHwnd_(nullptr)
 {
 }
 
 
-NotScreenSaveControllor::~NotScreenSaveControllor(void)
+VolumeCtrlWrapper::~VolumeCtrlWrapper(void)
 {
 }
 
@@ -54,7 +54,7 @@ LRESULT CALLBACK EasyWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 }
 
 
-void NotScreenSaveControllor::StopNotScreenSave(HWND hwnd, bool playSound)
+void VolumeCtrlWrapper::StopNotScreenSave(HWND hwnd, bool playSound)
 {
     easyWindow_->Close();
     KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE);
@@ -66,10 +66,10 @@ void NotScreenSaveControllor::StopNotScreenSave(HWND hwnd, bool playSound)
     }
 }
 
-VOID CALLBACK NotScreenSaveControllor::ScreenTimerProcSta(
+VOID CALLBACK VolumeCtrlWrapper::ScreenTimerProcSta(
     HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD userDefine)
 {
-    NotScreenSaveControllor* pThis = reinterpret_cast < NotScreenSaveControllor* >
+    VolumeCtrlWrapper* pThis = reinterpret_cast < VolumeCtrlWrapper* >
         (userDefine);
     assert(pThis);
     if (pThis)
@@ -78,7 +78,7 @@ VOID CALLBACK NotScreenSaveControllor::ScreenTimerProcSta(
     }
 }
 
-void NotScreenSaveControllor::ScreenTimerProc(
+void VolumeCtrlWrapper::ScreenTimerProc(
     HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD userDefine)
 {
     switch (uMsg)
@@ -98,7 +98,7 @@ void NotScreenSaveControllor::ScreenTimerProc(
     }
 }
 
-HWND NotScreenSaveControllor::NotScreenSave(HWND hWndParent, bool showDlg)
+HWND VolumeCtrlWrapper::NotScreenSave(HWND hWndParent, bool showDlg)
 {
     if (forcegroundHwnd_) // 多按一次就关闭 （屏幕不屏保）
     {
@@ -126,17 +126,17 @@ HWND NotScreenSaveControllor::NotScreenSave(HWND hWndParent, bool showDlg)
 }
 }
 
-void NotScreenSaveControllor::Close()
+void VolumeCtrlWrapper::Close()
 {
     SendMessage(hWnd_, WM_CLOSE, 0, 0);
 }
 
-NotScreenSaveControllor::operator HWND()
+VolumeCtrlWrapper::operator HWND()
 {
     return hWnd_;
 }
 
-HWND NotScreenSaveControllor::operator &()
+HWND VolumeCtrlWrapper::operator &()
 {
     return hWnd_;
 }

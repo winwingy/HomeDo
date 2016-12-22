@@ -101,6 +101,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="StringPathHelper.cpp" />
+    <ClCompile Include="VolumeCtrlWrapper.cpp" />
     <ClCompile Include="VolumeScreenWebSpeed.cpp" />
     <ClCompile Include="WinContorlTool.cpp" />
     <ClCompile Include="WinDefine.cpp" />
@@ -116,6 +117,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringPathHelper.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="VolumeCtrlWrapper.h" />
     <ClInclude Include="VolumeScreenWebSpeed.h" />
     <ClInclude Include="WinContorlTool.h" />
     <ClInclude Include="WinDefine.h" />

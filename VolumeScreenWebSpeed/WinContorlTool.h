@@ -43,11 +43,9 @@ public:
 
 private:
     CMyVolumeCtrl* GetMyVolumeCtrl();
-    static string toupperString(const string& strLower);
-    void SplitStringBySign(vector<string>& result, const string& stringIn, const string& sign);
     void ReplaceString(string& orc, const string& findWhat, const string& replaceTo);
-    void TranslateStringToVKKey(const string& stringIn, UINT* vkCtrl, UINT* vkKey);
     void InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    void InitGeneralHotKey(HWND hWnd);
     void InitProgressHotKey(HWND hWnd);
     void InitPowerOnStartProgress(HWND hWnd);
 
@@ -67,7 +65,9 @@ private:
     void OnHotKeyNotScreenSave(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     void TipsSound();
     void StopNotScreenSave(HWND hwnd, bool playSound);
-
+    void InitProgressConfig(HWND hWnd);
+    static VOID CALLBACK VolumeTimerProc(HWND hwnd, UINT uMsg,
+                                         UINT_PTR idEvent, DWORD dwTime);
 private:
 
     CMyVolumeCtrl* myVolumeCtrl_;
@@ -77,7 +77,6 @@ private:
     int notScreenSaveCanTryCntLeave_;
     EasyWindow* easyWindow_;
     Config* config_;
-
-
+    vector<string> powerOnStartProgress_;
 };
 
