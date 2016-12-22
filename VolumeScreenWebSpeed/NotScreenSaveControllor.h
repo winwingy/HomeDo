@@ -3,22 +3,22 @@ class EasyWindow;
 class NotScreenSaveControllor
 {
 public:
-	NotScreenSaveControllor(void);
-	~NotScreenSaveControllor(void);
+    NotScreenSaveControllor(void);
+    ~NotScreenSaveControllor(void);
 
-	HWND NotScreenSave(HWND hWndParent, bool showDlg);
-	void Close();
-	operator HWND ();
-	HWND operator &();
+    HWND NotScreenSave(HWND hWndParent, bool showDlg);
+    void Close();
+    operator HWND ();
+    HWND operator &();
     void StopNotScreenSave(HWND hwnd, bool playSound);
     static VOID CALLBACK ScreenTimerProcSta(
         HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD userDefine);
     void ScreenTimerProc(
         HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD userDefine);
 private:
-	HWND hWnd_;
+    HWND hWnd_;
     HWND forcegroundHwnd_;
     EasyWindow* easyWindow_;
-    static NotScreenSaveControllor* 
+    static NotScreenSaveControllor*
 };
 

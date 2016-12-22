@@ -1,142 +1,69 @@
 #include "StdAfx.h"
-#include "NotScreenSaveControllor.h"
-#include <assert.h>
-#include "EasyWindow.h"
+#include "VolumeCtrlWrapper.h"
+#include "config.h"
 #include "WinDefine.h"
+
+namespace
+{
+    struct TimerData
+    {
+        UINT_PTR TimerId;
+        VolumeCtrlWrapper* VolumeCtrl;
+        TimerData()
+            : TimerId(-1)
+            , VolumeCtrl(nullptr)
+        {
+
+        }
+    };
+}
 
 
 VolumeCtrlWrapper::VolumeCtrlWrapper(void)
-    : hWnd_(nullptr)
-    , forcegroundHwnd_(nullptr)
+    : perVoulumeGap_(5)
+    , config_(Config::GetShared())
 {
+
 }
 
 
 VolumeCtrlWrapper::~VolumeCtrlWrapper(void)
 {
+
 }
 
-LRESULT CALLBACK EasyWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+VOID CALLBACK WinControlTool::VolumeTimerProc(
+    HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-    switch (message)
+    WinControlTool* pThis = reinterpret_cast<WinControlTool*>(
+        GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    WinDefine* winDefine = WinDefine::GetInstance();
+    int initVolume = pThis->config_->GetValue(CONFIG_SET, "InitVolume", 30);
+    if (FALSE == winDefine->bFinishInitVolume_ && winDefine->iIsInitVolume_ == 1)
     {
-        case WM_CREATE:
-        {
-            SetTimer(hWnd, 1003, 5000, nullptr);
-            break;
-        }
-        case WM_TIMER:
-        {
-            KillTimer(hWnd, wParam);
-            PostMessage(hWnd, WM_CLOSE, 0, 0);
-            break;
-        }
-        case WM_PAINT:
-        {
-            PAINTSTRUCT ps = { 0 };
-            HDC hdc = BeginPaint(hWnd, &ps);
-            char* text = "Not Screen Save OK";
-            RECT rect;
-            GetClientRect(hWnd, &rect);
-            DrawText(hdc, text, strlen(text), &rect,
-                     DT_VCENTER | DT_CENTER | DT_SINGLELINE);
-            EndPaint(hWnd, &ps);
-            break;
-        }
-        default:
-        {
-            return DefWindowProc(hWnd, message, wParam, lParam);
-            break;
-        }
+        GetInstance()->GetMyVolumeCtrl()->SetVolume(winDefine->initVolume_);
+        winDefine->initVolume_ = 0;
     }
-    return 0;
-
+    winDefine->bFinishInitVolume_ = TRUE;
+    KillTimer(hwnd, idEvent);
 }
 
-
-void VolumeCtrlWrapper::StopNotScreenSave(HWND hwnd, bool playSound)
+bool VolumeCtrlWrapper::InitVolumeHotKey(HWND hWnd)
 {
-    easyWindow_->Close();
-    KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE);
-    KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE_MAX);
-    forcegroundWindowNotScreenSaveHwnd_ = nullptr;
-    if (playSound)
+    perVoulumeGap_ = config_->GetValue(CONFIG_SET, "PerVolumeGap", 3);
+    int isInitVolume = config_->GetValue(CONFIG_SET, "IsInitVolume", 1);
+    if (isInitVolume)
     {
-        PlaySoundHappy(0, 2);
+        int initTime = config_->GetValue(CONFIG_SET, "InitTime", 5000);
+        TimerData* timerData = new TimerData(this, this);
+        timerData
+        SetTimer(hWnd, TIMER_INIT_VOLUME, winDefine->iInitTime_, VolumeTimerProc);
+        int initVolume = config_->GetValue(CONFIG_SET, "InitVolume", 30);
+
+        winDefine->initVolume_ = initVolume;
+        int initTime = config_->GetValue(CONFIG_SET, "InitTime", 5000);
+        winDefine->iInitTime_ = initTime;
     }
-}
-
-VOID CALLBACK VolumeCtrlWrapper::ScreenTimerProcSta(
-    HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD userDefine)
-{
-    VolumeCtrlWrapper* pThis = reinterpret_cast < VolumeCtrlWrapper* >
-        (userDefine);
-    assert(pThis);
-    if (pThis)
-    {
-        pThis->ScreenTimerProc(hwnd, uMsg, idEvent, userDefine);
-    }
-}
-
-void VolumeCtrlWrapper::ScreenTimerProc(
-    HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD userDefine)
-{
-    switch (uMsg)
-    {
-        case TIMER_NOT_SCREEN_SAVE:
-        {
-
-            break;
-        }
-        case TIMER_NOT_SCREEN_SAVE_MAX:
-        {
-
-            break;
-        }
-        default:
-        break;
-    }
-}
-
-HWND VolumeCtrlWrapper::NotScreenSave(HWND hWndParent, bool showDlg)
-{
-    if (forcegroundHwnd_) // 多按一次就关闭 （屏幕不屏保）
-    {
-        StopNotScreenSave(hWndParent, true);
-        return;
-    }
-
-    HWND foregroundWindow = ::GetForegroundWindow();
-    if (foregroundWindow)
-    {
-        forcegroundHwnd_ = foregroundWindow;
-        SetTimer(hWndParent, TIMER_NOT_SCREEN_SAVE,
-                 WinDefine::GetInstance()->notScreenSavePerInputTime_ * 1000,
-                 ScreenTimerProcSta);
-        string strValue = GetValueFromConfig(CONFIG_SET, "notScreenSavePerInputMAXTime", "120", CONFIG_INF_FILENAME);
-        SetTimer(hWnd, TIMER_NOT_SCREEN_SAVE_MAX, atoi(strValue.c_str()) * 60 * 1000, TimerProc);
-        notScreenSaveCanTryCntLeave_ = WinDefine::GetInstance()->notScreenSaveCanTryCnt_;
-        strValue = GetValueFromConfig(CONFIG_SET, "notScreeenSaveMsgBox", "0", CONFIG_INF_FILENAME);
-        if (strValue != "0")
-        {
-            easyWindow_->Create(nullptr, 600, 0, 200, 50);
-        }
-        PlaySoundHappy(0, 6);
-    }
-}
-}
-
-void VolumeCtrlWrapper::Close()
-{
-    SendMessage(hWnd_, WM_CLOSE, 0, 0);
-}
-
-VolumeCtrlWrapper::operator HWND()
-{
-    return hWnd_;
-}
-
-HWND VolumeCtrlWrapper::operator &()
-{
-    return hWnd_;
+    winDefine->iIsInitVolume_ = atoi(strValue.c_str());
+    SetTimer(hWnd, TIMER_INIT_VOLUME, winDefine->iInitTime_, TimerProc);
 }
