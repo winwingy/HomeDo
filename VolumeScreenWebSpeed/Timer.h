@@ -2,6 +2,7 @@
 #define _TIMER_H
 
 #include <functional>
+#include <memory>
 #include <windows.h>
 #include <list>
 
@@ -14,16 +15,18 @@ class Timer
 {
 public:
     typedef int TimeMs;
-    typedef std::function<void(TimeMs)> TimerFun;
+    typedef std::function<void()> TimerFun;
     Timer(HWND hWnd);
     ~Timer();
 
-    bool Begin(Timer::TimeMs timeMs, const TimerFun& timerFun);
-
+    bool OneShotTimer(Timer::TimeMs timeMs, const TimerFun& timerFun);
+  
 private:
-    
+    static VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg,
+                                   UINT_PTR idEvent, DWORD dwTime);
+
     HWND hWnd_;
-    std::list<IDAndTimerFun*> idAndTimerFun_;
+    std::list<std::shared_ptr<IDAndTimerFun>> idAndTimerFun_;
 };
 
 #endif

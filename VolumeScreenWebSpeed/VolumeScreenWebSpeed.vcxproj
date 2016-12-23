@@ -90,11 +90,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="config.cpp" />
-    <ClCompile Include="EasyWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyVolumeCtrl.cpp" />
-    <ClCompile Include="NotScreenSaveControllor.cpp" />
     <ClCompile Include="NotScreenSaveDlg.cpp" />
+    <ClCompile Include="ScreenSaveControllor.cpp" />
     <ClCompile Include="ShutDownDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -102,27 +101,30 @@
     </ClCompile>
     <ClCompile Include="StringPathHelper.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="ToastWindow.cpp" />
     <ClCompile Include="VolumeCtrlWrapper.cpp" />
     <ClCompile Include="VolumeScreenWebSpeed.cpp" />
     <ClCompile Include="WinContorlTool.cpp" />
     <ClCompile Include="WinDefine.cpp" />
+    <ClCompile Include="WindowControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
-    <ClInclude Include="EasyWindow.h" />
     <ClInclude Include="MyVolumeCtrl.h" />
-    <ClInclude Include="NotScreenSaveControllor.h" />
     <ClInclude Include="NotScreenSaveDlg.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ScreenSaveControllor.h" />
     <ClInclude Include="ShutDownDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringPathHelper.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="ToastWindow.h" />
     <ClInclude Include="VolumeCtrlWrapper.h" />
     <ClInclude Include="VolumeScreenWebSpeed.h" />
     <ClInclude Include="WinContorlTool.h" />
     <ClInclude Include="WinDefine.h" />
+    <ClInclude Include="WindowControl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="icon1.ico" />

@@ -62,11 +62,7 @@ namespace
 }
 
 WinDefine::WinDefine(void)
-    : useJobConfig_(false)
-    , initVolume_(0)
-    , perVoulumeGap_(10)
-    , iIsInitVolume_(1)
-    , bFinishInitVolume_(FALSE)
+    : useJobConfig_(false)  
     , iGetWebTimeCnt_(0)
     , notScreenSavePerInputTime_(0)
     , notScreenSaveCanTryCnt_(0)

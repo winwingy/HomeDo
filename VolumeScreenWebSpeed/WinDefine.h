@@ -32,7 +32,8 @@ enum HOTKEY
     HOTKEY_KILL_PROCESS,
     HOTKEY_KILL_TTPLAYER,
     HOTKEY_NOT_SCREEN_SAVE,
-    HOTKEY_NOT_SHUT_DOWN,
+    HOTKEY_STOP_NOT_SCREEN_SAVE,
+    HOTKEY_SHUT_DOWN,
 
     HOTKEY_PROGRESS_BEGIN = 5000,
     HOTKEY_PROGRESS_END = 6000,
@@ -44,7 +45,7 @@ enum HOTKEY
 
 
 
-enum MSG_ID
+enum TIMER_ID
 {
     TIMER_CLOSE_SCREEN = WM_USER + 100,
     TIMER_CLOSE_SCREEN_ADD,
@@ -66,12 +67,8 @@ public:
     static WinDefine* GetInstance();
     int HotKeyStrigToVkKey(const string& hotKeyString);
 
-    bool useJobConfig_;
-    int initVolume_;
-    int perVoulumeGap_;
-    BOOL bFinishInitVolume_;
+    bool useJobConfig_; 
     int iGetWebTimeCnt_;
-
     int notScreenSavePerInputTime_;
     int  notScreenSaveCanTryCnt_;
 

@@ -18,4 +18,6 @@ public:
     static void SplitStringBySign(const string& stringIn,
                            const string& sign, vector<string>* result);
     static string ToUpperString(const string& strLower);
+    static void ReplaceString(
+        string& orc, const string& findWhat, const string& replaceTo);
 };

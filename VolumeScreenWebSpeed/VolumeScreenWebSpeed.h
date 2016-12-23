@@ -1,26 +1,25 @@
 #pragma once
 
 #include "resource.h"
+#include "WindowControl.h"
 class WinControlTool;
 
-class VolumeScreenWebSpeed
+class VolumeScreenWebSpeed : public WindowControl
 {
 public:
-    VolumeScreenWebSpeed(HINSTANCE hInst);
+    VolumeScreenWebSpeed();
     ~VolumeScreenWebSpeed();
 
     bool Init();
-
-    HWND Create(HWND hWnd);
     void Show();
 
 private: 
     bool MyRegisterClass(HINSTANCE hInstance, const TCHAR* szWindowClass);
-    LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    LRESULT CALLBACK WndProcSta(HWND hWnd, UINT message,
-                                WPARAM wParam, LPARAM lParam);
-    HINSTANCE hInst_;
+    virtual LRESULT WndProc(HWND hWnd, UINT message,
+                            WPARAM wParam, LPARAM lParam) override;
+//     LRESULT CALLBACK WndProcSta(HWND hWnd, UINT message,
+//                                 WPARAM wParam, LPARAM lParam);
+
     HANDLE mutexHandle_;
-    HWND hWnd_;
     WinControlTool* winControlTool_;
 };

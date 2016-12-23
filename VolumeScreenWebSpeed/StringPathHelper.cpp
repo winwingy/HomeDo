@@ -70,3 +70,16 @@ string StringPathHelper::ToUpperString(const string& strLower)
     }
     return strRet;
 }
+
+void StringPathHelper::ReplaceString(
+    string& orc, const string& findWhat, const string& replaceTo)
+{
+    string::size_type posBeg = 0;
+    string::size_type posEnd = -1;
+    while ((posEnd = orc.find(findWhat, posBeg)) != string::npos)
+    {
+        orc.replace(posEnd, findWhat.length(), replaceTo);
+        posBeg = posEnd + findWhat.length();
+    }
+}
+

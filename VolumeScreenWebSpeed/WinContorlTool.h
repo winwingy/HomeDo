@@ -6,9 +6,9 @@
 using std::string;
 using std::wstring;
 using std::vector;
-class CMyVolumeCtrl;
-class EasyWindow;
+class ToastWindow;
 class Config;
+class VolumeCtrlWrapper;
 
 class WinControlTool
 {
@@ -40,10 +40,10 @@ public:
 
     void OnCreate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     void OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    void OnTimer(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-    CMyVolumeCtrl* GetMyVolumeCtrl();
-    void ReplaceString(string& orc, const string& findWhat, const string& replaceTo);
+
     void InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     void InitGeneralHotKey(HWND hWnd);
     void InitProgressHotKey(HWND hWnd);
@@ -59,8 +59,6 @@ private:
     void TerminateNameExe(string& strNameExe);
 
     void RaiseToken();
-
-    string W2A(wstring strWide);
     bool ForcegroundWindowFullScreen(HWND forcegroundWindow);
     void OnHotKeyNotScreenSave(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     void TipsSound();
@@ -70,13 +68,10 @@ private:
                                          UINT_PTR idEvent, DWORD dwTime);
 private:
 
-    CMyVolumeCtrl* myVolumeCtrl_;
     static WinControlTool* winControlTool;
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
-    HWND forcegroundWindowNotScreenSaveHwnd_;
-    int notScreenSaveCanTryCntLeave_;
-    EasyWindow* easyWindow_;
     Config* config_;
+    std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;
     vector<string> powerOnStartProgress_;
 };
 

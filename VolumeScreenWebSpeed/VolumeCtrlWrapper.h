@@ -1,5 +1,7 @@
 #pragma once
-class EasyWindow;
+#include <memory>
+class CMyVolumeCtrl;
+class Config;
 class VolumeCtrlWrapper
 {
 public:
@@ -7,10 +9,13 @@ public:
     ~VolumeCtrlWrapper(void);
 
     bool InitVolumeHotKey(HWND hWnd);
-
+    void OnTimer(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+    void OnHotKey(HWND hwnd, UINT uMsg, int idHotKey, LPARAM lParam);
 private:
-    int perVoulumeGap_;
+    int perVolumeGap_;
+    bool userChangedVolume_;
     Config* config_;
+    std::unique_ptr<CMyVolumeCtrl> myVolumeCtrl_;
 
 };
 

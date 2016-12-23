@@ -33,9 +33,6 @@
     <ClCompile Include="MyVolumeCtrl.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
-    <ClCompile Include="NotScreenSaveControllor.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -45,23 +42,29 @@
     <ClCompile Include="StringPathHelper.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
-    <ClCompile Include="EasyWindow.cpp">
-      <Filter>view</Filter>
-    </ClCompile>
     <ClCompile Include="NotScreenSaveDlg.cpp">
       <Filter>view</Filter>
     </ClCompile>
     <ClCompile Include="ShutDownDlg.cpp">
       <Filter>view</Filter>
     </ClCompile>
-    <ClCompile Include="VolumeScreenWebSpeed.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
     <ClCompile Include="VolumeCtrlWrapper.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeScreenWebSpeed.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenSaveControllor.cpp">
+      <Filter>Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="ToastWindow.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowControl.cpp">
+      <Filter>view</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,17 +86,11 @@
     <ClInclude Include="MyVolumeCtrl.h">
       <Filter>Tool</Filter>
     </ClInclude>
-    <ClInclude Include="NotScreenSaveControllor.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
     <ClInclude Include="config.h">
       <Filter>Tool</Filter>
     </ClInclude>
     <ClInclude Include="StringPathHelper.h">
       <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="EasyWindow.h">
-      <Filter>view</Filter>
     </ClInclude>
     <ClInclude Include="NotScreenSaveDlg.h">
       <Filter>view</Filter>
@@ -101,14 +98,23 @@
     <ClInclude Include="ShutDownDlg.h">
       <Filter>view</Filter>
     </ClInclude>
-    <ClInclude Include="VolumeScreenWebSpeed.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
     <ClInclude Include="VolumeCtrlWrapper.h">
       <Filter>Tool</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeScreenWebSpeed.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenSaveControllor.h">
+      <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="ToastWindow.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowControl.h">
+      <Filter>view</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

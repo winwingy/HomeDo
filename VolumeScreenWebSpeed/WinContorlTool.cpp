@@ -8,35 +8,17 @@
 #include <shellapi.h>
 #include <assert.h>
 #include <sstream>
-#include "MyVolumeCtrl.h"
 
 #include "WinDefine.h"
-#include "EasyWindow.h"
 #include "ShutDownDlg.h"
 #include "config.h"
 #include "StringPathHelper.h"
+#include "VolumeCtrlWrapper.h"
 #pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
 namespace
 {
-    void PlaySoundHappy(int beg, int end)
-    {
-        unsigned FREQUENCY[] = { 392, 392, 440, 392, 523, 494,
-            392, 392, 440, 392, 587, 523,
-            392, 392, 784, 659, 523, 494, 440,
-            689, 689, 523, 587, 523 };
-
-        unsigned DELAY[] = { 375, 125, 500, 500, 500, 1000,
-            375, 125, 500, 500, 500, 1000,
-            375, 125, 500, 500, 500, 500, 1000,
-            375, 125, 500, 500, 500, 1000 };
-        for (int i = beg; i < end; i++)  //先填10短些
-        {
-            Beep(FREQUENCY[i], DELAY[i]);
-        }
-    }
-
     void TranslateStringToVKKey(const string& stringIn, UINT* vkCtrl, UINT* vkKey)
     {
         vector<string> vklist;
@@ -78,88 +60,23 @@ namespace
         UINT vkCtrl = 0;
         UINT vkKey = 0;
         TranslateStringToVKKey(hotKeyString, &vkCtrl, &vkKey);
-        ::RegisterHotKey(hWnd, hotKeyId, vkCtrl, vkKey);
+        return !!::RegisterHotKey(hWnd, hotKeyId, vkCtrl, vkKey);
     }
-
 }
-
-// HWND GetFullScreenHwnd()
-// {   
-//     HWND hwnd = ::GetForegroundWindow();
-//     Sleep(5000);
-// 
-//     RECT rect;
-//     GetWindowRect(hwnd, &rect);
-//     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0); // 工作区大小
-//     bool vis = ::IsWindowVisible(hwnd);
-//     
-//     do 
-//     {
-//         if (rect.right - rect.left > 700 && rect.bottom - rect.top > 500 && vis)
-//         {
-//             return hwnd;
-//         }
-// 
-//     } while ();
-// 
-//     return NULL;
-// }
 
 WinControlTool* WinControlTool::winControlTool = NULL;
 
 WinControlTool::WinControlTool(void)
-    : myVolumeCtrl_(new CMyVolumeCtrl)
-    , forcegroundWindowNotScreenSaveHwnd_(NULL)
-    , notScreenSaveCanTryCntLeave_(0)
-    , easyWindow_(new EasyWindow())
-    , config_(Config::GetShared())
+    : config_(Config::GetShared())
+    , volumeCtrlWrapper_(new VolumeCtrlWrapper())
     , powerOnStartProgress_()
 {
-}
 
-CMyVolumeCtrl* WinControlTool::GetMyVolumeCtrl()
-{
-    return myVolumeCtrl_;
 }
-
 
 WinControlTool::~WinControlTool(void)
 {
-    if (myVolumeCtrl_)
-    {
-        delete myVolumeCtrl_;
-        myVolumeCtrl_ = NULL;
-    }
-    if (easyWindow_)
-    {
-        delete easyWindow_;
-    }
-}
 
-string RemoveLastExt(const string& fileName, string* ext)
-{
-    std::string ret(fileName);
-    string::size_type pos = ret.rfind(".");
-    if (pos != string::npos)
-    {
-        if (ext)
-        {
-            ext->assign(ret, pos, ret.size() - pos);
-        }
-        ret.erase(pos);
-    }
-    return ret;
-}
-
-void WinControlTool::ReplaceString(string& orc, const string& findWhat, const string& replaceTo)
-{
-    string::size_type posBeg = 0;
-    string::size_type posEnd = -1;
-    while ((posEnd = orc.find(findWhat, posBeg)) != string::npos)
-    {
-        orc.replace(posEnd, findWhat.length(), replaceTo);
-        posBeg = posEnd + findWhat.length();
-    }
 }
 
 void WinControlTool::InitProgressHotKey(HWND hWnd)
@@ -211,8 +128,7 @@ void WinControlTool::InitGeneralHotKey(HWND hWnd)
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyVolumeDown", "");
     bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_VOLUME_DOWN);
 
-
-    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyNotScreenSave", "");
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyCloseScreen", "");
     bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_CLOSE_SCREEN);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyNotScreenSave", "");
@@ -222,7 +138,7 @@ void WinControlTool::InitGeneralHotKey(HWND hWnd)
     bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_KILL_PROCESS);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyShutDown", "");
-    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_NOT_SHUT_DOWN);
+    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_SHUT_DOWN);
 }
 
 void WinControlTool::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -252,45 +168,9 @@ void WinControlTool::InitPowerOnStartProgress(HWND hWnd)
              PowerOnStartProgressTimeProc);
 }
 
-VOID CALLBACK WinControlTool::VolumeTimerProc(
-    HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-{
-    WinControlTool* pThis = reinterpret_cast<WinControlTool*>(
-        GetWindowLongPtr(hwnd, GWLP_USERDATA));
-    WinDefine* winDefine = WinDefine::GetInstance();
-    int initVolume = pThis->config_->GetValue(CONFIG_SET, "InitVolume", 30);
-    if (FALSE == winDefine->bFinishInitVolume_ && winDefine->iIsInitVolume_ == 1)
-    {
-        GetInstance()->GetMyVolumeCtrl()->SetVolume(winDefine->initVolume_);
-        winDefine->initVolume_ = 0;
-    }
-    winDefine->bFinishInitVolume_ = TRUE;
-    KillTimer(hwnd, idEvent);
-}
-
 void WinControlTool::InitProgressConfig(HWND hWnd)
 {
-    WinDefine* winDefine = WinDefine::GetInstance();
-    int perVolumeGap = config_->GetValue(CONFIG_SET, "PerVolumeGap", 3);
-    winDefine->perVoulumeGap_ = perVolumeGap;
- 
-    int isInitVolume = config_->GetValue(CONFIG_SET, "IsInitVolume", 1);
-    if (isInitVolume)
-    {
-        int initVolume = config_->GetValue(CONFIG_SET, "InitVolume", 30);
-        
-        winDefine->initVolume_ = initVolume;
-        int initTime = config_->GetValue(CONFIG_SET, "InitTime", 5000);
-    winDefine->iInitTime_ = initTime;
-    }
-    winDefine->iIsInitVolume_ = atoi(strValue.c_str());
-    SetTimer(hWnd, TIMER_INIT_VOLUME, winDefine->iInitTime_, TimerProc);
-
-    //不屏保
-    strValue = GetValueFromConfig(CONFIG_SET, "notScreenSavePerInputTime", "3", CONFIG_INF_FILENAME);
-    winDefine->notScreenSavePerInputTime_ = atoi(strValue.c_str());
-    strValue = GetValueFromConfig(CONFIG_SET, "notScreenSaveCanTryCnt", "3", CONFIG_INF_FILENAME);
-    winDefine->notScreenSaveCanTryCnt_ = atoi(strValue.c_str());
+    volumeCtrlWrapper_->InitVolumeHotKey(hWnd);
 }
 
 void WinControlTool::OnCreate(HWND hWnd, UINT message,
@@ -305,14 +185,6 @@ void WinControlTool::OnCreate(HWND hWnd, UINT message,
     InitProgressConfig(hWnd);
 }
 
-string WinControlTool::W2A(wstring strWide)
-{
-    int iSize = (strWide.size() + 1) * 2;
-    char* temp = new char[iSize];
-    WideCharToMultiByte(CP_ACP, 0, strWide.c_str(), -1, (LPSTR)temp, iSize, NULL, NULL);
-    return temp;
-}
-
 BOOL CALLBACK WinControlTool::EnumWindowsProc(HWND hwnd, LPARAM lParam)
 {
     DWORD dwThisID = 0;
@@ -324,10 +196,13 @@ BOOL CALLBACK WinControlTool::EnumWindowsProc(HWND hwnd, LPARAM lParam)
     return TRUE;
 }
 
-void WinControlTool::KillProgressByNames(const vector<string>& nameList, bool tryExistFirst)
+void WinControlTool::KillProgressByNames(
+    const vector<string>& nameList, bool tryExistFirst)
 {
     vector<string> vecUpName;
-    std::transform(nameList.begin(), nameList.end(), std::back_inserter(vecUpName), toupperString);
+    std::transform(nameList.begin(), nameList.end(),
+                   std::back_inserter(vecUpName),
+                   StringPathHelper::ToUpperString);
 
     PROCESSENTRY32 pe = { 0 };
     pe.dwSize = sizeof(PROCESSENTRY32);
@@ -369,18 +244,16 @@ void WinControlTool::KillProgressByNames(const vector<string>& nameList, bool tr
     CloseHandle(hSnapshot);
 }
 
-
-
 void WinControlTool::TerminateNameExe(string& strNameExe)
 {
     if (strNameExe.empty())
     {
         return;
     }
-    ReplaceString(strNameExe, "\r\n", "\n");
-    ReplaceString(strNameExe, "\r", "\n");
+    StringPathHelper::ReplaceString(strNameExe, "\r\n", "\n");
+    StringPathHelper::ReplaceString(strNameExe, "\r", "\n");
     vector<string> vecName;
-    SplitStringBySign(vecName, strNameExe, "\n");
+    StringPathHelper::SplitStringBySign(strNameExe, "\n", &vecName);
     KillProgressByNames(vecName, false);
 }
 
@@ -394,8 +267,7 @@ VOID CALLBACK WinControlTool::PowerOnStartProgressTimeProc(
         SHELLEXECUTEINFOA stExecInfo = { 0 };
         stExecInfo.cbSize = sizeof(stExecInfo);
         stExecInfo.fMask = SEE_MASK_FLAG_NO_UI;
-        stExecInfo.lpFile = WinDefine::GetInstance()->
-            powerOnStartProgress_[0].c_str();
+        stExecInfo.lpFile = pThis->powerOnStartProgress_[0].c_str();
         stExecInfo.nShow = SW_HIDE;
         BOOL bRet = ShellExecuteExA(&stExecInfo);
     }
@@ -406,14 +278,7 @@ VOID CALLBACK WinControlTool::PowerOnStartProgressTimeProc(
 
 VOID CALLBACK WinControlTool::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-    WinControlTool* thisClass = WinControlTool::GetInstance();
-    if (TIMER_CLOSE_SCREEN == idEvent || TIMER_CLOSE_SCREEN_ADD == idEvent)
-    {
-        KillTimer(hwnd, idEvent);
-        ::PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, (LPARAM)1);
-        ::PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, (LPARAM)2);
-    }
-    else if (TIMER_INIT_VOLUME == idEvent)
+    if (TIMER_INIT_VOLUME == idEvent)
     {
 
     }
@@ -433,40 +298,7 @@ VOID CALLBACK WinControlTool::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, 
         {
             KillTimer(hwnd, idEvent);
         }
-    }
-    else if (TIMER_NOT_SCREEN_SAVE == idEvent)
-    {
-        TRACE_WW("TIMER_NOT_SCREEN_SAVE == idEvent\n");
-        bool notScreenContinue = false;
-        if (thisClass->forcegroundWindowNotScreenSaveHwnd_ &&
-            IsWindow(thisClass->forcegroundWindowNotScreenSaveHwnd_))
-        {
-            HWND fore = GetForegroundWindow();
-            if (fore == thisClass->forcegroundWindowNotScreenSaveHwnd_)
-            {
-                TRACE_WW("fore == thisClass->forcegroundWindowNotScreenSaveHwnd\n");
-                INPUT input = { 0 };
-                input.type = INPUT_KEYBOARD;
-                input.ki.wVk = VK_F24;
-                SendInput(1, &input, sizeof(INPUT));
-                thisClass->notScreenSaveCanTryCntLeave_ = WinDefine::GetInstance()->notScreenSaveCanTryCnt_;
-                notScreenContinue = true;
-            }
-        }
-
-        if (!notScreenContinue)
-        {
-            TRACE_WW(" if (!notScreenContinue)");
-            if (--thisClass->notScreenSaveCanTryCntLeave_ <= 0)
-            {
-                thisClass->StopNotScreenSave(hwnd, true);
-            }
-        }
-    }
-    else if (TIMER_NOT_SCREEN_SAVE_MAX == idEvent)
-    {
-        thisClass->StopNotScreenSave(hwnd, false);
-    }
+    }   
 }
 
 void WinControlTool::RaiseToken()
@@ -570,39 +402,6 @@ bool WinControlTool::ForcegroundWindowFullScreen(HWND forcegroundWindow)
     return false;
 }
 
-void WinControlTool::OnHotKeyNotScreenSave(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    // GetFullScreenHwnd();
-
-    if (forcegroundWindowNotScreenSaveHwnd_) // 多按一次就关闭 （屏幕不屏保）
-    {
-        StopNotScreenSave(hWnd, true);
-        return;
-    }
-
-    HWND foregroundWindow = GetForegroundWindow();
-    if (foregroundWindow)
-    {
-        forcegroundWindowNotScreenSaveHwnd_ = foregroundWindow;
-        SetTimer(hWnd, TIMER_NOT_SCREEN_SAVE, WinDefine::GetInstance()->notScreenSavePerInputTime_ * 1000, TimerProc);
-        string strValue = GetValueFromConfig(CONFIG_SET, "notScreenSavePerInputMAXTime", "120", CONFIG_INF_FILENAME);
-        SetTimer(hWnd, TIMER_NOT_SCREEN_SAVE_MAX, atoi(strValue.c_str()) * 60 * 1000, TimerProc);
-        notScreenSaveCanTryCntLeave_ = WinDefine::GetInstance()->notScreenSaveCanTryCnt_;
-        strValue = GetValueFromConfig(CONFIG_SET, "notScreeenSaveMsgBox", "0", CONFIG_INF_FILENAME);
-        if (strValue != "0")
-        {
-            easyWindow_->Create(nullptr, 600, 0, 200, 50);
-        }
-        PlaySoundHappy(0, 6);
-    }
-}
-
-void WinControlTool::OnHotKeyNotScreenSaveCustom(hWnd, message, wParam, lParam)
-{
-
-
-}
-
 void WinControlTool::TipsSound()
 {
     Sleep(1000);
@@ -620,67 +419,23 @@ void WinControlTool::TipsSound()
     Sleep(1000);
 }
 
-void WinControlTool::OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+void WinControlTool::OnHotKey(HWND hWnd, UINT message, 
+                              WPARAM wParam, LPARAM lParam)
 {
-    int iVolume;
-    char szVolume[256] = { 0 };
-    int iIDHotKey = (int)wParam;
-
+    int idHotKey = (int)wParam;
+    volumeCtrlWrapper_->OnHotKey(hWnd, message, idHotKey, lParam);
     WinDefine* winDefine = WinDefine::GetInstance();
 
     int iTime(0);
     BOOL bRet(FALSE);
-    switch (iIDHotKey)
+    switch (idHotKey)
     {
-        case HOTKEY_VOLUME_UP:
-        {
-            iVolume = GetMyVolumeCtrl()->GetVolume();	//得到的值偏小1						
-            sprintf_s(szVolume, sizeof(szVolume), "iVolume = %d\n", iVolume);
-            iVolume += winDefine->perVoulumeGap_;
-            GetMyVolumeCtrl()->SetVolume(iVolume);
-            break;
-        }
-        case HOTKEY_VOLUME_DOWN:
-        {
-            if (FALSE == winDefine->bFinishInitVolume_)
-            {
-                GetMyVolumeCtrl()->SetVolume(winDefine->initVolume_ * 1 / 3);
-                winDefine->initVolume_ = 0;
-                winDefine->bFinishInitVolume_ = TRUE;
-            }
-            iVolume = GetMyVolumeCtrl()->GetVolume();	//得到的值偏小1						
-            sprintf_s(szVolume, sizeof(szVolume), "iVolume = %d\n", iVolume);
-            iVolume -= winDefine->perVoulumeGap_;
-            if (iVolume < 0)
-            {
-                iVolume = 0;
-            }
-            GetMyVolumeCtrl()->SetVolume(iVolume);
-            break;
-        }
-        case HOTKEY_CLOSE_SCREEN:
-        {
-            SetTimer(hWnd, TIMER_CLOSE_SCREEN, 1500, TimerProc);
-            SetTimer(hWnd, TIMER_CLOSE_SCREEN_ADD, 4000, TimerProc);
-            StopNotScreenSave(hWnd, false);
-            break;
-        }
         case HOTKEY_KILL_PROCESS:
         {
             OnKillProcess(hWnd, message, wParam, lParam);
             break;
         }
-        case HOTKEY_NOT_SCREEN_SAVE:
-        {
-            OnHotKeyNotScreenSave(hWnd, message, wParam, lParam);
-            break;
-        }
-        case HOTKEY_NOT_SCREEN_SAVE_CUSTOM:
-        {
-            OnHotKeyNotScreenSaveCustom(hWnd, message, wParam, lParam);
-            break;
-        }
-        case HOTKEY_NOT_SHUT_DOWN:
+        case HOTKEY_SHUT_DOWN:
         {
             ShutDownDlg dlg;
             dlg.DoModal(NULL);
@@ -688,12 +443,12 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
         }
     }
 
-    if (iIDHotKey >= HOTKEY_PROGRESS_BEGIN && iIDHotKey <= HOTKEY_PROGRESS_END)
+    if (idHotKey >= HOTKEY_PROGRESS_BEGIN && idHotKey <= HOTKEY_PROGRESS_END)
     {
         for (vector<ProgressToIDHotKey>::iterator it = progressToIDHotkeyList_.begin();
              it != progressToIDHotkeyList_.end(); ++it)
         {
-            if (it->ID == iIDHotKey)
+            if (it->ID == idHotKey)
             {
                 SHELLEXECUTEINFOA stInfo = { 0 };
                 stInfo.cbSize = sizeof(stInfo);
@@ -703,12 +458,12 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
             }
         }
     }
-    else if (iIDHotKey >= HOTKEY_PROGRESS_KILL_BEGIN && iIDHotKey <= HOTKEY_PROGRESS_KILL_END)
+    else if (idHotKey >= HOTKEY_PROGRESS_KILL_BEGIN && idHotKey <= HOTKEY_PROGRESS_KILL_END)
     {
         for (vector<ProgressToIDHotKey>::iterator it = progressToIDHotkeyList_.begin();
              it != progressToIDHotkeyList_.end(); ++it)
         {
-            if (it->killID == iIDHotKey)
+            if (it->killID == idHotKey)
             {
                 string::size_type index = 0;
                 if (((index = it->path.rfind("\\")) != -1) ||
@@ -721,3 +476,12 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
         }
     }
 }
+
+void WinControlTool::OnTimer(HWND hWnd, UINT message, 
+                             WPARAM wParam, LPARAM lParam)
+{
+    UINT_PTR idEvent = wParam;
+    DWORD dwTime = lParam;
+    volumeCtrlWrapper_->OnTimer(hWnd, message, idEvent, dwTime);
+}
+
