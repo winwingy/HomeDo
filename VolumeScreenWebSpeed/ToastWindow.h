@@ -12,6 +12,7 @@ private:
     void Close();
     virtual LRESULT WndProc(HWND hWnd, UINT message,
                             WPARAM wParam, LPARAM lParam) override;
+    virtual void CreateParam(DWORD* styleEx, DWORD* style) override;
     HWND hWnd_;
     string tips_;
 };

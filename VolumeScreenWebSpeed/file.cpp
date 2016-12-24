@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "StringPathHelper.h"
 
-Config* Config::pThis_ = nullptr;
+File* File::pThis_ = nullptr;
 
 namespace
 {
@@ -52,24 +52,24 @@ namespace
 }
 
 
-Config* Config::GetShared()
+File* File::GetShared()
 {
     if (!pThis_)
     {
-        pThis_ = new Config;
+        pThis_ = new File;
         pThis_->Init("VolScrConfig.ini", "VolScrConfig_job.ini");
     }
     return pThis_;
 }
 
-Config::Config()
+File::File()
     : cache_()
     , configPath_()
 {
 
 }
 
-Config::~Config(void)
+File::~File(void)
 {
 
 }
@@ -98,7 +98,7 @@ bool ConfigFileExist(const string& strFileName, string* configDir)
     return true;
 }
 
-bool Config::Init(const string& strFileName, const string& fileNameJob)
+bool File::Init(const string& strFileName, const string& fileNameJob)
 {
     string configDir;
     if (!ConfigFileExist(strFileName, &configDir) &&
@@ -117,14 +117,14 @@ bool Config::Init(const string& strFileName, const string& fileNameJob)
     return true;
 }
 
-string Config::GetValue(const string& strAppName,
+string File::GetValue(const string& strAppName,
                         const string& strKeyName, const string& strDefault)
 {
     return GetPrivateProfileValue(
         strAppName, strKeyName, strDefault, configPath_);
 }
 
-int Config::GetValue(const string& strAppName,
+int File::GetValue(const string& strAppName,
                      const string& strKeyName, int defaultValue)
 {
     string value = GetPrivateProfileValue(
@@ -133,19 +133,19 @@ int Config::GetValue(const string& strAppName,
     return StringPathHelper::StringToInt(value);
 }
 
-void Config::SetValue(const string& strAppName,
+void File::SetValue(const string& strAppName,
                       const string& strKeyName, const string& value)
 {
     assert(0);
 }
 
-void Config::SetValue(const string& strAppName,
+void File::SetValue(const string& strAppName,
                       const string& strKeyName, int value)
 {
     assert(0);
 }
 
-vector<string> Config::GetList(const string& listBegin, const string& listEnd)
+vector<string> File::GetList(const string& listBegin, const string& listEnd)
 {
     char szBuffer[2048] = { 0 };
     fread(szBuffer, 2047, 1, fp);

@@ -8,6 +8,13 @@ public:
     virtual void Show(bool visible);
 
 protected: 
+    virtual bool OnCreate(HWND hWnd, UINT uMsg,
+                          WPARAM wParam, LPARAM lParam, LRESULT* result);
+    virtual bool OnTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent,
+                            DWORD dwTime, LRESULT* result);
+    virtual bool OnHotKey(HWND hWnd, UINT uMsg, int idHotKey,
+                             LPARAM lParam, LRESULT* result);
+
     virtual LRESULT WndProc(HWND hWnd, UINT message,
                             WPARAM wParam, LPARAM lParam);
     virtual void CreateParam(DWORD* style, DWORD* styleEx);

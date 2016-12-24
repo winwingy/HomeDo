@@ -1,15 +1,9 @@
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
-#include <windows.h>
-#include <string>
-#include <map>
-using std::string;
+#ifndef _FILE_H_
+#define _FILE_H_
 
-class Config
+class File
 {
 public:
-    static Config* GetShared();
-
     string GetValue(
         const string& strAppName, const string& strKeyName, 
         const string& strDefault);
@@ -29,11 +23,11 @@ public:
     vector<string> GetList(const string& listBegin, const string& listEnd);
 
 private:
-    Config();
-    ~Config(void);
+    File();
+    ~File(void);
     bool Init(const string& strFileName, const string& fileNameJob);
 
-    static Config* pThis_;
+    static File* pThis_;
     std::map<std::string, std::string> cache_;
     string configPath_;
 };

@@ -1,7 +1,5 @@
 #include "StdAfx.h"
-#include "WinContorlTool.h"
-#include <vector>
-#include <string>
+#include "VolumeScreenWebSpeedControl.h"
 #include <algorithm>
 #include <iterator>
 #include <TlHelp32.h>
@@ -25,7 +23,7 @@ namespace
         StringPathHelper::SplitStringBySign(stringIn, "+", &vklist);
         for (vector<string>::iterator it = vklist.begin(); it != vklist.end(); ++it)
         {
-            int key = WinDefine::GetInstance()->HotKeyStrigToVkKey(*it);
+            int key = WinDefine::HotKeyStrigToVkKey(*it);
             if (key != -1)
             {
                 *vkKey = key;
@@ -64,9 +62,7 @@ namespace
     }
 }
 
-WinControlTool* WinControlTool::winControlTool = NULL;
-
-WinControlTool::WinControlTool(void)
+VolumeScreenWebSpeedControl::VolumeScreenWebSpeedControl(void)
     : config_(Config::GetShared())
     , volumeCtrlWrapper_(new VolumeCtrlWrapper())
     , powerOnStartProgress_()
@@ -74,12 +70,12 @@ WinControlTool::WinControlTool(void)
 
 }
 
-WinControlTool::~WinControlTool(void)
+VolumeScreenWebSpeedControl::~VolumeScreenWebSpeedControl(void)
 {
 
 }
 
-void WinControlTool::InitProgressHotKey(HWND hWnd)
+void VolumeScreenWebSpeedControl::InitProgressHotKey(HWND hWnd)
 {
     int hotKeyCount = config_->GetValue(CONFIG_SET_PROGRESS_HOTKEY,
                                         "HotKeyCount", 10);
@@ -101,7 +97,7 @@ void WinControlTool::InitProgressHotKey(HWND hWnd)
         idHotKey.path = path;
         if (!hotkey.empty())
         {
-            idHotKey.ID = HOTKEY_PROGRESS_BEGIN + i; 
+            idHotKey.ID = WinDefine::HOTKEY_PROGRESS_BEGIN + i;
             TranslateStringToVKKey(hotkey, &idHotKey.vkCtrl, &idHotKey.vkKey);
             bRet = RegisterHotKey(hWnd, idHotKey.ID, idHotKey.vkCtrl, 
                                   idHotKey.vkKey);
@@ -109,46 +105,47 @@ void WinControlTool::InitProgressHotKey(HWND hWnd)
 
         if (!killhotkey.empty())
         {
-            idHotKey.killID = HOTKEY_PROGRESS_KILL_BEGIN + i;
+            idHotKey.killID = WinDefine::HOTKEY_PROGRESS_KILL_BEGIN + i;
             TranslateStringToVKKey(killhotkey, &idHotKey.vkKillCtrl,
                                    &idHotKey.vkKillKey);
             bRet = RegisterHotKey(hWnd, idHotKey.killID, idHotKey.vkKillCtrl,
                                   idHotKey.vkKillKey);
         }
-        progressToIDHotkeyList_.push_back(idHotKey);
+        if (!idHotKey.path.empty())
+            progressToIDHotkeyList_.push_back(idHotKey);
     }
 }
 
-void WinControlTool::InitGeneralHotKey(HWND hWnd)
+void VolumeScreenWebSpeedControl::InitGeneralHotKey(HWND hWnd)
 {
     BOOL bRet = FALSE;
     string hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyVolumeUp", "");
-    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_VOLUME_UP);
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_VOLUME_UP);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyVolumeDown", "");
-    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_VOLUME_DOWN);
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_VOLUME_DOWN);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyCloseScreen", "");
-    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_CLOSE_SCREEN);
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_CLOSE_SCREEN);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyNotScreenSave", "");
-    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_NOT_SCREEN_SAVE);
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_NOT_SCREEN_SAVE);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyKillProcess", "");
-    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_KILL_PROCESS);
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_KILL_PROCESS);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyShutDown", "");
-    bRet = RgeisterStringHotKey(hotkey, hWnd, HOTKEY_SHUT_DOWN);
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_SHUT_DOWN);
 }
 
-void WinControlTool::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+void VolumeScreenWebSpeedControl::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     InitGeneralHotKey(hWnd);
     //程序Hotkey
     InitProgressHotKey(hWnd);
 }
 
-void WinControlTool::InitPowerOnStartProgress(HWND hWnd)
+void VolumeScreenWebSpeedControl::InitPowerOnStartProgress(HWND hWnd)
 {
     int progressTime = config_->GetValue(
         CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressTime", 5000);
@@ -157,35 +154,35 @@ void WinControlTool::InitPowerOnStartProgress(HWND hWnd)
         CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressCount", 10);
     for (int i = 1; i <= progressCount; ++i)
     {
-        stringstream ss("StartProgress");
-        ss << i;
+        stringstream ss;
+        ss << "StartProgress" <<i;
         string path = config_->GetValue(
             CONFIG_POWER_ON_START_PROGRESS, ss.str().c_str(), "");
         if (!path.empty())
             powerOnStartProgress_.push_back(path);
     }
-    SetTimer(hWnd, TIMER_POWER_ON_START_PROGRESS, progressTime,
-             PowerOnStartProgressTimeProc);
+    SetTimer(hWnd, WinDefine::TIMER_POWER_ON_START_PROGRESS, progressTime, 
+             nullptr);
 }
 
-void WinControlTool::InitProgressConfig(HWND hWnd)
+void VolumeScreenWebSpeedControl::InitProgressConfig(HWND hWnd)
 {
     volumeCtrlWrapper_->InitVolumeHotKey(hWnd);
 }
 
-void WinControlTool::OnCreate(HWND hWnd, UINT message,
+void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
                               WPARAM wParam, LPARAM lParam)
 {
     RaiseToken();
 
     InitPowerOnStartProgress(hWnd);
 
-    InitHotKey(hWnd, message, wParam, lParam);
+    InitHotKey(hWnd, uMsg, wParam, lParam);
 
     InitProgressConfig(hWnd);
 }
 
-BOOL CALLBACK WinControlTool::EnumWindowsProc(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK VolumeScreenWebSpeedControl::EnumWindowsProc(HWND hwnd, LPARAM lParam)
 {
     DWORD dwThisID = 0;
     GetWindowThreadProcessId(hwnd, &dwThisID);
@@ -196,7 +193,7 @@ BOOL CALLBACK WinControlTool::EnumWindowsProc(HWND hwnd, LPARAM lParam)
     return TRUE;
 }
 
-void WinControlTool::KillProgressByNames(
+void VolumeScreenWebSpeedControl::KillProgressByNames(
     const vector<string>& nameList, bool tryExistFirst)
 {
     vector<string> vecUpName;
@@ -244,7 +241,7 @@ void WinControlTool::KillProgressByNames(
     CloseHandle(hSnapshot);
 }
 
-void WinControlTool::TerminateNameExe(string& strNameExe)
+void VolumeScreenWebSpeedControl::TerminateNameExe(string& strNameExe)
 {
     if (strNameExe.empty())
     {
@@ -257,51 +254,25 @@ void WinControlTool::TerminateNameExe(string& strNameExe)
     KillProgressByNames(vecName, false);
 }
 
-VOID CALLBACK WinControlTool::PowerOnStartProgressTimeProc(
+void  VolumeScreenWebSpeedControl::OnPowerOnStartProgressTimer(
     HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-    WinControlTool* pThis = reinterpret_cast<WinControlTool*>(
-        GetWindowLongPtr(hwnd, GWLP_USERDATA));
-    if (!pThis->powerOnStartProgress_.empty())
+    if (!powerOnStartProgress_.empty())
     {
         SHELLEXECUTEINFOA stExecInfo = { 0 };
         stExecInfo.cbSize = sizeof(stExecInfo);
         stExecInfo.fMask = SEE_MASK_FLAG_NO_UI;
-        stExecInfo.lpFile = pThis->powerOnStartProgress_[0].c_str();
+        stExecInfo.lpFile = powerOnStartProgress_[0].c_str();
         stExecInfo.nShow = SW_HIDE;
         BOOL bRet = ShellExecuteExA(&stExecInfo);
+        powerOnStartProgress_.erase(powerOnStartProgress_.begin());
     }
 
-    if (pThis->powerOnStartProgress_.empty())
+    if (powerOnStartProgress_.empty())
         KillTimer(hwnd, idEvent);
 }
 
-VOID CALLBACK WinControlTool::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-{
-    if (TIMER_INIT_VOLUME == idEvent)
-    {
-
-    }
-    else if (TIMER_GET_WEB_TIME == idEvent)
-    {
-        SHELLEXECUTEINFO stExecInfo = { 0 };
-        stExecInfo.cbSize = sizeof(stExecInfo);
-        stExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
-        stExecInfo.lpFile = "GetWebAndSetTime.exe";
-        stExecInfo.nShow = SW_HIDE;
-        BOOL bRet = ShellExecuteEx(&stExecInfo);
-        DWORD dwErr = GetLastError();
-        WaitForSingleObject(stExecInfo.hProcess, INFINITE);
-        DWORD dwCode = -2;
-        bRet = GetExitCodeProcess(stExecInfo.hProcess, &dwCode);
-        if (dwCode == 0 || ++WinDefine::GetInstance()->iGetWebTimeCnt_ > 5)
-        {
-            KillTimer(hwnd, idEvent);
-        }
-    }   
-}
-
-void WinControlTool::RaiseToken()
+void VolumeScreenWebSpeedControl::RaiseToken()
 {
     HANDLE   hToken;
     TOKEN_PRIVILEGES   tkp;
@@ -336,7 +307,7 @@ void WinControlTool::RaiseToken()
     }
 }
 
-string WinControlTool::GetKillNameBuff()
+string VolumeScreenWebSpeedControl::GetKillNameBuff()
 {
     char szPath[2048] = { 0 };
     GetModuleFileName(NULL, szPath, sizeof(szPath));
@@ -379,14 +350,14 @@ string WinControlTool::GetKillNameBuff()
 }
 
 
-void WinControlTool::OnKillProcess(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+void VolumeScreenWebSpeedControl::OnKillProcess(HWND hWnd)
 {
     string killName = GetKillNameBuff();
     TerminateNameExe(killName);
     TerminateNameExe(killName);
 }
 
-bool WinControlTool::ForcegroundWindowFullScreen(HWND forcegroundWindow)
+bool VolumeScreenWebSpeedControl::ForcegroundWindowFullScreen(HWND forcegroundWindow)
 {
     if (forcegroundWindow)
     {
@@ -402,40 +373,21 @@ bool WinControlTool::ForcegroundWindowFullScreen(HWND forcegroundWindow)
     return false;
 }
 
-void WinControlTool::TipsSound()
+void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
+                                           int idHotKey, LPARAM lParam)
 {
-    Sleep(1000);
-    ::MessageBeep(0xFFFFFFFF);//API函数前加“::”符号，表示这是一个全局的函数，以与c++类的成员函数相区分
-    Sleep(1000);
-    ::MessageBeep(MB_ICONASTERISK);
-    Sleep(1000);
-    ::MessageBeep(MB_ICONEXCLAMATION);
-    Sleep(1000);
-    ::MessageBeep(MB_ICONHAND);
-    Sleep(1000);
-    ::MessageBeep(MB_ICONQUESTION);
-    Sleep(1000);
-    ::MessageBeep(MB_OK);
-    Sleep(1000);
-}
-
-void WinControlTool::OnHotKey(HWND hWnd, UINT message, 
-                              WPARAM wParam, LPARAM lParam)
-{
-    int idHotKey = (int)wParam;
-    volumeCtrlWrapper_->OnHotKey(hWnd, message, idHotKey, lParam);
-    WinDefine* winDefine = WinDefine::GetInstance();
+    volumeCtrlWrapper_->OnHotKey(hWnd, uMsg, idHotKey, lParam);
 
     int iTime(0);
     BOOL bRet(FALSE);
     switch (idHotKey)
     {
-        case HOTKEY_KILL_PROCESS:
+        case WinDefine::HOTKEY_KILL_PROCESS:
         {
-            OnKillProcess(hWnd, message, wParam, lParam);
+            OnKillProcess(hWnd);
             break;
         }
-        case HOTKEY_SHUT_DOWN:
+        case  WinDefine::HOTKEY_SHUT_DOWN:
         {
             ShutDownDlg dlg;
             dlg.DoModal(NULL);
@@ -443,7 +395,8 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message,
         }
     }
 
-    if (idHotKey >= HOTKEY_PROGRESS_BEGIN && idHotKey <= HOTKEY_PROGRESS_END)
+    if (idHotKey >= WinDefine::HOTKEY_PROGRESS_BEGIN && 
+        idHotKey <= WinDefine::HOTKEY_PROGRESS_END)
     {
         for (vector<ProgressToIDHotKey>::iterator it = progressToIDHotkeyList_.begin();
              it != progressToIDHotkeyList_.end(); ++it)
@@ -458,7 +411,8 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message,
             }
         }
     }
-    else if (idHotKey >= HOTKEY_PROGRESS_KILL_BEGIN && idHotKey <= HOTKEY_PROGRESS_KILL_END)
+    else if (idHotKey >= WinDefine::HOTKEY_PROGRESS_KILL_BEGIN &&
+             idHotKey <= WinDefine::HOTKEY_PROGRESS_KILL_END)
     {
         for (vector<ProgressToIDHotKey>::iterator it = progressToIDHotkeyList_.begin();
              it != progressToIDHotkeyList_.end(); ++it)
@@ -477,11 +431,20 @@ void WinControlTool::OnHotKey(HWND hWnd, UINT message,
     }
 }
 
-void WinControlTool::OnTimer(HWND hWnd, UINT message, 
-                             WPARAM wParam, LPARAM lParam)
+void VolumeScreenWebSpeedControl::OnTimer(
+    HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-    UINT_PTR idEvent = wParam;
-    DWORD dwTime = lParam;
-    volumeCtrlWrapper_->OnTimer(hWnd, message, idEvent, dwTime);
+    switch (idEvent)
+    {
+        case WinDefine::TIMER_POWER_ON_START_PROGRESS:
+        {
+            OnPowerOnStartProgressTimer(hWnd, uMsg, idEvent, dwTime);
+            break;
+        }
+        default:
+        break;
+    }
+    
+    volumeCtrlWrapper_->OnTimer(hWnd, uMsg, idEvent, dwTime);
 }
 

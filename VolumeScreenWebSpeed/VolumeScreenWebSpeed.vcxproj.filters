@@ -24,9 +24,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="WinContorlTool.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
     <ClCompile Include="WinDefine.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
@@ -66,6 +63,12 @@
     <ClCompile Include="WindowControl.cpp">
       <Filter>view</Filter>
     </ClCompile>
+    <ClCompile Include="VolumeScreenWebSpeedControl.cpp">
+      <Filter>Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="file.cpp">
+      <Filter>Tool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -78,9 +81,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WinDefine.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="WinContorlTool.h">
       <Filter>Tool</Filter>
     </ClInclude>
     <ClInclude Include="MyVolumeCtrl.h">
@@ -115,6 +115,12 @@
     </ClInclude>
     <ClInclude Include="WindowControl.h">
       <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeScreenWebSpeedControl.h">
+      <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="file.h">
+      <Filter>Tool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

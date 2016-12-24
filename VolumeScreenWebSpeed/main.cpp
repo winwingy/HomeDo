@@ -1,5 +1,3 @@
-// VolumeScreenWebSpeed.cpp : 定义应用程序的入口点。
-//
 #include "stdafx.h"
 #include "VolumeScreenWebSpeed.h"
 
@@ -11,7 +9,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     MSG msg;
     HACCEL hAccelTable = nullptr;
     VolumeScreenWebSpeed volumeScreenWebSpeed;
-    volumeScreenWebSpeed.Init();
+    if (!volumeScreenWebSpeed.Init())
+        return -1;
+
+    volumeScreenWebSpeed.Create(nullptr, 0, 0, 0, 0);
     volumeScreenWebSpeed.Show();
     // 主消息循环:
     while (GetMessage(&msg, NULL, 0, 0))

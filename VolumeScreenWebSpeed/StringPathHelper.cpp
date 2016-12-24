@@ -11,19 +11,28 @@ string StringPathHelper::RemovePathExt(const string& pathString)
     string::size_type pos = pathString.rfind('.');
     if (pos != string::npos)
     {
-        return string(pathString, pos, pathString.size() - pos);
+        return string(pathString, 0, pos);
     }
     return pathString;
 }
 
 string StringPathHelper::RemoveOnelastPath(const string& pathString)
 {
-    string::size_type pos = pathString.rfind('\\');
+    string ret(pathString);
+    if (!ret.empty() && (ret[ret.size() - 1] == '\\'))
+    {
+        ret.erase(ret.size() - 1);
+    } 
+    string::size_type pos = ret.rfind('\\');
     if (pos != string::npos)
     {
-        return string(pathString, pos, pathString.size() - pos);
+        ret = string(ret, 0, pos);
     }
-    return pathString;
+    if (!ret.empty() && (ret[ret.size() -1] != '\\'))
+    {
+        ret += '\\';
+    }
+    return ret;
 }
 
 string StringPathHelper::IntToString(int inValue)

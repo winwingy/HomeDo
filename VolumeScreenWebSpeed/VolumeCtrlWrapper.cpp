@@ -30,7 +30,7 @@ bool VolumeCtrlWrapper::InitVolumeHotKey(HWND hWnd)
     if (isInitVolume)
     {
         int initTime = config_->GetValue(CONFIG_SET, "InitVolumeTimeMs", 5000);
-        SetTimer(hWnd, TIMER_INIT_VOLUME, initTime, nullptr);
+        SetTimer(hWnd, WinDefine::TIMER_INIT_VOLUME, initTime, nullptr);
     }
     return true;
 }
@@ -38,9 +38,8 @@ bool VolumeCtrlWrapper::InitVolumeHotKey(HWND hWnd)
 void VolumeCtrlWrapper::OnTimer(
     HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-    if (uMsg == WM_TIMER && idEvent == TIMER_INIT_VOLUME)
+    if (idEvent == WinDefine::TIMER_INIT_VOLUME)
     {
-        WinDefine* winDefine = WinDefine::GetInstance();
         int initVolume = config_->GetValue(CONFIG_SET, "InitVolume", 30);
         if (!userChangedVolume_)
             myVolumeCtrl_->SetVolume(initVolume);
@@ -53,16 +52,17 @@ void VolumeCtrlWrapper::OnTimer(
 void VolumeCtrlWrapper::OnHotKey(
     HWND hwnd, UINT uMsg, int idHotKey, LPARAM lParam)
 {
-    if (idHotKey == HOTKEY_VOLUME_UP || idHotKey == HOTKEY_VOLUME_DOWN)
+    if (idHotKey == WinDefine::HOTKEY_VOLUME_UP ||
+        idHotKey == WinDefine::HOTKEY_VOLUME_DOWN)
     {
-        if ((idHotKey == HOTKEY_VOLUME_DOWN) && !userChangedVolume_)
+        if ((idHotKey == WinDefine::HOTKEY_VOLUME_DOWN) && !userChangedVolume_)
         {
             int initVolume = config_->GetValue(CONFIG_SET, "InitVolume", 30);
             myVolumeCtrl_->SetVolume(initVolume * 1 / 3);
             userChangedVolume_ = true;
         }
         int volumeNow = myVolumeCtrl_->GetVolume();   //得到的值偏小1
-        if (idHotKey == HOTKEY_VOLUME_UP)
+        if (idHotKey == WinDefine::HOTKEY_VOLUME_UP)
             volumeNow += perVolumeGap_;
         else
             volumeNow -= perVolumeGap_;

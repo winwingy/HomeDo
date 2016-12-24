@@ -47,7 +47,7 @@ LRESULT ToastWindow::WndProc(
     return 0;
 }
 
-void WindowControl::CreateParam(DWORD* styleEx, DWORD* style)
+void ToastWindow::CreateParam(DWORD* styleEx, DWORD* style)
 {
     *styleEx |= WS_EX_TOOLWINDOW;
     *style |= ~(WS_BORDER | WS_CAPTION | WS_SYSMENU |

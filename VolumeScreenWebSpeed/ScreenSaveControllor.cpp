@@ -64,8 +64,8 @@ void ScreenSaveControllor::ShowToastWindow(bool IsNotScreenSave)
 void ScreenSaveControllor::StopNotScreenSave(HWND hwnd, bool playSound)
 {
     toastWindow_.reset();
-    KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE);
-    KillTimer(hwnd, TIMER_NOT_SCREEN_SAVE_MAX);
+    KillTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE);
+    KillTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE_MAX);
     if (playSound)
     {
         PlaySoundHappy(0, 2);
@@ -80,20 +80,21 @@ bool ScreenSaveControllor::InitControllor(HWND hWnd)
 void ScreenSaveControllor::OnTimer(
     HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-    if (TIMER_CLOSE_SCREEN == idEvent || TIMER_CLOSE_SCREEN_ADD == idEvent)
+    if (WinDefine::TIMER_CLOSE_SCREEN == idEvent ||
+        WinDefine::TIMER_CLOSE_SCREEN_ADD == idEvent)
     {
         KillTimer(hwnd, idEvent);
         ::PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, (LPARAM)1);
         ::PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, (LPARAM)2);
     }
-    else if (TIMER_NOT_SCREEN_SAVE == idEvent)
+    else if (WinDefine::TIMER_NOT_SCREEN_SAVE == idEvent)
     {
         INPUT input = { 0 };
         input.type = INPUT_KEYBOARD;
         input.ki.wVk = VK_F24;
         SendInput(1, &input, sizeof(INPUT));
     }
-    else if (TIMER_NOT_SCREEN_SAVE_MAX == idEvent)
+    else if (WinDefine::TIMER_NOT_SCREEN_SAVE_MAX == idEvent)
     {
         StopNotScreenSave(hwnd, true);
     }
@@ -106,11 +107,12 @@ void ScreenSaveControllor::OnHotKeyNotScreenSave(
     Config* config = Config::GetShared();
     int notScreenSavePerInputTimeSec = 
         config->GetValue(CONFIG_SET, "notScreenSavePerInputTimeSec", 5 * 60);
-    SetTimer(hwnd, TIMER_NOT_SCREEN_SAVE, notScreenSavePerInputTimeSec, nullptr);
+    SetTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE, 
+             notScreenSavePerInputTimeSec, nullptr);
     int notScreenSavePerInputMAXTimeMin = config->GetValue(
         CONFIG_SET, "notScreenSavePerInputMAXTimeMin", 80);
-    SetTimer(hwnd, TIMER_NOT_SCREEN_SAVE_MAX, notScreenSavePerInputTimeSec,
-             nullptr);
+    SetTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE_MAX,
+             notScreenSavePerInputTimeSec, nullptr);
     ShowToastWindow(true);
     PlaySoundHappy(0, 6);
 }
@@ -118,17 +120,17 @@ void ScreenSaveControllor::OnHotKeyNotScreenSave(
 void ScreenSaveControllor::OnHotKey(
     HWND hwnd, UINT uMsg, int idHotKey, LPARAM lParam)
 {
-    if (idHotKey == HOTKEY_CLOSE_SCREEN)
+    if (idHotKey == WinDefine::HOTKEY_CLOSE_SCREEN)
     {
-        SetTimer(hwnd, TIMER_CLOSE_SCREEN, 1500, nullptr);
-        SetTimer(hwnd, TIMER_CLOSE_SCREEN_ADD, 4000, nullptr);
+        SetTimer(hwnd, WinDefine::TIMER_CLOSE_SCREEN, 1500, nullptr);
+        SetTimer(hwnd, WinDefine::TIMER_CLOSE_SCREEN_ADD, 4000, nullptr);
         StopNotScreenSave(hwnd, false);
     }
-    else if (idHotKey == HOTKEY_NOT_SCREEN_SAVE)
+    else if (idHotKey == WinDefine::HOTKEY_NOT_SCREEN_SAVE)
     {
         OnHotKeyNotScreenSave(hwnd, uMsg, idHotKey, lParam);
     }
-    else if (idHotKey == HOTKEY_STOP_NOT_SCREEN_SAVE)
+    else if (idHotKey == WinDefine::HOTKEY_STOP_NOT_SCREEN_SAVE)
     {
         //OnStopNotScreentSave(hwnd);
     }

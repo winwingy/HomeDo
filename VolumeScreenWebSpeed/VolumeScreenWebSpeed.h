@@ -1,8 +1,7 @@
 #pragma once
 
-#include "resource.h"
 #include "WindowControl.h"
-class WinControlTool;
+class VolumeScreenWebSpeedControl;
 
 class VolumeScreenWebSpeed : public WindowControl
 {
@@ -14,12 +13,13 @@ public:
     void Show();
 
 private: 
-    bool MyRegisterClass(HINSTANCE hInstance, const TCHAR* szWindowClass);
-    virtual LRESULT WndProc(HWND hWnd, UINT message,
-                            WPARAM wParam, LPARAM lParam) override;
-//     LRESULT CALLBACK WndProcSta(HWND hWnd, UINT message,
-//                                 WPARAM wParam, LPARAM lParam);
+    virtual bool OnCreate(HWND hWnd, UINT uMsg,
+                          WPARAM wParam, LPARAM lParam, LRESULT* result) override;
+    virtual bool OnTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent,
+                         DWORD dwTime, LRESULT* result) override;
+    virtual bool OnHotKey(HWND hWnd, UINT uMsg, int idHotKey,
+                          LPARAM lParam, LRESULT* result) override;
 
     HANDLE mutexHandle_;
-    WinControlTool* winControlTool_;
+    std::unique_ptr<VolumeScreenWebSpeedControl> controller_;
 };

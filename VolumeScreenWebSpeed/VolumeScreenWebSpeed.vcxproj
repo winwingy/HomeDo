@@ -61,7 +61,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -90,6 +90,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="config.cpp" />
+    <ClCompile Include="file.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyVolumeCtrl.cpp" />
     <ClCompile Include="NotScreenSaveDlg.cpp" />
@@ -104,12 +105,13 @@
     <ClCompile Include="ToastWindow.cpp" />
     <ClCompile Include="VolumeCtrlWrapper.cpp" />
     <ClCompile Include="VolumeScreenWebSpeed.cpp" />
-    <ClCompile Include="WinContorlTool.cpp" />
+    <ClCompile Include="VolumeScreenWebSpeedControl.cpp" />
     <ClCompile Include="WinDefine.cpp" />
     <ClCompile Include="WindowControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
+    <ClInclude Include="file.h" />
     <ClInclude Include="MyVolumeCtrl.h" />
     <ClInclude Include="NotScreenSaveDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -122,7 +124,7 @@
     <ClInclude Include="ToastWindow.h" />
     <ClInclude Include="VolumeCtrlWrapper.h" />
     <ClInclude Include="VolumeScreenWebSpeed.h" />
-    <ClInclude Include="WinContorlTool.h" />
+    <ClInclude Include="VolumeScreenWebSpeedControl.h" />
     <ClInclude Include="WinDefine.h" />
     <ClInclude Include="WindowControl.h" />
   </ItemGroup>

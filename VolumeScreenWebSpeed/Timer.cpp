@@ -14,7 +14,12 @@ namespace
 
         }
         void Init(Timer* TimerObj, int TimerId,
-                  const Timer::TimerFun& TimerFunItem);
+                  const Timer::TimerFun& TimerFunItem)
+        {
+            timerObj_ = TimerObj;
+            timerId_ = TimerId;
+            timerFunItem_ = TimerFunItem;
+        }
 
         Timer* GetTimerObj(){ return timerObj_;}
         int GetTimerId(){ return timerId_; }

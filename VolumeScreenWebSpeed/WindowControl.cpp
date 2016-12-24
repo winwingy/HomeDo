@@ -95,5 +95,67 @@ LRESULT CALLBACK WindowControl::WndProcSta(
 LRESULT WindowControl::WndProc(
     HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    return DefWindowProc(hWnd, message, wParam, lParam);
+    bool handle = false;
+    LRESULT lrs = S_OK;
+    switch (message)
+    {
+        case WM_CREATE:
+        {
+            handle = OnCreate(hWnd, message, wParam, lParam, &lrs);
+            break;
+        }
+        case WM_TIMER:
+        {
+            handle = OnTimer(hWnd, message, static_cast<UINT_PTR>(wParam),
+                             static_cast<DWORD>(lParam), &lrs);
+            break;
+        }
+        case WM_HOTKEY:
+        {
+            handle = OnHotKey(hWnd, message, static_cast<int>(wParam),
+                              lParam, &lrs);
+            break;
+        }
+        case WM_PAINT:
+        {
+            PAINTSTRUCT ps = { 0 };
+            HDC hdc = BeginPaint(hWnd, &ps);
+            // TODO: 在此添加任意绘图代码...
+            EndPaint(hWnd, &ps);
+            break;
+        }
+        case WM_DESTROY:
+        {
+            PostQuitMessage(0);
+            break;
+        }
+        default:
+        break;
+    }
+    if (handle)
+    {
+        return lrs;
+    }
+    else
+    {
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+}
+
+bool WindowControl::OnCreate(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* result)
+{
+    return false;
+}
+
+bool WindowControl::OnTimer(
+    HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime, LRESULT* result)
+{
+    return false;
+}
+
+bool WindowControl::OnHotKey(
+    HWND hWnd, UINT uMsg, int idHotKey, LPARAM lParam, LRESULT* result)
+{
+    return false;
 }

@@ -10,11 +10,11 @@ class ToastWindow;
 class Config;
 class VolumeCtrlWrapper;
 
-class WinControlTool
+class VolumeScreenWebSpeedControl
 {
 public:
-    WinControlTool(void);
-    ~WinControlTool(void);
+    VolumeScreenWebSpeedControl(void);
+    ~VolumeScreenWebSpeedControl(void);
 
     struct ProgressToIDHotKey
     {
@@ -38,9 +38,9 @@ public:
         }
     };
 
-    void OnCreate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    void OnHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    void OnTimer(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    void OnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    void OnHotKey(HWND hWnd, UINT uMsg, int idHotKey, LPARAM lParam);
+    void OnTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
 private:
 
@@ -50,10 +50,8 @@ private:
     void InitPowerOnStartProgress(HWND hWnd);
 
     string GetKillNameBuff();
-    void OnKillProcess(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    static VOID CALLBACK PowerOnStartProgressTimeProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-    static VOID CALLBACK GetWebTimeTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-    static VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+    void OnKillProcess(HWND hWnd);
+    void OnPowerOnStartProgressTimer(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
     static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
     void KillProgressByNames(const vector<string>& namelist, bool tryExistFirst);
     void TerminateNameExe(string& strNameExe);
@@ -61,14 +59,11 @@ private:
     void RaiseToken();
     bool ForcegroundWindowFullScreen(HWND forcegroundWindow);
     void OnHotKeyNotScreenSave(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    void TipsSound();
     void StopNotScreenSave(HWND hwnd, bool playSound);
     void InitProgressConfig(HWND hWnd);
     static VOID CALLBACK VolumeTimerProc(HWND hwnd, UINT uMsg,
                                          UINT_PTR idEvent, DWORD dwTime);
 private:
-
-    static WinControlTool* winControlTool;
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
     std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;

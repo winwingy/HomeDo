@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "WinDefine.h"
 
-WinDefine* WinDefine::windefine_ = NULL;
-
 namespace
 {
 
@@ -61,11 +59,7 @@ namespace
     };
 }
 
-WinDefine::WinDefine(void)
-    : useJobConfig_(false)  
-    , iGetWebTimeCnt_(0)
-    , notScreenSavePerInputTime_(0)
-    , notScreenSaveCanTryCnt_(0)
+WinDefine::WinDefine(void)    
 {
 
 }
@@ -73,15 +67,6 @@ WinDefine::WinDefine(void)
 
 WinDefine::~WinDefine(void)
 {
-}
-
-WinDefine* WinDefine::GetInstance()
-{
-    if (windefine_ == NULL)
-    {
-        windefine_ = new WinDefine;
-    }
-    return windefine_;
 }
 
 int WinDefine::HotKeyStrigToVkKey(const string& hotKeyString)
