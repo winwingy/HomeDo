@@ -13,7 +13,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
         return -1;
 
     volumeScreenWebSpeed.Create(nullptr, 0, 0, 0, 0);
-    volumeScreenWebSpeed.Show();
+    volumeScreenWebSpeed.SetVisible();
     // 主消息循环:
     while (GetMessage(&msg, NULL, 0, 0))
     {

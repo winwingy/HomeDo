@@ -29,13 +29,12 @@ class WinDefine
 public:
     enum HOTKEY
     {
+        HOTKEY_OPEN_CONFIG = 1000,
         HOTKEY_VOLUME_UP = 1001,
         HOTKEY_VOLUME_DOWN = 1002,
         HOTKEY_CLOSE_SCREEN = 1003,
         HOTKEY_KILL_PROCESS,
-        HOTKEY_KILL_TTPLAYER,
         HOTKEY_NOT_SCREEN_SAVE,
-        HOTKEY_STOP_NOT_SCREEN_SAVE,
         HOTKEY_SHUT_DOWN,
 
         HOTKEY_PROGRESS_BEGIN = 5000,
@@ -53,7 +52,8 @@ public:
         TIMER_GET_WEB_TIME,
         TIMER_NOT_SCREEN_SAVE,
         TIMER_NOT_SCREEN_SAVE_MAX,
-        TIMER_POWER_ON_START_PROGRESS
+        TIMER_POWER_ON_START_PROGRESS,
+        TIMER_TOAST,
     };
     WinDefine(void);
     ~WinDefine(void);

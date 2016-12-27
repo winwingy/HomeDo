@@ -9,6 +9,7 @@ using std::vector;
 class ToastWindow;
 class Config;
 class VolumeCtrlWrapper;
+class ScreenSaveControllor;
 
 class VolumeScreenWebSpeedControl
 {
@@ -43,30 +44,24 @@ public:
     void OnTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
 private:
-
+    void RaiseToken();
     void InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     void InitGeneralHotKey(HWND hWnd);
     void InitProgressHotKey(HWND hWnd);
     void InitPowerOnStartProgress(HWND hWnd);
-
-    string GetKillNameBuff();
-    void OnKillProcess(HWND hWnd);
-    void OnPowerOnStartProgressTimer(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-    static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
-    void KillProgressByNames(const vector<string>& namelist, bool tryExistFirst);
-    void TerminateNameExe(string& strNameExe);
-
-    void RaiseToken();
-    bool ForcegroundWindowFullScreen(HWND forcegroundWindow);
-    void OnHotKeyNotScreenSave(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    void StopNotScreenSave(HWND hwnd, bool playSound);
     void InitProgressConfig(HWND hWnd);
-    static VOID CALLBACK VolumeTimerProc(HWND hwnd, UINT uMsg,
-                                         UINT_PTR idEvent, DWORD dwTime);
-private:
+
+    void OnKillProcess(HWND hWnd);
+    void OnPowerOnStartProgressTimer(HWND hwnd, UINT uMsg,
+                                     UINT_PTR idEvent, DWORD dwTime);
+
+    void KillProgressByNames(const vector<string>& namelist, bool tryExistFirst);
+    void OpenConfig();
+
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
     std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;
     vector<string> powerOnStartProgress_;
+    std::unique_ptr<ScreenSaveControllor> screenSaveControllor_;
 };
 

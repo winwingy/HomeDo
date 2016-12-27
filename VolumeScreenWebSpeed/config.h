@@ -10,6 +10,8 @@ class Config
 public:
     static Config* GetShared();
 
+    string GetConfigPath();
+
     string GetValue(
         const string& strAppName, const string& strKeyName, 
         const string& strDefault);
@@ -26,7 +28,8 @@ public:
         const string& strAppName, const string& strKeyName,
         int value);
 
-    vector<string> GetList(const string& listBegin, const string& listEnd);
+    bool GetList(const string& listBegin, const string& listEnd, 
+                 vector<string>* listText);
 
 private:
     Config();

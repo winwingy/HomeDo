@@ -28,12 +28,14 @@ bool WindowControl::MyRegisterClass(HINSTANCE hInstance,
     wcex.hIconSm = (HICON)LoadImage(NULL, "icon_show.ico",
                                     IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
     bool ret = false;
-    if (RegisterClassEx(&wcex))
+    WNDCLASS reg = { 0 };
+    bool isReg = !!::GetClassInfo(hInst_, szWindowClass, &reg);
+    if (isReg && (wcex.lpfnWndProc != reg.lpfnWndProc))
     {
         ::UnregisterClass(wcex.lpszClassName, hInstance);
-        ret = !!RegisterClassEx(&wcex);
     }
-    return ret;
+    RegisterClassEx(&wcex);
+    return true;
 }
 
 WindowControl::WindowControl()
@@ -55,7 +57,7 @@ HWND WindowControl::Create(HWND hWnd, int x, int y, int width, int height)
     CreateParam(&styleEx, &style);
     hWnd_ = ::CreateWindowExA(
         styleEx, ClassName, WindowsName, style,
-        x, y, x+width, y+height, NULL, NULL, hInst_,this);
+        x, y, width, height, NULL, NULL, hInst_,this);
     return hWnd_;
 }
 
@@ -64,7 +66,7 @@ void WindowControl::CreateParam(DWORD* styleEx, DWORD* style)
 
 }
 
-void WindowControl::Show(bool visible)
+void WindowControl::SetVisible(bool visible)
 {
     ShowWindow(hWnd_, visible? SW_SHOW : SW_HIDE);
 }
@@ -72,12 +74,15 @@ void WindowControl::Show(bool visible)
 LRESULT CALLBACK WindowControl::WndProcSta(
     HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    bool handle = false;
+    LRESULT lResult = 0;
     if (message == WM_NCCREATE)
     {
         LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(
             lParam);
         WindowControl* thisWnd = reinterpret_cast<WindowControl*>(
             createStruct->lpCreateParams);
+        thisWnd->hWnd_ = hWnd;
         ::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(thisWnd));
     }
     else
@@ -86,60 +91,51 @@ LRESULT CALLBACK WindowControl::WndProcSta(
             ::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         if (thisWnd)
         {
-            return thisWnd->WndProc(hWnd, message, wParam, lParam);
+            handle = thisWnd->WndProc(message, wParam, lParam, &lResult);
         }
     }
-    return DefWindowProc(hWnd, message, wParam, lParam);
+    if (!handle)
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    else
+        return lResult;
 }
 
-LRESULT WindowControl::WndProc(
-    HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+bool WindowControl::WndProc(UINT message, WPARAM wParam,
+                            LPARAM lParam, LRESULT* lResult)
 {
-    bool handle = false;
-    LRESULT lrs = S_OK;
+    bool handle = false;  
     switch (message)
     {
         case WM_CREATE:
         {
-            handle = OnCreate(hWnd, message, wParam, lParam, &lrs);
+            handle = OnCreate(hWnd_, message, wParam, lParam, lResult);
             break;
         }
         case WM_TIMER:
         {
-            handle = OnTimer(hWnd, message, static_cast<UINT_PTR>(wParam),
-                             static_cast<DWORD>(lParam), &lrs);
+            handle = OnTimer(hWnd_, message, static_cast<UINT_PTR>(wParam),
+                             static_cast<DWORD>(lParam), lResult);
             break;
         }
         case WM_HOTKEY:
         {
-            handle = OnHotKey(hWnd, message, static_cast<int>(wParam),
-                              lParam, &lrs);
+            handle = OnHotKey(hWnd_, message, static_cast<int>(wParam),
+                              lParam, lResult);
             break;
         }
         case WM_PAINT:
         {
             PAINTSTRUCT ps = { 0 };
-            HDC hdc = BeginPaint(hWnd, &ps);
+            HDC hdc = BeginPaint(hWnd_, &ps);
             // TODO: 在此添加任意绘图代码...
-            EndPaint(hWnd, &ps);
-            break;
-        }
-        case WM_DESTROY:
-        {
-            PostQuitMessage(0);
+            EndPaint(hWnd_, &ps);
+            handle = true;
             break;
         }
         default:
         break;
     }
-    if (handle)
-    {
-        return lrs;
-    }
-    else
-    {
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
+    return handle;
 }
 
 bool WindowControl::OnCreate(

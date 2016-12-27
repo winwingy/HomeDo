@@ -1,9 +1,11 @@
 #include "StdAfx.h"
 #include "ScreenSaveControllor.h"
 #include <assert.h>
+#include <sstream>
 #include "WinDefine.h"
 #include "config.h"
 #include "ToastWindow.h"
+
 
 namespace
 {
@@ -39,7 +41,7 @@ ScreenSaveControllor::~ScreenSaveControllor(void)
 
 }
 
-void ScreenSaveControllor::ShowToastWindow(bool IsNotScreenSave)
+void ScreenSaveControllor::ShowToastWindow(bool IsNotScreenSave, int timeMin)
 {
     int showScreeenSaveToast = config_->GetValue(
         CONFIG_SET, "ShowScreeenSaveToast", 0);
@@ -49,15 +51,26 @@ void ScreenSaveControllor::ShowToastWindow(bool IsNotScreenSave)
         {
             toastWindow_.reset(new ToastWindow());
             int width = GetSystemMetrics(SM_CXSCREEN);
-            toastWindow_->Create(nullptr, width - 500, 0, 300, 50);
+            toastWindow_->Create(nullptr, width - 500, 0, 200, 30);
         }
-        int ShowScreeenSaveToastTimeSec = config_->GetValue(
-            CONFIG_SET, "ShowScreeenSaveToastTimeSec", 2);
-        string ShowScreeenSaveToastTimeText = config_->GetValue(
-            CONFIG_SET, "ShowScreeenSaveToastTimeText", 
-            IsNotScreenSave ? "Not Screen Save Ok" : "Normal Screen Save");
-        toastWindow_->Show(ShowScreeenSaveToastTimeSec,
-                           ShowScreeenSaveToastTimeText);
+        int ShowScreeenSaveToastTimeMs = config_->GetValue(
+            CONFIG_SET, "ShowScreeenSaveToastTimeMs", 2000);
+        string ShowScreeenSaveToastTimeTextBeg = config_->GetValue(
+            CONFIG_SET, "ShowScreeenSaveToastTimeTextBeg", 
+            "Not Screen Save: ");
+        string ShowScreeenSaveToastTimeTextEnd = config_->GetValue(
+            CONFIG_SET, "ShowScreeenSaveToastTimeTextEnd", " Min");
+        std::stringstream ss;
+        if (IsNotScreenSave)
+        {
+            ss << ShowScreeenSaveToastTimeTextBeg << timeMin
+                << ShowScreeenSaveToastTimeTextEnd;
+        }
+        else
+        {
+            ss << "Screen Save Normal";
+        }
+        toastWindow_->Show(ShowScreeenSaveToastTimeMs, ss.str());
     }
 }
 
@@ -100,7 +113,6 @@ void ScreenSaveControllor::OnTimer(
     }
 }
 
-
 void ScreenSaveControllor::OnHotKeyNotScreenSave(
     HWND hwnd, UINT uMsg, int idHotKey, LPARAM lParam)
 {
@@ -108,12 +120,12 @@ void ScreenSaveControllor::OnHotKeyNotScreenSave(
     int notScreenSavePerInputTimeSec = 
         config->GetValue(CONFIG_SET, "notScreenSavePerInputTimeSec", 5 * 60);
     SetTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE, 
-             notScreenSavePerInputTimeSec, nullptr);
+             notScreenSavePerInputTimeSec * 1000, nullptr);
     int notScreenSavePerInputMAXTimeMin = config->GetValue(
         CONFIG_SET, "notScreenSavePerInputMAXTimeMin", 80);
     SetTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE_MAX,
-             notScreenSavePerInputTimeSec, nullptr);
-    ShowToastWindow(true);
+             notScreenSavePerInputMAXTimeMin * 60 * 1000, nullptr);
+    ShowToastWindow(true, notScreenSavePerInputMAXTimeMin);
     PlaySoundHappy(0, 6);
 }
 
@@ -129,9 +141,5 @@ void ScreenSaveControllor::OnHotKey(
     else if (idHotKey == WinDefine::HOTKEY_NOT_SCREEN_SAVE)
     {
         OnHotKeyNotScreenSave(hwnd, uMsg, idHotKey, lParam);
-    }
-    else if (idHotKey == WinDefine::HOTKEY_STOP_NOT_SCREEN_SAVE)
-    {
-        //OnStopNotScreentSave(hwnd);
     }
 }

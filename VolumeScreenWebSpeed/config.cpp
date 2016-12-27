@@ -4,6 +4,9 @@
 #include <memory>
 #include <assert.h>
 #include "StringPathHelper.h"
+#include "file.h"
+#include <string.h>
+#include "WinDefine.h"
 
 Config* Config::pThis_ = nullptr;
 
@@ -39,18 +42,30 @@ namespace
         return false;
     }
 
-    bool FileExist(const string& path)
+    bool ConfigFileExist(const string& strFileName, string* configDir)
     {
-        FILE* fp = nullptr;
-        fopen_s(&fp, path.c_str(), "r");
-        if (fp)
-            fclose(fp);
-
-        return !!fp;
+        if (!configDir)
+        {
+            return false;
+        }
+        char szPath[2048] = { 0 };
+        GetModuleFileName(nullptr, szPath, sizeof(szPath));
+        string moduleDir = StringPathHelper::RemoveOnelastPath(szPath);
+        string strPathConfig = moduleDir + strFileName;
+        if (!File::FileOrDirExist(strPathConfig))
+        {
+            moduleDir = StringPathHelper::RemoveOnelastPath(moduleDir);
+            strPathConfig = moduleDir + strFileName;
+            if (!File::FileOrDirExist(strPathConfig))
+            {
+                assert(0 && "Config File NotExist");
+                return false;
+            }
+        }
+        *configDir = moduleDir;
+        return true;
     }
-
 }
-
 
 Config* Config::GetShared()
 {
@@ -74,28 +89,9 @@ Config::~Config(void)
 
 }
 
-bool ConfigFileExist(const string& strFileName, string* configDir)
+string Config::GetConfigPath()
 {
-    if (!configDir)
-    {
-        return false;
-    }
-    char szPath[2048] = { 0 };
-    GetModuleFileName(nullptr, szPath, sizeof(szPath));
-    string moduleDir = StringPathHelper::RemoveOnelastPath(szPath);
-    string strPathConfig = moduleDir + strFileName;
-    if (!FileExist(strPathConfig))
-    {
-        moduleDir = StringPathHelper::RemoveOnelastPath(moduleDir);
-        strPathConfig = moduleDir + strFileName;
-        if (!FileExist(strPathConfig))
-        {
-            assert(0 && "Config File NotExist");
-            return false;
-        }
-    }
-    *configDir = moduleDir;
-    return true;
+    return configPath_;
 }
 
 bool Config::Init(const string& strFileName, const string& fileNameJob)
@@ -145,11 +141,44 @@ void Config::SetValue(const string& strAppName,
     assert(0);
 }
 
-vector<string> Config::GetList(const string& listBegin, const string& listEnd)
+bool Config::GetList(const string& listBegin, const string& listEnd,
+                     vector<string>* listText)
 {
-    char szBuffer[2048] = { 0 };
-    fread(szBuffer, 2047, 1, fp);
-    fclose(fp);
+    do 
+    {
+        File file(configPath_, "r");
+        if (!file.IsValid())
+            break;
+
+        INT64 fileSize = file.GetFileSize();
+        string text;
+        text.resize(static_cast<size_t>(fileSize));
+        if (text.empty())
+            break;
+        
+        int readed = file.Read(&text[0], 1, static_cast<size_t>(fileSize));
+        if (readed <= 0)
+            break;
+
+        string::size_type beg = text.find(listBegin);
+        string::size_type end = text.find(listEnd);
+        string target;
+        if (beg != string::npos && end != string::npos)
+        {
+            beg += strlen(CONFIG_SET_KILLNAME_BEGIN);
+            if (beg < end)
+            {
+                target.assign(text, beg, end - beg);
+            }
+        }
+        if (target.empty())
+            break; 
+
+        StringPathHelper::SplitStringBySign(target, "\n", listText);
+        return true;
+    } while (0);
+
+    return false;
 }
 
 

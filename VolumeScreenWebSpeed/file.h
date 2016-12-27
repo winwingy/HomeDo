@@ -4,31 +4,18 @@
 class File
 {
 public:
-    string GetValue(
-        const string& strAppName, const string& strKeyName, 
-        const string& strDefault);
-
-    int GetValue(
-        const string& strAppName, const string& strKeyName,
-        int defaultValue);
-
-    void SetValue(
-        const string& strAppName, const string& strKeyName,
-        const string& value);
-
-    void SetValue(
-        const string& strAppName, const string& strKeyName,
-        int value);
-
-    vector<string> GetList(const string& listBegin, const string& listEnd);
+    static INT64 GetFileSize(const string& path);
+    static bool FileOrDirExist(const string& path);
+    File(const string& path, const string& mode);
+    ~File();
+    bool IsValid();
+    int Read(char* buf, int size, int count);  
+    int Write(const char* buf, int size, int count);
+    INT64 GetFileSize();
+    INT64 ftell();
+    int fseek(INT64 nowPos, int origin);
 
 private:
-    File();
-    ~File(void);
-    bool Init(const string& strFileName, const string& fileNameJob);
-
-    static File* pThis_;
-    std::map<std::string, std::string> cache_;
-    string configPath_;
+    FILE* fp_;
 };
 #endif

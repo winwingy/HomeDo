@@ -10,7 +10,7 @@ public:
     ~VolumeScreenWebSpeed();
 
     bool Init();
-    void Show();
+    void SetVisible();
 
 private: 
     virtual bool OnCreate(HWND hWnd, UINT uMsg,
@@ -19,6 +19,8 @@ private:
                          DWORD dwTime, LRESULT* result) override;
     virtual bool OnHotKey(HWND hWnd, UINT uMsg, int idHotKey,
                           LPARAM lParam, LRESULT* result) override;
+    virtual bool WndProc(UINT message, WPARAM wParam, LPARAM lParam,
+                         LRESULT* lResult) override;
 
     HANDLE mutexHandle_;
     std::unique_ptr<VolumeScreenWebSpeedControl> controller_;

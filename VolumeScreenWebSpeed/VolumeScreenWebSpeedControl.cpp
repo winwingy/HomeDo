@@ -12,6 +12,7 @@
 #include "config.h"
 #include "StringPathHelper.h"
 #include "VolumeCtrlWrapper.h"
+#include "ScreenSaveControllor.h"
 #pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
@@ -60,12 +61,27 @@ namespace
         TranslateStringToVKKey(hotKeyString, &vkCtrl, &vkKey);
         return !!::RegisterHotKey(hWnd, hotKeyId, vkCtrl, vkKey);
     }
+
+    void ShellExcuteProgress(const string& path)
+    {
+        if (path.empty())
+            return;
+        
+        SHELLEXECUTEINFOA stExecInfo = { 0 };
+        stExecInfo.cbSize = sizeof(stExecInfo);
+        stExecInfo.fMask = SEE_MASK_FLAG_NO_UI;
+        stExecInfo.lpVerb = "open";
+        stExecInfo.lpFile = path.c_str();
+        stExecInfo.nShow = SW_SHOW;
+        BOOL bRet = ShellExecuteExA(&stExecInfo);
+    }
 }
 
 VolumeScreenWebSpeedControl::VolumeScreenWebSpeedControl(void)
     : config_(Config::GetShared())
     , volumeCtrlWrapper_(new VolumeCtrlWrapper())
     , powerOnStartProgress_()
+    , screenSaveControllor_(new ScreenSaveControllor())
 {
 
 }
@@ -119,7 +135,10 @@ void VolumeScreenWebSpeedControl::InitProgressHotKey(HWND hWnd)
 void VolumeScreenWebSpeedControl::InitGeneralHotKey(HWND hWnd)
 {
     BOOL bRet = FALSE;
-    string hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyVolumeUp", "");
+    string hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyOpenConfig", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_OPEN_CONFIG);
+    
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyVolumeUp", "");
     bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_VOLUME_UP);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyVolumeDown", "");
@@ -148,7 +167,7 @@ void VolumeScreenWebSpeedControl::InitHotKey(HWND hWnd, UINT message, WPARAM wPa
 void VolumeScreenWebSpeedControl::InitPowerOnStartProgress(HWND hWnd)
 {
     int progressTime = config_->GetValue(
-        CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressTime", 5000);
+        CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressDelayTime", 5000);
 
     int progressCount = config_->GetValue(
         CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressCount", 10);
@@ -168,6 +187,7 @@ void VolumeScreenWebSpeedControl::InitPowerOnStartProgress(HWND hWnd)
 void VolumeScreenWebSpeedControl::InitProgressConfig(HWND hWnd)
 {
     volumeCtrlWrapper_->InitVolumeHotKey(hWnd);
+    screenSaveControllor_->InitControllor(hWnd);
 }
 
 void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
@@ -182,76 +202,88 @@ void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
     InitProgressConfig(hWnd);
 }
 
-BOOL CALLBACK VolumeScreenWebSpeedControl::EnumWindowsProc(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK EnumThreadWindows(
+    HWND hwnd, LPARAM lParam)
 {
-    DWORD dwThisID = 0;
-    GetWindowThreadProcessId(hwnd, &dwThisID);
-    if (dwThisID == (DWORD)lParam)
-    {
-        PostMessage(hwnd, WM_CLOSE, 0, 0);
-    }
+    PostMessage(hwnd, WM_CLOSE, 0, 0);
     return TRUE;
+}
+
+void EnumCloseThreadWnd(DWORD pId)
+{
+    HANDLE hSnapshotThread = INVALID_HANDLE_VALUE;
+    do 
+    {
+        hSnapshotThread = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, pId);
+        if (hSnapshotThread == INVALID_HANDLE_VALUE)
+            break;
+
+        THREADENTRY32 pe = { 0 };
+        pe.dwSize = sizeof(THREADENTRY32);
+        if (!Thread32First(hSnapshotThread, &pe))
+            break;
+
+        do
+        {
+            ::EnumWindows(EnumThreadWindows, pe.th32ThreadID);
+        } while (Thread32Next(hSnapshotThread, &pe));
+        Sleep(3000);
+    } while (0);
+    if (hSnapshotThread != INVALID_HANDLE_VALUE)
+        CloseHandle(hSnapshotThread);
+}
+
+void EnumKillProcess(const vector<string>& killName, bool tryExistFirst)
+{
+    PROCESSENTRY32 pe = { 0 };
+    pe.dwSize = sizeof(PROCESSENTRY32);
+    HANDLE hSnapshot = INVALID_HANDLE_VALUE;
+    do 
+    {
+        hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (hSnapshot == INVALID_HANDLE_VALUE)
+            break;
+        
+        if (Process32First(hSnapshot, &pe))
+            break;
+
+        do
+        {
+            string exeFile = StringPathHelper::ToUpperString(pe.szExeFile);
+            for (vector<string>::const_iterator it = killName.begin();
+                 it < killName.end(); ++it)
+            {
+                if (*it == exeFile)
+                {
+                    if (tryExistFirst)
+                        EnumCloseThreadWnd(pe.th32ProcessID);
+
+                    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE,
+                                                  pe.th32ProcessID);
+                    TerminateProcess(hProcess, 0);
+                    CloseHandle(hProcess);
+                }
+            }
+        } while (Process32Next(hSnapshot, &pe));
+        
+    } while (0);
+    if (hSnapshot == INVALID_HANDLE_VALUE)
+        CloseHandle(hSnapshot);
+
 }
 
 void VolumeScreenWebSpeedControl::KillProgressByNames(
     const vector<string>& nameList, bool tryExistFirst)
 {
+    if (nameList.empty())
+        return;
+    
     vector<string> vecUpName;
     std::transform(nameList.begin(), nameList.end(),
                    std::back_inserter(vecUpName),
                    StringPathHelper::ToUpperString);
 
-    PROCESSENTRY32 pe = { 0 };
-    pe.dwSize = sizeof(PROCESSENTRY32);
-    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    BOOL bRet = Process32First(hSnapshot, &pe);
-    TRACE_ZZ("%d\n", bRet);
-    DWORD dwErr = GetLastError();
-    TRACE_ZZ("%d\n", dwErr);
-    do
-    {
-        TRACE_WW(pe.szExeFile);
-        TRACE_WW("\n");
-        _strupr_s(pe.szExeFile);
-        TRACE_WW(pe.szExeFile);
-        TRACE_WW("\nGo TO Kill\n");
-        for (vector<string>::const_iterator it = vecUpName.begin(); it < vecUpName.end(); ++it)
-        {
-            if (*it == pe.szExeFile)
-            {
-                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe.th32ProcessID);
-                TRACE_WW(pe.szExeFile);
-                TRACE_WW("\t\t");
-#ifdef TRACE_WW
-                char szProcess[50] = { 0 };
-                sprintf_s(szProcess, _countof(szProcess), "%p", hProcess);
-                TRACE_WW(szProcess);
-                TRACE_WW("\n");
-#endif
-                if (tryExistFirst)
-                {
-                    EnumWindows(EnumWindowsProc, pe.th32ProcessID);
-                    Sleep(3000);
-                }
-                TerminateProcess(hProcess, 0);
-                CloseHandle(hProcess);
-            }
-        }
-    } while (Process32Next(hSnapshot, &pe));
-    CloseHandle(hSnapshot);
-}
-
-void VolumeScreenWebSpeedControl::TerminateNameExe(string& strNameExe)
-{
-    if (strNameExe.empty())
-    {
-        return;
-    }
-    StringPathHelper::ReplaceString(strNameExe, "\r\n", "\n");
-    StringPathHelper::ReplaceString(strNameExe, "\r", "\n");
-    vector<string> vecName;
-    StringPathHelper::SplitStringBySign(strNameExe, "\n", &vecName);
-    KillProgressByNames(vecName, false);
+    EnumKillProcess(vecUpName, tryExistFirst);
 }
 
 void  VolumeScreenWebSpeedControl::OnPowerOnStartProgressTimer(
@@ -259,15 +291,14 @@ void  VolumeScreenWebSpeedControl::OnPowerOnStartProgressTimer(
 {
     if (!powerOnStartProgress_.empty())
     {
-        SHELLEXECUTEINFOA stExecInfo = { 0 };
-        stExecInfo.cbSize = sizeof(stExecInfo);
-        stExecInfo.fMask = SEE_MASK_FLAG_NO_UI;
-        stExecInfo.lpFile = powerOnStartProgress_[0].c_str();
-        stExecInfo.nShow = SW_HIDE;
-        BOOL bRet = ShellExecuteExA(&stExecInfo);
+        ShellExcuteProgress(powerOnStartProgress_[0]);
         powerOnStartProgress_.erase(powerOnStartProgress_.begin());
     }
 
+    int progressTime = config_->GetValue(
+        CONFIG_POWER_ON_START_PROGRESS, "PowerOnStartProgressPerTime", 5000);
+    SetTimer(hwnd, WinDefine::TIMER_POWER_ON_START_PROGRESS, 
+             progressTime, nullptr);
     if (powerOnStartProgress_.empty())
         KillTimer(hwnd, idEvent);
 }
@@ -307,81 +338,40 @@ void VolumeScreenWebSpeedControl::RaiseToken()
     }
 }
 
-string VolumeScreenWebSpeedControl::GetKillNameBuff()
-{
-    char szPath[2048] = { 0 };
-    GetModuleFileName(NULL, szPath, sizeof(szPath));
-    string strPath(szPath);
-    int iPos = strPath.rfind("\\");
-    strPath.erase(iPos);
-
-    string strAnotherPath(strPath);
-
-    strPath += string("\\") + CONFIG_INF_FILENAME;
-    FILE* fp = NULL;
-    fopen_s(&fp, strPath.c_str(), "r");
-    if (fp == NULL)
-    {
-        iPos = strAnotherPath.rfind("\\");
-        strAnotherPath.erase(iPos);
-        strAnotherPath += string("\\") + CONFIG_INF_FILENAME;
-        fopen_s(&fp, strAnotherPath.c_str(), "r");
-        if (fp == NULL)
-        {
-            return "";
-        }
-    }
-    char szBuffer[2048] = { 0 };
-    fread(szBuffer, 2047, 1, fp);
-    fclose(fp);
-
-    char* beg = strstr(szBuffer, CONFIG_SET_KILLNAME_BEGIN);
-    char* end = strstr(szBuffer, CONFIG_SET_KILLNAME_END);
-    if (beg && end)
-    {
-        beg += strlen(CONFIG_SET_KILLNAME_BEGIN);
-        while ('\r' == *beg || '\n' == *beg)
-        {
-            beg++;
-        }
-        return string(beg, end);
-    }
-    return "";
-}
-
 
 void VolumeScreenWebSpeedControl::OnKillProcess(HWND hWnd)
 {
-    string killName = GetKillNameBuff();
-    TerminateNameExe(killName);
-    TerminateNameExe(killName);
+    vector<string> killNameList;
+    config_->GetList(CONFIG_SET_KILLNAME_BEGIN, CONFIG_SET_KILLNAME_END,
+                     &killNameList);
+    if (killNameList.empty())
+        return;
+
+    KillProgressByNames(killNameList, false);
+    KillProgressByNames(killNameList, false);
 }
 
-bool VolumeScreenWebSpeedControl::ForcegroundWindowFullScreen(HWND forcegroundWindow)
+void VolumeScreenWebSpeedControl::OpenConfig()
 {
-    if (forcegroundWindow)
-    {
-        RECT rect = { 0 };
-        GetWindowRect(forcegroundWindow, &rect);
-        int width = GetSystemMetrics(SM_CXSCREEN);
-        int height = GetSystemMetrics(SM_CYSCREEN);
-        if ((rect.right - rect.left >= width) && (rect.bottom - rect.top >= height))
-        {
-            return true;
-        }
-    }
-    return false;
+    string configPath = config_->GetConfigPath();
+    ShellExcuteProgress(configPath);
 }
 
 void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
                                            int idHotKey, LPARAM lParam)
 {
     volumeCtrlWrapper_->OnHotKey(hWnd, uMsg, idHotKey, lParam);
+    screenSaveControllor_->OnHotKey(hWnd, uMsg, idHotKey, lParam);
 
     int iTime(0);
     BOOL bRet(FALSE);
     switch (idHotKey)
     {
+        case WinDefine::HOTKEY_OPEN_CONFIG:
+        {
+            OpenConfig();
+            break;
+        }
         case WinDefine::HOTKEY_KILL_PROCESS:
         {
             OnKillProcess(hWnd);
@@ -398,34 +388,31 @@ void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
     if (idHotKey >= WinDefine::HOTKEY_PROGRESS_BEGIN && 
         idHotKey <= WinDefine::HOTKEY_PROGRESS_END)
     {
-        for (vector<ProgressToIDHotKey>::iterator it = progressToIDHotkeyList_.begin();
+        for (vector<ProgressToIDHotKey>::iterator it =
+             progressToIDHotkeyList_.begin();
              it != progressToIDHotkeyList_.end(); ++it)
         {
             if (it->ID == idHotKey)
             {
-                SHELLEXECUTEINFOA stInfo = { 0 };
-                stInfo.cbSize = sizeof(stInfo);
-                stInfo.lpFile = it->path.c_str();
-                stInfo.nShow = SW_SHOW;
-                ShellExecuteExA(&stInfo);
+                ShellExcuteProgress(it->path);
+                break;
             }
         }
     }
     else if (idHotKey >= WinDefine::HOTKEY_PROGRESS_KILL_BEGIN &&
              idHotKey <= WinDefine::HOTKEY_PROGRESS_KILL_END)
     {
-        for (vector<ProgressToIDHotKey>::iterator it = progressToIDHotkeyList_.begin();
+        for (vector<ProgressToIDHotKey>::iterator it =
+             progressToIDHotkeyList_.begin();
              it != progressToIDHotkeyList_.end(); ++it)
         {
             if (it->killID == idHotKey)
             {
-                string::size_type index = 0;
-                if (((index = it->path.rfind("\\")) != -1) ||
-                    ((index = it->path.rfind("/")) != -1))
-                {
-                    string killName(it->path, ++index, it->path.size() - index);
+                string killName(StringPathHelper::GetPathLastPart(it->path));
+                if (!killName.empty())
                     KillProgressByNames(vector<string>(1, killName), true);
-                }
+
+                break;
             }
         }
     }
@@ -446,5 +433,5 @@ void VolumeScreenWebSpeedControl::OnTimer(
     }
     
     volumeCtrlWrapper_->OnTimer(hWnd, uMsg, idEvent, dwTime);
+    screenSaveControllor_->OnTimer(hWnd, uMsg, idEvent, dwTime);
 }
-

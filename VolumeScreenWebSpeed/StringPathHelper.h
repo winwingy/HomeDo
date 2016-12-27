@@ -13,6 +13,7 @@ public:
     StringPathHelper();
     static string RemovePathExt(const string& pathString);
     static string RemoveOnelastPath(const string& pathString);
+    static string GetPathLastPart(const string& path);
     static string IntToString(int inValue);
     static int StringToInt(const string& valueStr);
     static void SplitStringBySign(const string& stringIn,

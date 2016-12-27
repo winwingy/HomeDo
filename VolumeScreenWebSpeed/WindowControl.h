@@ -5,7 +5,7 @@ public:
     WindowControl();
     ~WindowControl();
     virtual HWND Create(HWND hWnd, int x, int y, int width, int height);
-    virtual void Show(bool visible);
+    virtual void SetVisible(bool visible);
 
 protected: 
     virtual bool OnCreate(HWND hWnd, UINT uMsg,
@@ -15,8 +15,8 @@ protected:
     virtual bool OnHotKey(HWND hWnd, UINT uMsg, int idHotKey,
                              LPARAM lParam, LRESULT* result);
 
-    virtual LRESULT WndProc(HWND hWnd, UINT message,
-                            WPARAM wParam, LPARAM lParam);
+    virtual bool WndProc(UINT message, WPARAM wParam, LPARAM lParam,
+                            LRESULT* lResult);
     virtual void CreateParam(DWORD* style, DWORD* styleEx);
     bool MyRegisterClass(HINSTANCE hInstance, const TCHAR* szWindowClass);
  

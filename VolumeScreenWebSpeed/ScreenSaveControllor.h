@@ -16,7 +16,7 @@ private:
                                int idHotKey, LPARAM lParam);
     HWND NotScreenSave(HWND hWndParent, bool showDlg);
     void StopNotScreenSave(HWND hwnd, bool playSound);
-    void ShowToastWindow(bool IsNotScreenSave);
+    void ShowToastWindow(bool IsNotScreenSave, int timeMin);
     HWND hWnd_;
     HWND forcegroundHwnd_;
     Config* config_;

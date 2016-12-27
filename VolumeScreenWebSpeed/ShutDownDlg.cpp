@@ -52,7 +52,8 @@ bool ShutDownDlg::RunShutDownCMD(INT64 sec, bool Cancel)
     return ret;
 }
 
-INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message,
+                                              WPARAM wParam, LPARAM lParam)
 {
     int wmId, wmEvent;
     if (message == WM_COMMAND)
@@ -115,7 +116,8 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wP
         GetWindowRect(hWnd, &rect);
         int xPos = (x - (rect.right - rect.left)) / 2;
         int yPos = (y - (rect.bottom - rect.top)) / 2;
-        MoveWindow(hWnd, xPos, yPos, rect.right - rect.left, rect.bottom - rect.top, TRUE);
+        MoveWindow(hWnd, xPos, yPos, rect.right - rect.left, 
+                   rect.bottom - rect.top, TRUE);
     }
     return 0;
 }
@@ -124,7 +126,8 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message, WPARAM wP
 bool ShutDownDlg::DoModal(HWND hwnd)
 {
     HWND dlg = CreateDialogParamA((HINSTANCE)GetModuleHandle(NULL),
-                                  MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN), hwnd, ShutDownWndProc, 0);
+                                  MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN),
+                                  hwnd, ShutDownWndProc, 0);
     assert(dlg);
     UpdateWindow(dlg);
     SetWindowPos(dlg, HWND_TOP, 0, 0, 0, 0,

@@ -27,11 +27,11 @@ bool VolumeScreenWebSpeed::Init()
     return !(mutexHandle_ == INVALID_HANDLE_VALUE);
 }
 
-void VolumeScreenWebSpeed::Show()
+void VolumeScreenWebSpeed::SetVisible()
 {
     Config* config = Config::GetShared();
     int showValue = config->GetValue(CONFIG_SET, "IsShow", 0);
-    __super::Show(!!showValue);
+    __super::SetVisible(!!showValue);
 }
 
 bool VolumeScreenWebSpeed::OnCreate(
@@ -53,4 +53,30 @@ bool VolumeScreenWebSpeed::OnHotKey(
 {
     controller_->OnHotKey(hWnd, uMsg, idHotKey, lParam);
     return __super::OnHotKey(hWnd, uMsg, idHotKey, lParam, result);
+}
+
+bool VolumeScreenWebSpeed::WndProc(
+    UINT message, WPARAM wParam, LPARAM lParam, LRESULT* lResult)
+{
+    switch (message)
+    {
+        case WM_CLOSE:
+        {
+            int a = 10;
+            break;
+        }
+        case WM_QUIT:
+        {
+            int c = 10;
+            break;
+        }
+        case WM_DESTROY:
+        {
+            PostQuitMessage(0);
+            break;
+        }
+        default:
+        break;
+    }
+    return __super::WndProc(message, wParam, lParam, lResult);
 }

@@ -1,155 +1,65 @@
 #include "StdAfx.h"
-#include "config.h"
+#include "file.h"
+#include <sys\stat.h>
+#include <io.h>
 
-#include <memory>
-#include <assert.h>
-#include "StringPathHelper.h"
-
-File* File::pThis_ = nullptr;
-
-namespace
+bool File::FileOrDirExist(const string& path)
 {
-    string GetPrivateProfileValue(
-        const string& strAppName, const string& strKeyName, const string& strDefault,
-        const string& strFileName)
+    return (_access(path.c_str(), 0) == 0);
+}
+
+File::File(const string& path, const string& mode)
+{
+    fp_ = nullptr;
+    fopen_s(&fp_, path.c_str(), mode.c_str());
+}
+
+File::~File()
+{
+    if (fp_)
     {
-        TCHAR valueBuf[1024] = { 0 };
-        ::GetPrivateProfileString(strAppName.c_str(), strKeyName.c_str(),
-                                  strDefault.c_str(), valueBuf,
-                                  sizeof(valueBuf) - 1, strFileName.c_str());
-        return valueBuf;
+        fclose(fp_);
+        fp_ = nullptr;
     }
-
-    bool IsUseJobConfig(const string& jobCongfigFile)
-    {
-        char userName[1024];
-        DWORD nameLength = 1024;
-        BOOL ret = ::GetUserName(userName, &nameLength);
-        if (ret)
-        {
-            string jobName = GetPrivateProfileValue(
-                "Set", "JobConfigName", "NotConfigName@#$%!##",
-                jobCongfigFile);
-
-            if (jobName == userName)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool FileExist(const string& path)
-    {
-        FILE* fp = nullptr;
-        fopen_s(&fp, path.c_str(), "r");
-        if (fp)
-            fclose(fp);
-
-        return !!fp;
-    }
-
 }
 
-
-File* File::GetShared()
+bool File::IsValid()
 {
-    if (!pThis_)
-    {
-        pThis_ = new File;
-        pThis_->Init("VolScrConfig.ini", "VolScrConfig_job.ini");
-    }
-    return pThis_;
+    return !!fp_;
 }
 
-File::File()
-    : cache_()
-    , configPath_()
+int File::Read(char* buf, int size, int count)
 {
-
+    return fread(buf, size, count, fp_);
 }
 
-File::~File(void)
+int File::Write(const char* buf, int size, int count)
 {
-
+    return ::fwrite(buf, size, count, fp_);
 }
 
-bool ConfigFileExist(const string& strFileName, string* configDir)
+INT64 File::GetFileSize(const string& path)
 {
-    if (!configDir)
-    {
-        return false;
-    }
-    char szPath[2048] = { 0 };
-    GetModuleFileName(nullptr, szPath, sizeof(szPath));
-    string moduleDir = StringPathHelper::RemoveOnelastPath(szPath);
-    string strPathConfig = moduleDir + strFileName;
-    if (!FileExist(strPathConfig))
-    {
-        moduleDir = StringPathHelper::RemoveOnelastPath(moduleDir);
-        strPathConfig = moduleDir + strFileName;
-        if (!FileExist(strPathConfig))
-        {
-            assert(0 && "Config File NotExist");
-            return false;
-        }
-    }
-    *configDir = moduleDir;
-    return true;
+    struct _stat fileStruct = { 0 };
+    int res = _stat(path.c_str(), &fileStruct);
+    return fileStruct.st_size;
 }
 
-bool File::Init(const string& strFileName, const string& fileNameJob)
+INT64 File::GetFileSize()
 {
-    string configDir;
-    if (!ConfigFileExist(strFileName, &configDir) &&
-        !ConfigFileExist(fileNameJob, &configDir))
-        return false;
-
-    string strPathConfigJob = configDir + fileNameJob;
-    if (IsUseJobConfig(strPathConfigJob))
-    {
-        configPath_ = strPathConfigJob;
-    }
-    else
-    {
-        configPath_ = configDir + strFileName;
-    }
-    return true;
+    INT64 nowPos = ftell();
+    fseek(0, SEEK_END);
+    INT64 size = ftell();
+    fseek(nowPos, SEEK_SET);
+    return size;
 }
 
-string File::GetValue(const string& strAppName,
-                        const string& strKeyName, const string& strDefault)
+int File::fseek(INT64 nowPos, int origin)
 {
-    return GetPrivateProfileValue(
-        strAppName, strKeyName, strDefault, configPath_);
+    return ::fseek(fp_, static_cast<int>(nowPos), origin);
 }
 
-int File::GetValue(const string& strAppName,
-                     const string& strKeyName, int defaultValue)
+INT64 File::ftell()
 {
-    string value = GetPrivateProfileValue(
-        strAppName, strKeyName, StringPathHelper::IntToString(defaultValue),
-        configPath_);
-    return StringPathHelper::StringToInt(value);
+    return ::ftell(fp_);
 }
-
-void File::SetValue(const string& strAppName,
-                      const string& strKeyName, const string& value)
-{
-    assert(0);
-}
-
-void File::SetValue(const string& strAppName,
-                      const string& strKeyName, int value)
-{
-    assert(0);
-}
-
-vector<string> File::GetList(const string& listBegin, const string& listEnd)
-{
-    char szBuffer[2048] = { 0 };
-    fread(szBuffer, 2047, 1, fp);
-    fclose(fp);
-}
-
-

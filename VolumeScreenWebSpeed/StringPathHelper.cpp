@@ -35,6 +35,16 @@ string StringPathHelper::RemoveOnelastPath(const string& pathString)
     return ret;
 }
 
+string StringPathHelper::GetPathLastPart(const string& path)
+{
+    string::size_type index = 0;
+    if (((index = path.rfind("\\")) != -1) ||
+        ((index = path.rfind("/")) != -1))
+        return string(path, ++index, path.size() - index);
+
+    return "";
+}
+
 string StringPathHelper::IntToString(int inValue)
 {
     char szBuf[20] = { 0 };
