@@ -202,35 +202,16 @@ void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
     InitProgressConfig(hWnd);
 }
 
-BOOL CALLBACK EnumThreadWindows(
+BOOL CALLBACK EnumWindowsProc(
     HWND hwnd, LPARAM lParam)
 {
-    PostMessage(hwnd, WM_CLOSE, 0, 0);
-    return TRUE;
-}
-
-void EnumCloseThreadWnd(DWORD pId)
-{
-    HANDLE hSnapshotThread = INVALID_HANDLE_VALUE;
-    do 
+    DWORD dwThisID = 0;
+    GetWindowThreadProcessId(hwnd, &dwThisID);
+    if (dwThisID == (DWORD)lParam)
     {
-        hSnapshotThread = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, pId);
-        if (hSnapshotThread == INVALID_HANDLE_VALUE)
-            break;
-
-        THREADENTRY32 pe = { 0 };
-        pe.dwSize = sizeof(THREADENTRY32);
-        if (!Thread32First(hSnapshotThread, &pe))
-            break;
-
-        do
-        {
-            ::EnumWindows(EnumThreadWindows, pe.th32ThreadID);
-        } while (Thread32Next(hSnapshotThread, &pe));
-        Sleep(3000);
-    } while (0);
-    if (hSnapshotThread != INVALID_HANDLE_VALUE)
-        CloseHandle(hSnapshotThread);
+        PostMessage(hwnd, WM_CLOSE, 0, 0);
+    }
+    return TRUE;
 }
 
 void EnumKillProcess(const vector<string>& killName, bool tryExistFirst)
@@ -244,7 +225,7 @@ void EnumKillProcess(const vector<string>& killName, bool tryExistFirst)
         if (hSnapshot == INVALID_HANDLE_VALUE)
             break;
         
-        if (Process32First(hSnapshot, &pe))
+        if (!Process32First(hSnapshot, &pe))
             break;
 
         do
@@ -256,7 +237,7 @@ void EnumKillProcess(const vector<string>& killName, bool tryExistFirst)
                 if (*it == exeFile)
                 {
                     if (tryExistFirst)
-                        EnumCloseThreadWnd(pe.th32ProcessID);
+                        EnumWindows(EnumWindowsProc, pe.th32ProcessID);
 
                     HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE,
                                                   pe.th32ProcessID);
@@ -267,7 +248,7 @@ void EnumKillProcess(const vector<string>& killName, bool tryExistFirst)
         } while (Process32Next(hSnapshot, &pe));
         
     } while (0);
-    if (hSnapshot == INVALID_HANDLE_VALUE)
+    if (hSnapshot != INVALID_HANDLE_VALUE)
         CloseHandle(hSnapshot);
 
 }

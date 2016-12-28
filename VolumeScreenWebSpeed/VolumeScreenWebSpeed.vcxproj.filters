@@ -48,9 +48,6 @@
     <ClCompile Include="VolumeCtrlWrapper.cpp">
       <Filter>Tool</Filter>
     </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
     <ClCompile Include="VolumeScreenWebSpeed.cpp">
       <Filter>view</Filter>
     </ClCompile>
@@ -99,9 +96,6 @@
       <Filter>view</Filter>
     </ClInclude>
     <ClInclude Include="VolumeCtrlWrapper.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
       <Filter>Tool</Filter>
     </ClInclude>
     <ClInclude Include="VolumeScreenWebSpeed.h">
