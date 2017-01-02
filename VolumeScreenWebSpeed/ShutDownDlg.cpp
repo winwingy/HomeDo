@@ -130,8 +130,10 @@ bool ShutDownDlg::DoModal(HWND hwnd)
                                   hwnd, ShutDownWndProc, 0);
     assert(dlg);
     UpdateWindow(dlg);
-    SetWindowPos(dlg, HWND_TOP, 0, 0, 0, 0,
+    SetWindowPos(dlg, HWND_TOPMOST, 0, 0, 0, 0,
                  SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE);
+	SetWindowPos(dlg, HWND_NOTOPMOST, 0, 0, 0, 0,
+			     SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE);
 
     return true;
 }
