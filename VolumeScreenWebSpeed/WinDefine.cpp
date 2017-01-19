@@ -56,6 +56,19 @@ namespace
         { "Down", VK_DOWN },
         { "left", VK_LEFT },
         { "right", VK_RIGHT },
+
+        { ";", VK_OEM_1 }, // ';:' for US
+        { "+", VK_OEM_PLUS }, // '+' any country
+        { ",", VK_OEM_COMMA }, //',' any country
+        { "-", VK_OEM_MINUS }, //  '-' any country
+        { ".", VK_OEM_PERIOD }, //'.' any country
+        { "/", VK_OEM_2 }, //'/?' for US
+        { "`", VK_OEM_3 }, //  '`~' for US
+
+        { "[", VK_OEM_4 }, //  '[{' for US
+        { "\\", VK_OEM_5 }, // '\|' for US
+        { "]", VK_OEM_6 }, //  ']}' for US
+        { "'", VK_OEM_7 }, //  ''"' for US
     };
 }
 

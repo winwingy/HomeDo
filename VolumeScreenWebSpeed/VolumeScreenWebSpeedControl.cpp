@@ -155,6 +155,12 @@ void VolumeScreenWebSpeedControl::InitGeneralHotKey(HWND hWnd)
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyShutDown", "");
     bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_SHUT_DOWN);
+
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyMouseSpeedWeb", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_MOUSESPEED_WEB);
+
+    hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyMouseSpeedGame", "");
+    bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_MOUSESPEED_GAME);
 }
 
 void VolumeScreenWebSpeedControl::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -338,6 +344,23 @@ void VolumeScreenWebSpeedControl::OpenConfig()
     ShellExcuteProgress(configPath);
 }
 
+void VolumeScreenWebSpeedControl::SetMouseSpeed(bool isGameSpeed)
+{
+    int speed = 10;
+    if (isGameSpeed)
+    {
+        speed = config_->GetValue(CONFIG_SET, "MouseSpeedGame", 10);
+    }
+    else
+    {
+        speed =config_->GetValue(CONFIG_SET, "MouseSpeedWeb", 8);
+    }
+    
+    SystemParametersInfo(SPI_SETMOUSESPEED, 0,
+                         reinterpret_cast<PVOID>(speed),
+                         SPIF_UPDATEINIFILE);
+}
+
 void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
                                            int idHotKey, LPARAM lParam)
 {
@@ -362,6 +385,16 @@ void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
         {
             ShutDownDlg dlg;
             dlg.DoModal(NULL);
+            break;
+        }
+        case  WinDefine::HOTKEY_MOUSESPEED_WEB:
+        {
+            SetMouseSpeed(false);
+            break;
+        }
+        case  WinDefine::HOTKEY_MOUSESPEED_GAME:
+        {
+            SetMouseSpeed(true);
             break;
         }
     }

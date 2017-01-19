@@ -57,6 +57,7 @@ private:
 
     void KillProgressByNames(const vector<string>& namelist, bool tryExistFirst);
     void OpenConfig();
+    void SetMouseSpeed(bool isGameSpeed);
 
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
