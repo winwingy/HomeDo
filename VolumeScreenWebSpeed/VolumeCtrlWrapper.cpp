@@ -29,9 +29,13 @@ bool VolumeCtrlWrapper::InitVolumeHotKey(HWND hWnd)
     int isInitVolume = config_->GetValue(CONFIG_SET, "IsInitVolume", 1);
     if (isInitVolume)
     {
-        int initTime = config_->GetValue(CONFIG_SET, "InitVolumeTimeMs", 5000);
-        SetTimer(hWnd, WinDefine::TIMER_INIT_VOLUME, initTime, nullptr);
+		int initTime = config_->GetValue(CONFIG_SET, "InitVolumeTimeMs", 5000);
+		SetTimer(hWnd, WinDefine::TIMER_INIT_VOLUME, initTime, nullptr);
     }
+	else
+	{
+		 userChangedVolume_ = true;
+	}
     return true;
 }
 

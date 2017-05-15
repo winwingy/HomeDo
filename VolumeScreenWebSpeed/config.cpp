@@ -23,23 +23,29 @@ namespace
         return valueBuf;
     }
 
+	bool IsUserJobConfigByUserName(const string& jobCongfigFile)
+	{
+		char userName[1024];
+		DWORD nameLength = 1024;
+		BOOL ret = ::GetComputerName(userName, &nameLength);
+		if (ret)
+		{
+			string jobName = GetPrivateProfileValue(
+				"Set", "JobConfigName", "NotConfigName@#$%!##",
+				jobCongfigFile);
+
+			if (jobName == userName)
+			{
+				return true;
+			}
+		}
+		return false;
+
+	}
+
     bool IsUseJobConfig(const string& jobCongfigFile)
     {
-        char userName[1024];
-        DWORD nameLength = 1024;
-        BOOL ret = ::GetUserName(userName, &nameLength);
-        if (ret)
-        {
-            string jobName = GetPrivateProfileValue(
-                "Set", "JobConfigName", "NotConfigName@#$%!##",
-                jobCongfigFile);
-
-            if (jobName == userName)
-            {
-                return true;
-            }
-        }
-        return false;
+       return IsUserJobConfigByUserName(jobCongfigFile);
     }
 
     bool ConfigFileExist(const string& strFileName, string* configDir)
