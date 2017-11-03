@@ -1,12 +1,8 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "config.h"
 
-#include <memory>
-#include <assert.h>
 #include "StringPathHelper.h"
 #include "file.h"
-#include <string.h>
-#include "WinDefine.h"
 
 Config* Config::pThis_ = nullptr;
 
@@ -22,6 +18,14 @@ namespace
                                   sizeof(valueBuf) - 1, strFileName.c_str());
         return valueBuf;
     }
+
+	void SetPrivateProfileValue(
+		const string& strAppName, const string& strKeyName, const string& strValue,
+		const string& strFileName)
+	{
+		::WritePrivateProfileString(strAppName.c_str(), strKeyName.c_str(),
+			strValue.c_str(), strFileName.c_str());
+	}
 
 	bool IsUserJobConfigByUserName(const string& jobCongfigFile)
 	{
@@ -136,15 +140,16 @@ int Config::GetValue(const string& strAppName,
 }
 
 void Config::SetValue(const string& strAppName,
-                      const string& strKeyName, const string& value)
+                      const string& strKeyName, const string& strValue)
 {
-    assert(0);
+	SetPrivateProfileValue(strAppName, strKeyName, strValue, configPath_);
 }
 
 void Config::SetValue(const string& strAppName,
                       const string& strKeyName, int value)
 {
-    assert(0);
+	tstring strValue = StringPathHelper::IntToString(value);
+	SetPrivateProfileValue(strAppName, strKeyName, strValue, configPath_);
 }
 
 bool Config::GetList(const string& listBegin, const string& listEnd,
@@ -171,7 +176,7 @@ bool Config::GetList(const string& listBegin, const string& listEnd,
         string target;
         if (beg != string::npos && end != string::npos)
         {
-            beg += strlen(CONFIG_SET_KILLNAME_BEGIN);
+			beg += listBegin.length();
             if (beg < end)
             {
                 target.assign(text, beg, end - beg);

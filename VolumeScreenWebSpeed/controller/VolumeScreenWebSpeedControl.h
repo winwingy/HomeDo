@@ -10,6 +10,7 @@ class ToastWindow;
 class Config;
 class VolumeCtrlWrapper;
 class ScreenSaveControllor;
+class TaskDo;
 
 class VolumeScreenWebSpeedControl
 {
@@ -49,7 +50,8 @@ private:
     void InitGeneralHotKey(HWND hWnd);
     void InitProgressHotKey(HWND hWnd);
     void InitPowerOnStartProgress(HWND hWnd);
-    void InitProgressConfig(HWND hWnd);
+    void InitProgressSetting(HWND hWnd);
+	void InitTaskMgr(HWND hWnd);
 
     void OnKillProcess(HWND hWnd);
     void OnPowerOnStartProgressTimer(HWND hwnd, UINT uMsg,
@@ -58,7 +60,7 @@ private:
     void KillProgressByNames(const vector<string>& namelist, bool tryExistFirst);
     void OpenConfig();
     void SetMouseSpeed(bool isGameSpeed);
-
+	
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
     std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;

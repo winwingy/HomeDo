@@ -8,7 +8,7 @@ using std::string;
 class Config
 {
 public:
-    static Config* GetShared();
+	static Config* GetShared();
 
     string GetConfigPath();
 
@@ -22,7 +22,7 @@ public:
 
     void SetValue(
         const string& strAppName, const string& strKeyName,
-        const string& value);
+		const string& strValue);
 
     void SetValue(
         const string& strAppName, const string& strKeyName,
@@ -31,13 +31,14 @@ public:
     bool GetList(const string& listBegin, const string& listEnd, 
                  vector<string>* listText);
 
-private:
-    Config();
-    ~Config(void);
-    bool Init(const string& strFileName, const string& fileNameJob);
+protected:  
+	Config();
+	~Config(void);
+	bool Init(const string& strFileName, const string& fileNameJob);
+	static Config* pThis_;
+	string configPath_;
 
-    static Config* pThis_;
-    std::map<std::string, std::string> cache_;
-    string configPath_;
+private:    
+    std::map<std::string, std::string> cache_;    
 };
 #endif

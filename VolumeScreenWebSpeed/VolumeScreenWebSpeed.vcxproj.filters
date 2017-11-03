@@ -1,121 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Tool">
-      <UniqueIdentifier>{1033b04b-f85d-4f8c-9cf1-e7eb260e3639}</UniqueIdentifier>
-    </Filter>
     <Filter Include="view">
       <UniqueIdentifier>{dd9f175e-a65f-4446-b52c-dc2dad172fc2}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="WinDefine.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
-    <ClCompile Include="MyVolumeCtrl.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="config.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
-    <ClCompile Include="StringPathHelper.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
-    <ClCompile Include="NotScreenSaveDlg.cpp">
-      <Filter>view</Filter>
-    </ClCompile>
-    <ClCompile Include="ShutDownDlg.cpp">
-      <Filter>view</Filter>
-    </ClCompile>
-    <ClCompile Include="VolumeCtrlWrapper.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
-    <ClCompile Include="VolumeScreenWebSpeed.cpp">
-      <Filter>view</Filter>
-    </ClCompile>
-    <ClCompile Include="ScreenSaveControllor.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
-    <ClCompile Include="ToastWindow.cpp">
-      <Filter>view</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowControl.cpp">
-      <Filter>view</Filter>
-    </ClCompile>
-    <ClCompile Include="VolumeScreenWebSpeedControl.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
-    <ClCompile Include="file.cpp">
-      <Filter>Tool</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="WinDefine.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="MyVolumeCtrl.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="StringPathHelper.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="NotScreenSaveDlg.h">
-      <Filter>view</Filter>
-    </ClInclude>
-    <ClInclude Include="ShutDownDlg.h">
-      <Filter>view</Filter>
-    </ClInclude>
-    <ClInclude Include="VolumeCtrlWrapper.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="VolumeScreenWebSpeed.h">
-      <Filter>view</Filter>
-    </ClInclude>
-    <ClInclude Include="ScreenSaveControllor.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="ToastWindow.h">
-      <Filter>view</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowControl.h">
-      <Filter>view</Filter>
-    </ClInclude>
-    <ClInclude Include="VolumeScreenWebSpeedControl.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="file.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
+    <Filter Include="controller">
+      <UniqueIdentifier>{78b3215a-3d84-4939-81aa-837df084f144}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{3e7ce304-87fa-4691-9aa3-ebbc72d862a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tool">
+      <UniqueIdentifier>{1033b04b-f85d-4f8c-9cf1-e7eb260e3639}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="icon1.ico">
@@ -136,5 +37,126 @@
     <ResourceCompile Include="VolumeScreenWebSpeed.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tool\config.cpp">
+      <Filter>tool</Filter>
+    </ClCompile>
+    <ClCompile Include="tool\file.cpp">
+      <Filter>tool</Filter>
+    </ClCompile>
+    <ClCompile Include="tool\MyVolumeCtrl.cpp">
+      <Filter>tool</Filter>
+    </ClCompile>
+    <ClCompile Include="tool\StringPathHelper.cpp">
+      <Filter>tool</Filter>
+    </ClCompile>
+    <ClCompile Include="view\NotScreenSaveDlg.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="view\ShutDownDlg.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="view\ToastWindow.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="view\WindowControl.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeScreenWebSpeed.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="controller\TaskDo.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="controller\TimerTask.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="controller\VolumeCtrlWrapper.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="controller\VolumeScreenWebSpeedControl.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="controller\WinDefine.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="controller\KugouTaskDo.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="controller\ScreenSaveControllor.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="controller\TaskDoMgr.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="tool\config.h">
+      <Filter>tool</Filter>
+    </ClInclude>
+    <ClInclude Include="tool\file.h">
+      <Filter>tool</Filter>
+    </ClInclude>
+    <ClInclude Include="tool\MyVolumeCtrl.h">
+      <Filter>tool</Filter>
+    </ClInclude>
+    <ClInclude Include="tool\StringPathHelper.h">
+      <Filter>tool</Filter>
+    </ClInclude>
+    <ClInclude Include="view\NotScreenSaveDlg.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="view\ShutDownDlg.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="view\ToastWindow.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="view\WindowControl.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeScreenWebSpeed.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\ScreenSaveControllor.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\TaskDo.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\TimerTask.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\VolumeCtrlWrapper.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\VolumeScreenWebSpeedControl.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\WinDefine.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\KugouTaskDo.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\TaskDoMgr.h">
+      <Filter>controller</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

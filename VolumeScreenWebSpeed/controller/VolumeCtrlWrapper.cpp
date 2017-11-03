@@ -1,8 +1,8 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "VolumeCtrlWrapper.h"
-#include "config.h"
+#include "../tool/config.h"
 #include "WinDefine.h"
-#include "MyVolumeCtrl.h"
+#include "../tool/MyVolumeCtrl.h"
 
 namespace
 {

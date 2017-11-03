@@ -1,4 +1,4 @@
-// stdafx.h : 标准系统包含文件的包含文件，
+// "stdafx.h" : 标准系统包含文件的包含文件，
 // 或是经常使用但不常更改的
 // 特定于项目的包含文件
 //
@@ -20,8 +20,27 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <assert.h>
+#include <time.h>
+#include <sstream>
+#include <stdio.h>
+#include <map>
 using namespace std;
 
+void traceFun(LPCTSTR lpszFormat, ...);
 
-// TODO: 在此处引用程序需要的其他头文件
+#ifdef _DEBUG
+#define TRACE_WY(formatStr, ...) do {traceFun(_T("%s, %d"), __FUNCTION__, __LINE__);\
+	traceFun(formatStr, __VA_ARGS__); OutputDebugString(_T("\r\n")); }while (0);
+#else
+#define TRACE_WY //
+#endif
+
+#define TRACE TRACE_WY
+#define TRACE_WW TRACE_WY
+
+#ifdef _UNICODE
+#define  tstring std::wstring
+#else
+#define  tstring std::string
+#endif

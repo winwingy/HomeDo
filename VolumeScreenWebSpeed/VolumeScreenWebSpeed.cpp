@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "VolumeScreenWebSpeed.h"
-#include "config.h"
-#include <assert.h>
-#include "WinDefine.h"
-#include "VolumeScreenWebSpeedControl.h"
+#include "tool/config.h"
+#include "controller/WinDefine.h"
+#include "controller/VolumeScreenWebSpeedControl.h"
+#include "view/WindowControl.h"
 
 VolumeScreenWebSpeed::VolumeScreenWebSpeed()
     : WindowControl()

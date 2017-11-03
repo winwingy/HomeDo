@@ -1,18 +1,18 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "VolumeScreenWebSpeedControl.h"
 #include <algorithm>
-#include <iterator>
 #include <TlHelp32.h>
 #include <shellapi.h>
-#include <assert.h>
-#include <sstream>
 
 #include "WinDefine.h"
-#include "ShutDownDlg.h"
-#include "config.h"
-#include "StringPathHelper.h"
+#include "../view/ShutDownDlg.h"
+#include "../tool/config.h"
+#include "../tool/StringPathHelper.h"
 #include "VolumeCtrlWrapper.h"
 #include "ScreenSaveControllor.h"
+#include "TaskDo.h"
+#include "KugouTaskDo.h"
+#include "TaskDoMgr.h"
 #pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
@@ -96,6 +96,7 @@ void VolumeScreenWebSpeedControl::InitProgressHotKey(HWND hWnd)
     int hotKeyCount = config_->GetValue(CONFIG_SET_PROGRESS_HOTKEY,
                                         "HotKeyCount", 10);
     BOOL bRet = FALSE;
+	
     for (int i = 1; i <= hotKeyCount; ++i)
     {
         string progressName = "Progress" + StringPathHelper::IntToString(i);
@@ -110,7 +111,7 @@ void VolumeScreenWebSpeedControl::InitProgressHotKey(HWND hWnd)
                                               killhotKeyName.c_str(), ""); //ctrl+num3
 
         ProgressToIDHotKey idHotKey;
-        idHotKey.path = path;
+        idHotKey.path =StringPathHelper::ToUpperString(path);
         if (!hotkey.empty())
         {
             idHotKey.ID = WinDefine::HOTKEY_PROGRESS_BEGIN + i;
@@ -190,10 +191,19 @@ void VolumeScreenWebSpeedControl::InitPowerOnStartProgress(HWND hWnd)
              nullptr);
 }
 
-void VolumeScreenWebSpeedControl::InitProgressConfig(HWND hWnd)
+void VolumeScreenWebSpeedControl::InitProgressSetting(HWND hWnd)
 {
     volumeCtrlWrapper_->InitVolumeHotKey(hWnd);
     screenSaveControllor_->InitControllor(hWnd);
+}
+
+void VolumeScreenWebSpeedControl::InitTaskMgr(HWND hWnd)
+{
+	std::shared_ptr<KugouTaskDo> kugouTaskDo(new KugouTaskDo);
+	kugouTaskDo->initTask();
+	TaskDoMgr::instance()->addTaskDo(kugouTaskDo);
+
+	// ... other task
 }
 
 void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
@@ -205,7 +215,9 @@ void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
 
     InitHotKey(hWnd, uMsg, wParam, lParam);
 
-    InitProgressConfig(hWnd);
+    InitProgressSetting(hWnd);
+
+	InitTaskMgr(hWnd);
 }
 
 BOOL CALLBACK EnumWindowsProc(
@@ -408,7 +420,9 @@ void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
         {
             if (it->ID == idHotKey)
             {
-                ShellExcuteProgress(it->path);
+				TaskDoMgr::instance()->beginLaunchTask(it->path);
+                ShellExcuteProgress(it->path);		
+				TaskDoMgr::instance()->afterLaunchTask(it->path);
                 break;
             }
         }
@@ -423,9 +437,12 @@ void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
             if (it->killID == idHotKey)
             {
                 string killName(StringPathHelper::GetPathLastPart(it->path));
-                if (!killName.empty())
-                    KillProgressByNames(vector<string>(1, killName), true);
-
+				if (!killName.empty())
+				{
+					TaskDoMgr::instance()->beginExitTask(it->path);
+					KillProgressByNames(vector<string>(1, killName), true);
+					TaskDoMgr::instance()->afterExitTask(it->path);
+				}
                 break;
             }
         }

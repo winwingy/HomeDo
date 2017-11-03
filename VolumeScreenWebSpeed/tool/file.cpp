@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "file.h"
 #include <sys\stat.h>
 #include <io.h>

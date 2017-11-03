@@ -1,8 +1,6 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "MyVolumeCtrl.h"
 #pragma comment(lib, "Winmm.lib")
-
-#define  TRACE 
 
 CMyVolumeCtrl::CMyVolumeCtrl(void)
     :m_pEndptVolCtrl(NULL),
@@ -11,7 +9,7 @@ CMyVolumeCtrl::CMyVolumeCtrl(void)
     m_guidMyContext(GUID_NULL)
 {
     m_eWinType = vGetWindowsType();
-    TRACE("Now windows is %d", m_eWinType);
+    TRACE_WY("Now windows is %d", m_eWinType);
     if (WindowsVista == m_eWinType || Windows7 == m_eWinType)
     {
         vInitEndPoint();

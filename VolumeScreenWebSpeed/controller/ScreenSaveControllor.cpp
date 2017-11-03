@@ -1,10 +1,8 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "ScreenSaveControllor.h"
-#include <assert.h>
-#include <sstream>
 #include "WinDefine.h"
-#include "config.h"
-#include "ToastWindow.h"
+#include "../tool/config.h"
+#include "../view/ToastWindow.h"
 
 
 namespace

@@ -89,44 +89,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="config.cpp" />
-    <ClCompile Include="file.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MyVolumeCtrl.cpp" />
-    <ClCompile Include="NotScreenSaveDlg.cpp" />
-    <ClCompile Include="ScreenSaveControllor.cpp" />
-    <ClCompile Include="ShutDownDlg.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="StringPathHelper.cpp" />
-    <ClCompile Include="ToastWindow.cpp" />
-    <ClCompile Include="VolumeCtrlWrapper.cpp" />
-    <ClCompile Include="VolumeScreenWebSpeed.cpp" />
-    <ClCompile Include="VolumeScreenWebSpeedControl.cpp" />
-    <ClCompile Include="WinDefine.cpp" />
-    <ClCompile Include="WindowControl.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="config.h" />
-    <ClInclude Include="file.h" />
-    <ClInclude Include="MyVolumeCtrl.h" />
-    <ClInclude Include="NotScreenSaveDlg.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="ScreenSaveControllor.h" />
-    <ClInclude Include="ShutDownDlg.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="StringPathHelper.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="ToastWindow.h" />
-    <ClInclude Include="VolumeCtrlWrapper.h" />
-    <ClInclude Include="VolumeScreenWebSpeed.h" />
-    <ClInclude Include="VolumeScreenWebSpeedControl.h" />
-    <ClInclude Include="WinDefine.h" />
-    <ClInclude Include="WindowControl.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="icon1.ico" />
     <None Include="icon_show.ico" />
     <None Include="small.ico" />
@@ -135,6 +97,52 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumeScreenWebSpeed.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="controller\KugouTaskDo.cpp" />
+    <ClCompile Include="controller\ScreenSaveControllor.cpp" />
+    <ClCompile Include="controller\TaskDo.cpp" />
+    <ClCompile Include="controller\TaskDoMgr.cpp" />
+    <ClCompile Include="controller\TimerTask.cpp" />
+    <ClCompile Include="controller\VolumeCtrlWrapper.cpp" />
+    <ClCompile Include="controller\VolumeScreenWebSpeedControl.cpp" />
+    <ClCompile Include="controller\WinDefine.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="tool\config.cpp" />
+    <ClCompile Include="tool\file.cpp" />
+    <ClCompile Include="tool\MyVolumeCtrl.cpp" />
+    <ClCompile Include="tool\StringPathHelper.cpp" />
+    <ClCompile Include="view\NotScreenSaveDlg.cpp" />
+    <ClCompile Include="view\ShutDownDlg.cpp" />
+    <ClCompile Include="view\ToastWindow.cpp" />
+    <ClCompile Include="view\WindowControl.cpp" />
+    <ClCompile Include="VolumeScreenWebSpeed.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="controller\KugouTaskDo.h" />
+    <ClInclude Include="controller\ScreenSaveControllor.h" />
+    <ClInclude Include="controller\TaskDo.h" />
+    <ClInclude Include="controller\TaskDoMgr.h" />
+    <ClInclude Include="controller\TimerTask.h" />
+    <ClInclude Include="controller\VolumeCtrlWrapper.h" />
+    <ClInclude Include="controller\VolumeScreenWebSpeedControl.h" />
+    <ClInclude Include="controller\WinDefine.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="tool\config.h" />
+    <ClInclude Include="tool\file.h" />
+    <ClInclude Include="tool\MyVolumeCtrl.h" />
+    <ClInclude Include="tool\StringPathHelper.h" />
+    <ClInclude Include="view\NotScreenSaveDlg.h" />
+    <ClInclude Include="view\ShutDownDlg.h" />
+    <ClInclude Include="view\ToastWindow.h" />
+    <ClInclude Include="view\WindowControl.h" />
+    <ClInclude Include="VolumeScreenWebSpeed.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

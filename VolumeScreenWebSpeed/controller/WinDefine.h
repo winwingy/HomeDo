@@ -7,12 +7,6 @@
 using std::vector;
 using std::string;
 
-#define  TRACE_WW OutputDebugString
-
-#define TRACE_ZZ(szText, strShow) \
-{char szBuffer[1024]={0}; \
-sprintf_s(szBuffer, _countof(szBuffer), szText, strShow);\
- OutputDebugString(szBuffer);}
 
 #define CONFIG_SET "Set"
 #define CONFIG_POWER_ON_START_PROGRESS  "PowerOnStartProgress"

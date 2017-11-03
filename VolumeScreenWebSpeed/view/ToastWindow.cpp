@@ -1,7 +1,7 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "ToastWindow.h"
 #include <assert.h>
-#include "WinDefine.h"
+#include "../controller/WinDefine.h"
 
 
 ToastWindow::ToastWindow(void)

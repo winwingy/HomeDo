@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WindowControl.h"
+#include "view/WindowControl.h"
 class VolumeScreenWebSpeedControl;
 
 class VolumeScreenWebSpeed : public WindowControl
