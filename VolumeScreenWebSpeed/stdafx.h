@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <time.h>
 #include <sstream>
+#include <iostream>
 #include <stdio.h>
 #include <map>
 using namespace std;

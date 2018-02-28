@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MyVolumeCtrl.h"
 #pragma comment(lib, "Winmm.lib")
+#pragma warning( disable : 4996 ) 
 
 CMyVolumeCtrl::CMyVolumeCtrl(void)
     :m_pEndptVolCtrl(NULL),

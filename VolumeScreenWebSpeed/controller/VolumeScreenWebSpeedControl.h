@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <shellapi.h>
 #include <string>
 #include <vector>
 
@@ -11,6 +12,7 @@ class Config;
 class VolumeCtrlWrapper;
 class ScreenSaveControllor;
 class TaskDo;
+class TimingTaskDlg;
 
 class VolumeScreenWebSpeedControl
 {
@@ -43,9 +45,13 @@ public:
     void OnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     void OnHotKey(HWND hWnd, UINT uMsg, int idHotKey, LPARAM lParam);
     void OnTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+	bool WndProc(HWND hWnd, UINT message,
+		WPARAM wParam, LPARAM lParam, LRESULT* lResult);
+	void CloseApp(HWND hWnd);
 
 private:
     void RaiseToken();
+	void InitTaskBar(HWND hWnd);
     void InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     void InitGeneralHotKey(HWND hWnd);
     void InitProgressHotKey(HWND hWnd);
@@ -66,5 +72,8 @@ private:
     std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;
     vector<string> powerOnStartProgress_;
     std::unique_ptr<ScreenSaveControllor> screenSaveControllor_;
+
+	TimingTaskDlg* timingTaskDlg_;
+	NOTIFYICONDATA nid_;
 };
 

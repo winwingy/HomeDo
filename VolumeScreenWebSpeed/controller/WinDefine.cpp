@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "WinDefine.h"
 
+UINT WM_TASKBARCREATED = 0;
+
 namespace
 {
 

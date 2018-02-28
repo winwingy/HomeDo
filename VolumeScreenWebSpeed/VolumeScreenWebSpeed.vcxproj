@@ -116,8 +116,10 @@
     <ClCompile Include="tool\file.cpp" />
     <ClCompile Include="tool\MyVolumeCtrl.cpp" />
     <ClCompile Include="tool\StringPathHelper.cpp" />
+    <ClCompile Include="view\DlgControl.cpp" />
     <ClCompile Include="view\NotScreenSaveDlg.cpp" />
     <ClCompile Include="view\ShutDownDlg.cpp" />
+    <ClCompile Include="view\TimingTaskDlg.cpp" />
     <ClCompile Include="view\ToastWindow.cpp" />
     <ClCompile Include="view\WindowControl.cpp" />
     <ClCompile Include="VolumeScreenWebSpeed.cpp" />
@@ -138,8 +140,10 @@
     <ClInclude Include="tool\file.h" />
     <ClInclude Include="tool\MyVolumeCtrl.h" />
     <ClInclude Include="tool\StringPathHelper.h" />
+    <ClInclude Include="view\DlgControl.h" />
     <ClInclude Include="view\NotScreenSaveDlg.h" />
     <ClInclude Include="view\ShutDownDlg.h" />
+    <ClInclude Include="view\TimingTaskDlg.h" />
     <ClInclude Include="view\ToastWindow.h" />
     <ClInclude Include="view\WindowControl.h" />
     <ClInclude Include="VolumeScreenWebSpeed.h" />

@@ -96,6 +96,12 @@
     <ClCompile Include="controller\TaskDoMgr.cpp">
       <Filter>controller</Filter>
     </ClCompile>
+    <ClCompile Include="view\TimingTaskDlg.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="view\DlgControl.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tool\config.h">
@@ -157,6 +163,12 @@
     </ClInclude>
     <ClInclude Include="controller\TaskDoMgr.h">
       <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="view\TimingTaskDlg.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="view\DlgControl.h">
+      <Filter>view</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

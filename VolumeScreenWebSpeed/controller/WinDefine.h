@@ -7,6 +7,8 @@
 using std::vector;
 using std::string;
 
+typedef unsigned int uint;
+
 
 #define CONFIG_SET "Set"
 #define CONFIG_POWER_ON_START_PROGRESS  "PowerOnStartProgress"
@@ -17,6 +19,21 @@ using std::string;
 
 #define CONFIG_SET_KILLNAME_BEGIN  "[KillNameBegin]"
 #define CONFIG_SET_KILLNAME_END  "[KillNameEnd]"
+
+#define APP_NAME "wingy管理工具"
+
+extern uint WM_TASKBARCREATED;
+#define WM_TaskBarMsg WM_USER + 5000
+
+
+enum enTray_menu
+{
+	enTray_timingClose,
+	enTray_timingPopup,
+	enTray_exit
+};
+
+
 
 class WinDefine
 {

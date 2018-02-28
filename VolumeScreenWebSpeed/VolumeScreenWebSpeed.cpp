@@ -7,7 +7,7 @@
 
 VolumeScreenWebSpeed::VolumeScreenWebSpeed()
     : WindowControl()
-    , mutexHandle_(INVALID_HANDLE_VALUE)
+    , mutexHandle_(nullptr)
     , controller_(new VolumeScreenWebSpeedControl())
 {
 
@@ -15,7 +15,7 @@ VolumeScreenWebSpeed::VolumeScreenWebSpeed()
 
 VolumeScreenWebSpeed::~VolumeScreenWebSpeed()
 {
-    if (mutexHandle_ != INVALID_HANDLE_VALUE)
+    if (mutexHandle_)
     {
         CloseHandle(mutexHandle_);
     }
@@ -23,8 +23,15 @@ VolumeScreenWebSpeed::~VolumeScreenWebSpeed()
 
 bool VolumeScreenWebSpeed::Init()
 {
-    mutexHandle_ = ::CreateMutex(nullptr, FALSE, "VolumeScreenWebSpeedMutex");
-    return !(mutexHandle_ == INVALID_HANDLE_VALUE);
+	mutexHandle_ = ::CreateMutex(nullptr, FALSE, "VolumeScreenWebSpeed@#&*%#Mutex");
+	if (!mutexHandle_)
+		return false;
+
+	DWORD err = GetLastError();
+	if (ERROR_ALREADY_EXISTS == err)
+		return false;
+
+	return true;
 }
 
 void VolumeScreenWebSpeed::SetVisible()
@@ -58,25 +65,29 @@ bool VolumeScreenWebSpeed::OnHotKey(
 bool VolumeScreenWebSpeed::WndProc(
     UINT message, WPARAM wParam, LPARAM lParam, LRESULT* lResult)
 {
-    switch (message)
-    {
-        case WM_CLOSE:
-        {
-            int a = 10;
-            break;
-        }
-        case WM_QUIT:
-        {
-            int c = 10;
-            break;
-        }
-        case WM_DESTROY:
-        {
-            PostQuitMessage(0);
-            break;
-        }
-        default:
-        break;
-    }
+//     switch (message)
+//     {
+//         case WM_CLOSE:
+//         {
+//             int a = 10;
+//             break;
+//         }
+//         case WM_QUIT:
+//         {
+//             int c = 10;
+//             break;
+//         }
+//         case WM_DESTROY:
+//         {
+//             PostQuitMessage(0);
+//             break;
+//         }
+//         default:
+//         break;
+//     }
+	bool ret = controller_->WndProc(hWnd_, message, wParam, lParam, lResult);
+	if (ret)
+		return true;
+
     return __super::WndProc(message, wParam, lParam, lResult);
 }

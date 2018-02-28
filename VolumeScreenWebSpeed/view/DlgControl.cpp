@@ -1,0 +1,96 @@
+#include "stdafx.h"
+#include <Windows.h>
+#include <sstream>
+#include "DlgControl.h"
+#include "../resource.h"
+#include <time.h>
+#include <assert.h>
+
+
+DlgControl::DlgControl(void)
+{
+}
+
+
+DlgControl::~DlgControl(void)
+{
+}
+
+bool DlgControl::DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
+	LRESULT* lResult)
+{
+	return false;
+}
+
+INT_PTR CALLBACK DlgControl::StaDlgProc(HWND hWnd, UINT message,
+                                              WPARAM wParam, LPARAM lParam)
+{
+	DlgControl* pThis = nullptr;
+	if (message == WM_INITDIALOG)
+	{
+		pThis = reinterpret_cast<DlgControl*>(lParam);
+		if (pThis)
+		{
+			pThis->m_hWnd = hWnd;
+			::SetWindowLongPtr(hWnd, GWLP_USERDATA, lParam);
+		}
+	}
+	else
+	{
+		pThis = reinterpret_cast<DlgControl*>(
+			::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	}
+	bool handled = false;
+	LRESULT result = 0;
+	if (pThis)
+	{
+		handled = pThis->DlgProc(message, wParam, lParam, &result);
+	}
+	if (handled)
+	{
+		return result;
+	}
+	return 0;
+}
+
+bool DlgControl::CreateDlg(HWND hwnd, int dlgId, 
+	int x, int y, int width, int height)
+{
+	m_hWnd = CreateDialogParam((HINSTANCE)GetModuleHandle(NULL),
+		MAKEINTRESOURCE(dlgId), hwnd, StaDlgProc, 
+		reinterpret_cast<LPARAM>(this));
+	assert(m_hWnd);
+	MoveWindow(m_hWnd, x, y, width, height, TRUE);
+	UpdateWindow(m_hWnd);
+    return true;
+}
+
+bool DlgControl::CreateDlg(HWND hwnd, int dlgId, int width, int height)
+{
+	RECT rect;
+	SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+	int cx = rect.right - rect.left;
+	int cy = rect.bottom - rect.top;
+
+	int x = (cx - width) / 2;
+	int y = (cy - height) / 2;
+	return CreateDlg(hwnd, dlgId, x, y, width, height);
+}
+
+void DlgControl::setVisible(bool vis)
+{
+	ShowWindow(m_hWnd, vis ? SW_SHOW : SW_HIDE);
+
+	if (vis)
+	{
+		HWND hCurWnd = NULL;
+		DWORD dwMyID;
+		DWORD   dwCurID;
+		hCurWnd = ::GetForegroundWindow();
+		dwMyID = ::GetCurrentThreadId();
+		dwCurID = ::GetWindowThreadProcessId(hCurWnd, NULL);
+		::AttachThreadInput(dwCurID, dwMyID, TRUE);
+		::SetForegroundWindow(m_hWnd);
+		::AttachThreadInput(dwCurID, dwMyID, FALSE);
+	}
+}

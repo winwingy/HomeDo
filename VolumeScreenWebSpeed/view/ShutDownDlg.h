@@ -4,7 +4,7 @@ class ShutDownDlg
 public:
     ShutDownDlg(void);
     ~ShutDownDlg(void);
-    bool DoModal(HWND hwnd);
+    bool CreateDlg(HWND hwnd);
 
 private:
     static bool RunShutDownCMD(INT64 sec, bool Cancel);

@@ -13,6 +13,7 @@
 #include "TaskDo.h"
 #include "KugouTaskDo.h"
 #include "TaskDoMgr.h"
+#include "../view/TimingTaskDlg.h"
 #pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
@@ -82,13 +83,14 @@ VolumeScreenWebSpeedControl::VolumeScreenWebSpeedControl(void)
     , volumeCtrlWrapper_(new VolumeCtrlWrapper())
     , powerOnStartProgress_()
     , screenSaveControllor_(new ScreenSaveControllor())
+	, timingTaskDlg_(nullptr)
 {
 
 }
 
 VolumeScreenWebSpeedControl::~VolumeScreenWebSpeedControl(void)
 {
-
+	
 }
 
 void VolumeScreenWebSpeedControl::InitProgressHotKey(HWND hWnd)
@@ -210,6 +212,8 @@ void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
                               WPARAM wParam, LPARAM lParam)
 {
     RaiseToken();
+
+	InitTaskBar(hWnd);
 
     InitPowerOnStartProgress(hWnd);
 
@@ -337,6 +341,19 @@ void VolumeScreenWebSpeedControl::RaiseToken()
     }
 }
 
+void VolumeScreenWebSpeedControl::InitTaskBar(HWND hWnd)
+{
+	WM_TASKBARCREATED = RegisterWindowMessage(_T("TaskbarCreated"));	
+	nid_.cbSize = sizeof(nid_);
+	nid_.hWnd = hWnd;
+	nid_.uID = 0;
+	nid_.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+	nid_.uCallbackMessage = WM_TaskBarMsg;
+	nid_.hIcon = (HICON)LoadImage(NULL, "icon_show.ico",
+		IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	_tcscpy_s(nid_.szTip, APP_NAME);
+	Shell_NotifyIcon(NIM_ADD, &nid_);
+}
 
 void VolumeScreenWebSpeedControl::OnKillProcess(HWND hWnd)
 {
@@ -396,7 +413,7 @@ void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
         case  WinDefine::HOTKEY_SHUT_DOWN:
         {
             ShutDownDlg dlg;
-            dlg.DoModal(NULL);
+            dlg.CreateDlg(NULL);
             break;
         }
         case  WinDefine::HOTKEY_MOUSESPEED_WEB:
@@ -465,4 +482,78 @@ void VolumeScreenWebSpeedControl::OnTimer(
     
     volumeCtrlWrapper_->OnTimer(hWnd, uMsg, idEvent, dwTime);
     screenSaveControllor_->OnTimer(hWnd, uMsg, idEvent, dwTime);
+}
+
+bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
+	UINT message, WPARAM wParam, LPARAM lParam, LRESULT* lResult)
+{
+	switch (message)
+	{
+	case WM_COMMAND:
+	{
+		switch (wParam)
+		{
+		case enTray_timingClose:
+		{
+			ShutDownDlg dlg;
+			dlg.CreateDlg(NULL);
+			break;
+		}		
+		case enTray_timingPopup:
+		{
+			if (!timingTaskDlg_)
+			{
+				timingTaskDlg_ = new TimingTaskDlg;
+				timingTaskDlg_->CreateDlg(NULL);
+			}
+			timingTaskDlg_->setVisible(true);
+
+			break;
+		}
+		case enTray_exit:
+		{
+			CloseApp(hWnd);
+			break;
+		}
+		default:
+			break;
+		}
+		break;
+	}
+	case WM_TaskBarMsg:
+	{
+		if (WM_LBUTTONDOWN == lParam || WM_RBUTTONDOWN == lParam)
+		{
+			POINT pt;
+			GetCursorPos(&pt);
+			HMENU hMenu;
+			hMenu = CreatePopupMenu();
+			AppendMenu(hMenu, MF_STRING, enTray_timingClose, "定时关机");
+			AppendMenu(hMenu, MF_STRING, enTray_timingPopup, "定时任务");
+			AppendMenu(hMenu, MF_STRING, enTray_exit, "退出");
+			TrackPopupMenu(hMenu, TPM_LEFTBUTTON, pt.x, pt.y, NULL, hWnd, nullptr);
+			int a = 1;
+		}
+		break;
+	}
+	case WM_DESTROY:
+	{
+		
+		break;
+	}	
+	default:
+		break;
+	}
+
+	if (WM_TASKBARCREATED == message)
+	{
+		InitTaskBar(hWnd);
+	}
+	return false;
+}
+
+void VolumeScreenWebSpeedControl::CloseApp(HWND hWnd)
+{
+	Shell_NotifyIcon(NIM_DELETE, &nid_);
+	PostQuitMessage(1);
 }

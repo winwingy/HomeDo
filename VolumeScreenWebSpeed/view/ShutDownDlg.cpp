@@ -123,7 +123,7 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message,
 }
 
 
-bool ShutDownDlg::DoModal(HWND hwnd)
+bool ShutDownDlg::CreateDlg(HWND hwnd)
 {
     HWND dlg = CreateDialogParamA((HINSTANCE)GetModuleHandle(NULL),
                                   MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN),
