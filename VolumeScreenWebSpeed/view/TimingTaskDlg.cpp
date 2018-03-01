@@ -6,11 +6,14 @@
 #include <time.h>
 #include <assert.h>
 #include <iomanip>
+#include "TaskRemindDlg.h"
 
 
 namespace
 {
 	const int kTimerId_remain = 200;
+	const int kTimerId_refresh = 100;
+	const int kRefreshTime = 1000;
 }
 
 TimingTaskDlg::TimingTaskDlg(void)
@@ -29,6 +32,9 @@ TimingTaskDlg::TimingTaskDlg(void)
 	m_hStaRemainTime = nullptr;
 	m_hBtnCancelTask = nullptr;
 	m_hBtnOK = nullptr;
+
+	m_remainTimeSec = 0;
+	m_tasking = false;
 }
 
 
@@ -39,6 +45,11 @@ TimingTaskDlg::~TimingTaskDlg(void)
 void TimingTaskDlg::CreateDlg(HWND hWnd)
 {
 	__super::CreateDlg(hWnd, IDD_DIALOG_TASK, 700, 500);
+}
+
+bool TimingTaskDlg::isTasking()
+{
+	return m_tasking;
 }
 
 void TimingTaskDlg::initControl()
@@ -157,8 +168,17 @@ void TimingTaskDlg::beginTimerTask(INT64 totalSec)
 		assert(totalSec);
 		return;
 	}
-	SetTimer(m_hWnd, kTimerId_remain, static_cast<int>(totalSec)*1000,
-		nullptr);
+	SetTimer(m_hWnd, kTimerId_refresh, kRefreshTime, nullptr);
+	setRemainText(totalSec);
+	m_remainTimeSec = totalSec;
+	m_tasking = true;
+}
+
+void TimingTaskDlg::setRemainText(INT64 totalSec)
+{
+	if (totalSec < 0)
+		totalSec = 0;
+	
 	std::stringstream ss;
 	ss.fill('0');
 	ss << setw(2) << totalSec / 60 / 60 << " 时 "
@@ -186,8 +206,7 @@ bool TimingTaskDlg::onCountDownTask()
 
 void TimingTaskDlg::onBtnOk()
 {
-	bool isOk = false;
-	setControlEnable(false);
+	bool isOk = false;	
 	if (isBtnChecked(m_hRadioFixTime))
 	{
 		isOk = onFixTimeTask();
@@ -199,6 +218,10 @@ void TimingTaskDlg::onBtnOk()
 	if (!isOk)
 	{
 		MessageBox(m_hWnd, "格式不对", "格式不对", MB_OK);
+	}
+	else
+	{
+		setControlEnable(false);
 	}
 }
 
@@ -218,6 +241,66 @@ void TimingTaskDlg::setHourState()
 	else
 	{
 		ShowWindow(m_hEditHour, SW_SHOW);
+	}
+}
+
+void TimingTaskDlg::timerEnd(UINT message, WPARAM wParam,
+	LPARAM lParam)
+{
+	TaskRemindDlg* pRemind = new TaskRemindDlg;
+	pRemind->CreateDlg(nullptr);
+	pRemind->setVisible(true);
+	pRemind->setDelteOnClose(true);
+
+	if (isBtnChecked(m_hRadioRepeatYes))
+	{
+		onBtnOk();		
+	}
+	else
+	{
+		KillTimer(m_hWnd, wParam);
+		m_tasking = false;
+		setControlEnable(true);
+	}	
+}
+
+void TimingTaskDlg::onTimer(UINT message, WPARAM wParam,
+	LPARAM lParam)
+{
+	switch (wParam)
+	{
+	case kTimerId_remain:
+	{
+		break;
+	}
+	case kTimerId_refresh:
+	{
+		m_remainTimeSec--;
+		if (m_remainTimeSec <= 0)
+		{
+			m_remainTimeSec = 0;
+			timerEnd(message, wParam, lParam);
+		}
+		setRemainText(m_remainTimeSec);		
+		break;
+	}
+	default:
+	{
+		assert(0);
+		break;
+	}
+	}
+}
+
+void TimingTaskDlg::close()
+{
+	if (m_tasking)
+	{
+		setVisible(false);
+	}
+	else
+	{
+		DestroyWindow(m_hWnd);
 	}
 }
 
@@ -242,7 +325,7 @@ bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 		}
 		case IDCANCEL:
 		{
-			setVisible(false);
+			close();
 			break;
 		}
 		case IDC_RADIO_FixTime:
@@ -258,26 +341,9 @@ bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 		}
 		break;
 	}
-	case WM_NOTIFY:
-	{
-		if (wParam == IDC_RADIO_FixTime)
-		{
-			int a = 1;
-		}
-		break;
-	}
 	case WM_TIMER:
 	{
-		if (kTimerId_remain == wParam)
-		{
-			if (!isBtnChecked(m_hRadioRepeatYes))
-			{
-				KillTimer(hWnd, wParam);
-			}
-
-
-
-		}
+		onTimer(message, wParam, lParam);
 		break;
 	}
 	case WM_INITDIALOG:

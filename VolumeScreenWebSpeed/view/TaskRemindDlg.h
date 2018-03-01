@@ -1,12 +1,12 @@
 #pragma once
 #include "DlgControl.h"
-class TimingTaskDlg : public DlgControl
+class TaskRemindDlg : public DlgControl
 {
 public:
-    TimingTaskDlg(void);
-    ~TimingTaskDlg(void);
+    TaskRemindDlg(void);
+    ~TaskRemindDlg(void);
 	void CreateDlg(HWND hWnd);
-	bool isTasking();
+	void setRemindText(const tstring& text);
 
 protected:
 	virtual bool DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
@@ -14,7 +14,7 @@ protected:
 
 private:
 	void initControl();
-	void setControlEnable(bool enable);	
+	void setControlEnable(bool enable);
 	void onBtnOk();
 	void getTimerText(int* hour, int* min, int* sec);
 	bool isBtnChecked(HWND hWnd);
@@ -24,27 +24,8 @@ private:
 	void beginTimerTask(INT64 totalSec);
 	void onTimer(UINT message, WPARAM wParam, LPARAM lParam);
 	void setRemainText(INT64 totalSec);
-	void close();
-	void timerEnd(UINT message, WPARAM wParam, LPARAM lParam);
 
-private:
-	HWND m_hRadioCountDown;
-	HWND m_hRadioFixTime;
-	HWND m_hEditHour;
-	HWND m_hEditMin;
-	HWND m_hEditSec;
-
-	HWND m_hRadioRepeatYes;
-	HWND m_hRadioRepeatNo;
-
-	HWND m_hEditBoxText;
-
-	HWND m_hStaRemainTime;
-	HWND m_hBtnCancelTask;
+	HWND m_hStaRemainText;
 	HWND m_hBtnOK;
-
-	INT64 m_remainTimeSec;
-	bool m_tasking;
-
 };
 

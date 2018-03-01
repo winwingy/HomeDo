@@ -30,6 +30,7 @@ enum enTray_menu
 {
 	enTray_timingClose,
 	enTray_timingPopup,
+	enTray_timingPopupNew,
 	enTray_exit
 };
 

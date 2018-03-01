@@ -66,6 +66,7 @@ private:
     void KillProgressByNames(const vector<string>& namelist, bool tryExistFirst);
     void OpenConfig();
     void SetMouseSpeed(bool isGameSpeed);
+	void RemoveInvalidTimingTask();
 	
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
@@ -73,7 +74,7 @@ private:
     vector<string> powerOnStartProgress_;
     std::unique_ptr<ScreenSaveControllor> screenSaveControllor_;
 
-	TimingTaskDlg* timingTaskDlg_;
+	std::vector<TimingTaskDlg*> timingTaskDlgList_;
 	NOTIFYICONDATA nid_;
 };
 

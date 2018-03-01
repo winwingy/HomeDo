@@ -8,6 +8,7 @@
 
 
 DlgControl::DlgControl(void)
+	: m_delOnClose(false)
 {
 }
 
@@ -45,6 +46,10 @@ INT_PTR CALLBACK DlgControl::StaDlgProc(HWND hWnd, UINT message,
 	if (pThis)
 	{
 		handled = pThis->DlgProc(message, wParam, lParam, &result);
+	}
+	if (WM_NCDESTROY == message && pThis && pThis->m_delOnClose)
+	{
+		delete pThis;
 	}
 	if (handled)
 	{
@@ -93,4 +98,9 @@ void DlgControl::setVisible(bool vis)
 		::SetForegroundWindow(m_hWnd);
 		::AttachThreadInput(dwCurID, dwMyID, FALSE);
 	}
+}
+
+void DlgControl::setDelteOnClose(bool del /*= false*/)
+{
+	m_delOnClose = del;
 }

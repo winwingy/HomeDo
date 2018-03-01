@@ -62,6 +62,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>./;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -79,6 +80,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>./;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -119,6 +121,7 @@
     <ClCompile Include="view\DlgControl.cpp" />
     <ClCompile Include="view\NotScreenSaveDlg.cpp" />
     <ClCompile Include="view\ShutDownDlg.cpp" />
+    <ClCompile Include="view\TaskRemindDlg.cpp" />
     <ClCompile Include="view\TimingTaskDlg.cpp" />
     <ClCompile Include="view\ToastWindow.cpp" />
     <ClCompile Include="view\WindowControl.cpp" />
@@ -143,6 +146,7 @@
     <ClInclude Include="view\DlgControl.h" />
     <ClInclude Include="view\NotScreenSaveDlg.h" />
     <ClInclude Include="view\ShutDownDlg.h" />
+    <ClInclude Include="view\TaskRemindDlg.h" />
     <ClInclude Include="view\TimingTaskDlg.h" />
     <ClInclude Include="view\ToastWindow.h" />
     <ClInclude Include="view\WindowControl.h" />

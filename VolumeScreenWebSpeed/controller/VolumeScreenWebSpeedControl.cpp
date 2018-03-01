@@ -83,7 +83,7 @@ VolumeScreenWebSpeedControl::VolumeScreenWebSpeedControl(void)
     , volumeCtrlWrapper_(new VolumeCtrlWrapper())
     , powerOnStartProgress_()
     , screenSaveControllor_(new ScreenSaveControllor())
-	, timingTaskDlg_(nullptr)
+	, timingTaskDlgList_()
 {
 
 }
@@ -501,17 +501,36 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 		}		
 		case enTray_timingPopup:
 		{
-			if (!timingTaskDlg_)
-			{
-				timingTaskDlg_ = new TimingTaskDlg;
-				timingTaskDlg_->CreateDlg(NULL);
-			}
-			timingTaskDlg_->setVisible(true);
+			RemoveInvalidTimingTask();
 
+			for (auto per : timingTaskDlgList_)
+			{
+				per->setVisible(true);
+			}
+			break;
+		}
+		case enTray_timingPopupNew:
+		{
+			RemoveInvalidTimingTask();
+			TimingTaskDlg* pDlg = new TimingTaskDlg;
+			pDlg->CreateDlg(NULL);
+			pDlg->setVisible(true);
+			timingTaskDlgList_.push_back(pDlg);
 			break;
 		}
 		case enTray_exit:
 		{
+			RemoveInvalidTimingTask();
+			if (timingTaskDlgList_.size() > 0)
+			{
+				for (auto per : timingTaskDlgList_)
+				{
+					per->setVisible(true);
+				}
+				MessageBox(hWnd, _T("还有任务在运行，请先取消"), 
+					_T("警告"), MB_OK);
+				break;
+			}
 			CloseApp(hWnd);
 			break;
 		}
@@ -530,6 +549,7 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 			hMenu = CreatePopupMenu();
 			AppendMenu(hMenu, MF_STRING, enTray_timingClose, "定时关机");
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopup, "定时任务");
+			AppendMenu(hMenu, MF_STRING, enTray_timingPopupNew, "新建定时任务");
 			AppendMenu(hMenu, MF_STRING, enTray_exit, "退出");
 			TrackPopupMenu(hMenu, TPM_LEFTBUTTON, pt.x, pt.y, NULL, hWnd, nullptr);
 			int a = 1;
@@ -550,6 +570,22 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 		InitTaskBar(hWnd);
 	}
 	return false;
+}
+
+void VolumeScreenWebSpeedControl::RemoveInvalidTimingTask()
+{
+	for (auto iter = timingTaskDlgList_.begin();
+		iter != timingTaskDlgList_.end();)
+	{
+		if (!(*iter)->isTasking())
+		{
+			iter = timingTaskDlgList_.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
 }
 
 void VolumeScreenWebSpeedControl::CloseApp(HWND hWnd)

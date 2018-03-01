@@ -5,6 +5,7 @@ public:
     DlgControl(void);
     ~DlgControl(void);
 	void setVisible(bool vis);
+	void setDelteOnClose(bool del = false);
 
 protected:
 	virtual bool CreateDlg(HWND hwnd, int dlgId, int x, int y,
@@ -19,5 +20,6 @@ private:
 
 protected:
 	HWND m_hWnd;
+	bool m_delOnClose;
 };
 
