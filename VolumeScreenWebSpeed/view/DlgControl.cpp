@@ -84,7 +84,7 @@ bool DlgControl::CreateDlg(HWND hwnd, int dlgId, int width, int height)
 
 void DlgControl::setVisible(bool vis)
 {
-	ShowWindow(m_hWnd, vis ? SW_SHOW : SW_HIDE);
+	ShowWindow(m_hWnd, vis ? SW_SHOWNORMAL : SW_HIDE);
 
 	if (vis)
 	{
@@ -98,6 +98,11 @@ void DlgControl::setVisible(bool vis)
 		::SetForegroundWindow(m_hWnd);
 		::AttachThreadInput(dwCurID, dwMyID, FALSE);
 	}
+}
+
+bool DlgControl::isVisible()
+{
+	return !!::IsWindowVisible(m_hWnd);
 }
 
 void DlgControl::setDelteOnClose(bool del /*= false*/)

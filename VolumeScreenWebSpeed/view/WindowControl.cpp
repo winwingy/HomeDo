@@ -40,6 +40,7 @@ bool WindowControl::MyRegisterClass(HINSTANCE hInstance,
 
 WindowControl::WindowControl()
     : hInst_(reinterpret_cast<HINSTANCE>(GetModuleHandle(NULL)))
+	, delOnclose_(false)
 {
 
 }
@@ -76,28 +77,35 @@ LRESULT CALLBACK WindowControl::WndProcSta(
 {
     bool handle = false;
     LRESULT lResult = 0;
+	WindowControl* thisWnd = nullptr;
     if (message == WM_NCCREATE)
     {
         LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(
             lParam);
-        WindowControl* thisWnd = reinterpret_cast<WindowControl*>(
+        thisWnd = reinterpret_cast<WindowControl*>(
             createStruct->lpCreateParams);
         thisWnd->hWnd_ = hWnd;
         ::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(thisWnd));
     }
     else
     {
-        WindowControl* thisWnd = reinterpret_cast<WindowControl*>(
+        thisWnd = reinterpret_cast<WindowControl*>(
             ::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         if (thisWnd)
         {
             handle = thisWnd->WndProc(message, wParam, lParam, &lResult);
         }
-    }
+	}	
+	if (message == WM_NCDESTROY && thisWnd && thisWnd->delOnclose_)
+	{
+		delete thisWnd;
+	}
     if (!handle)
         return DefWindowProc(hWnd, message, wParam, lParam);
     else
         return lResult;
+
+
 }
 
 bool WindowControl::WndProc(UINT message, WPARAM wParam,
@@ -154,4 +162,9 @@ bool WindowControl::OnHotKey(
     HWND hWnd, UINT uMsg, int idHotKey, LPARAM lParam, LRESULT* result)
 {
     return false;
+}
+
+void WindowControl::setDelOnClose(bool del /*= false*/)
+{
+	delOnclose_ = del;
 }

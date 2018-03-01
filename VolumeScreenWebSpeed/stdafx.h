@@ -39,9 +39,12 @@ void traceFun(LPCTSTR lpszFormat, ...);
 
 #define TRACE TRACE_WY
 #define TRACE_WW TRACE_WY
+#define TRACEFUN TRACE_WY("")
 
 #ifdef _UNICODE
 #define  tstring std::wstring
 #else
 #define  tstring std::string
 #endif
+
+#define RETURN_ASSERT(x) if(!x) {assert(0); return;}

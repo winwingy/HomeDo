@@ -28,7 +28,6 @@ namespace
 ScreenSaveControllor::ScreenSaveControllor(void)
     : hWnd_(nullptr)
     , forcegroundHwnd_(nullptr)
-    , toastWindow_(nullptr)
     , config_(Config::GetShared())
 {
 }
@@ -44,13 +43,7 @@ void ScreenSaveControllor::ShowToastWindow(bool IsNotScreenSave, int timeMin)
     int showScreeenSaveToast = config_->GetValue(
         CONFIG_SET, "ShowScreeenSaveToast", 0);
     if (showScreeenSaveToast)
-    {
-        if (!toastWindow_)
-        {
-            toastWindow_.reset(new ToastWindow());
-            int width = GetSystemMetrics(SM_CXSCREEN);
-            toastWindow_->Create(nullptr, width - 500, 0, 200, 30);
-        }
+    { 
         int ShowScreeenSaveToastTimeMs = config_->GetValue(
             CONFIG_SET, "ShowScreeenSaveToastTimeMs", 2000);
         string ShowScreeenSaveToastTimeTextBeg = config_->GetValue(
@@ -68,13 +61,16 @@ void ScreenSaveControllor::ShowToastWindow(bool IsNotScreenSave, int timeMin)
         {
             ss << "Screen Save Normal";
         }
-        toastWindow_->Show(ShowScreeenSaveToastTimeMs, ss.str());
+		ToastWindow* toastWindow = new ToastWindow();
+		toastWindow->setDelOnClose(true);
+		int width = GetSystemMetrics(SM_CXSCREEN);
+		toastWindow->Create(nullptr, width - 500, 0, 200, 30);
+        toastWindow->Show(ShowScreeenSaveToastTimeMs, ss.str());
     }
 }
 
 void ScreenSaveControllor::StopNotScreenSave(HWND hwnd, bool playSound)
 {
-    toastWindow_.reset();
     KillTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE);
     KillTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE_MAX);
     if (playSound)

@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <iomanip>
 #include "TaskRemindDlg.h"
+#include "tool/windowTool.h"
 
 
 namespace
@@ -40,11 +41,12 @@ TimingTaskDlg::TimingTaskDlg(void)
 
 TimingTaskDlg::~TimingTaskDlg(void)
 {
+	int a = 1;
 }
 
 void TimingTaskDlg::CreateDlg(HWND hWnd)
 {
-	__super::CreateDlg(hWnd, IDD_DIALOG_TASK, 700, 500);
+	__super::CreateDlg(hWnd, IDD_DIALOG_TASK, 700, 510);
 }
 
 bool TimingTaskDlg::isTasking()
@@ -59,7 +61,7 @@ void TimingTaskDlg::initControl()
 	SetWindowText(m_hEditMin, _T(""));
 	SetWindowText(m_hEditSec, _T(""));
 
-	SendMessage(m_hRadioCountDown, IDC_RADIO_RepeatNo, BST_CHECKED, 0);
+	SendMessage(m_hRadioRepeatNo, BM_SETCHECK, BST_CHECKED, 0);
 
 	SetWindowText(m_hEditBoxText, _T("1小时任务提醒"));
 }
@@ -111,7 +113,6 @@ bool TimingTaskDlg::onFixTimeTask()
 	int sec = 0;
 	getTimerText(&hour, &min, &sec);
 	INT64 totalSec = 0;
-	setControlEnable(false);
 	if (isBtnChecked(m_hRadioRepeatYes))
 	{
 		SYSTEMTIME st;
@@ -125,7 +126,7 @@ bool TimingTaskDlg::onFixTimeTask()
 		t.tm_min = min;
 		t.tm_sec = sec;
 		time_t sec = mktime(&t); // 带时区转换功能
-		if (sec > time(nullptr))
+		if (sec < time(nullptr))
 		{
 			sec += 1 * 60 * 60;
 		}
@@ -145,8 +146,9 @@ bool TimingTaskDlg::onFixTimeTask()
 		t.tm_sec = sec;
 		time_t sec = mktime(&t); // 带时区转换功能
 
-		if (sec > time(nullptr))
+		if (sec < time(nullptr))
 		{
+			assert(0);
 			return res;
 		}
 
@@ -244,12 +246,19 @@ void TimingTaskDlg::setHourState()
 	}
 }
 
+void TimingTaskDlg::resetState()
+{
+	KillTimer(m_hWnd, kTimerId_refresh);
+	m_tasking = false;
+	setControlEnable(true);
+}
+
 void TimingTaskDlg::timerEnd(UINT message, WPARAM wParam,
 	LPARAM lParam)
 {
 	TaskRemindDlg* pRemind = new TaskRemindDlg;
-	pRemind->CreateDlg(nullptr);
-	pRemind->setVisible(true);
+	pRemind->ShowDlg(nullptr);
+	pRemind->setRemindText(WindowTool::GetWindowText(m_hEditBoxText));
 	pRemind->setDelteOnClose(true);
 
 	if (isBtnChecked(m_hRadioRepeatYes))
@@ -258,9 +267,7 @@ void TimingTaskDlg::timerEnd(UINT message, WPARAM wParam,
 	}
 	else
 	{
-		KillTimer(m_hWnd, wParam);
-		m_tasking = false;
-		setControlEnable(true);
+		resetState();
 	}	
 }
 
@@ -321,6 +328,11 @@ bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 		case IDOK:
 		{
 			onBtnOk();
+			break;
+		}
+		case ID_CancelTask:
+		{
+			resetState();
 			break;
 		}
 		case IDCANCEL:

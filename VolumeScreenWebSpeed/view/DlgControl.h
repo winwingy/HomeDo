@@ -3,8 +3,9 @@ class DlgControl
 {
 public:
     DlgControl(void);
-    ~DlgControl(void);
+    virtual ~DlgControl(void);
 	void setVisible(bool vis);
+	bool isVisible();
 	void setDelteOnClose(bool del = false);
 
 protected:
@@ -13,8 +14,7 @@ protected:
 	virtual bool CreateDlg(HWND hwnd, int dlgId, int width, int height);
 	virtual bool DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
 		LRESULT* lResult);
-
-private:	
+	
     static INT_PTR CALLBACK StaDlgProc(HWND hWnd, UINT message,
                                             WPARAM wParam, LPARAM lParam);
 

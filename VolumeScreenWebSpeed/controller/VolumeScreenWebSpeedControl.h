@@ -67,7 +67,8 @@ private:
     void OpenConfig();
     void SetMouseSpeed(bool isGameSpeed);
 	void RemoveInvalidTimingTask();
-	
+	void OnCommandNewTask();
+
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
     std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;

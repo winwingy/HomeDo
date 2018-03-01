@@ -3,9 +3,10 @@ class WindowControl
 {
 public:
     WindowControl();
-    ~WindowControl();
+    virtual ~WindowControl();
     virtual HWND Create(HWND hWnd, int x, int y, int width, int height);
     virtual void SetVisible(bool visible);
+	void setDelOnClose(bool del = false);
 
 protected: 
     virtual bool OnCreate(HWND hWnd, UINT uMsg,
@@ -24,4 +25,5 @@ protected:
                                        WPARAM wParam, LPARAM lParam);
     HINSTANCE hInst_;
     HWND hWnd_;
+	bool delOnclose_;
 };

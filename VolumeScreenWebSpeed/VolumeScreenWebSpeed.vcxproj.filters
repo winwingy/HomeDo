@@ -105,6 +105,9 @@
     <ClCompile Include="view\TaskRemindDlg.cpp">
       <Filter>view</Filter>
     </ClCompile>
+    <ClCompile Include="tool\windowTool.cpp">
+      <Filter>tool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tool\config.h">
@@ -175,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="view\TaskRemindDlg.h">
       <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="tool\windowTool.h">
+      <Filter>tool</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

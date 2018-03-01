@@ -25,6 +25,7 @@ private:
 	void onTimer(UINT message, WPARAM wParam, LPARAM lParam);
 	void setRemainText(INT64 totalSec);
 	void close();
+	void resetState();
 	void timerEnd(UINT message, WPARAM wParam, LPARAM lParam);
 
 private:

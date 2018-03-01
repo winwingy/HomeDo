@@ -12,7 +12,7 @@ ToastWindow::ToastWindow(void)
 
 ToastWindow::~ToastWindow(void)
 {
-    SendMessage(hWnd_, WM_CLOSE, 0, 0);
+	TRACEFUN
 }
 
 bool ToastWindow::WndProc(
@@ -29,12 +29,12 @@ bool ToastWindow::WndProc(
         case WM_TIMER:
         {
             KillTimer(hWnd_, wParam);
-            SetVisible(false);
+			PostMessage(hWnd_, WM_CLOSE, 0, 0);
             break;
         }
         case WM_CLOSE:
         {
-            int b = 10;
+			DestroyWindow(hWnd_);
             break;
         }
         case WM_PAINT:

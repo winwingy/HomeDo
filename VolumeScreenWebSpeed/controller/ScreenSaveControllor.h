@@ -1,5 +1,4 @@
 #pragma once
-class ToastWindow;
 class Config;
 class ScreenSaveControllor
 {
@@ -20,6 +19,5 @@ private:
     HWND hWnd_;
     HWND forcegroundHwnd_;
     Config* config_;
-    std::unique_ptr<ToastWindow> toastWindow_;
 };
 

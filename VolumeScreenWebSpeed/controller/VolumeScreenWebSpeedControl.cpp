@@ -14,6 +14,7 @@
 #include "KugouTaskDo.h"
 #include "TaskDoMgr.h"
 #include "../view/TimingTaskDlg.h"
+#include "view/ToastWindow.h"
 #pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
@@ -484,6 +485,15 @@ void VolumeScreenWebSpeedControl::OnTimer(
     screenSaveControllor_->OnTimer(hWnd, uMsg, idEvent, dwTime);
 }
 
+void VolumeScreenWebSpeedControl::OnCommandNewTask()
+{
+	RemoveInvalidTimingTask();
+	TimingTaskDlg* pDlg = new TimingTaskDlg;
+	pDlg->CreateDlg(NULL);
+	pDlg->setVisible(true);
+	timingTaskDlgList_.push_back(pDlg);
+}
+
 bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 	UINT message, WPARAM wParam, LPARAM lParam, LRESULT* lResult)
 {
@@ -507,15 +517,23 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 			{
 				per->setVisible(true);
 			}
+
+			if (timingTaskDlgList_.empty())
+			{
+				ToastWindow* toastWindow = new ToastWindow();
+				toastWindow->setDelOnClose(true);
+				RECT rect;
+				SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+				toastWindow->Create(nullptr, rect.right - 200,
+					rect.bottom - 30, 200, 30);
+				toastWindow->Show(1000, _T("没有在运行的任务"));
+				OnCommandNewTask();
+			}
 			break;
 		}
 		case enTray_timingPopupNew:
 		{
-			RemoveInvalidTimingTask();
-			TimingTaskDlg* pDlg = new TimingTaskDlg;
-			pDlg->CreateDlg(NULL);
-			pDlg->setVisible(true);
-			timingTaskDlgList_.push_back(pDlg);
+			OnCommandNewTask();
 			break;
 		}
 		case enTray_exit:
@@ -529,6 +547,13 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 				}
 				MessageBox(hWnd, _T("还有任务在运行，请先取消"), 
 					_T("警告"), MB_OK);
+				break;
+			}
+
+			int res = MessageBox(hWnd, _T("真的要退出么？"),
+				_T("警告"), MB_YESNO);
+			if (res != IDYES)
+			{
 				break;
 			}
 			CloseApp(hWnd);
@@ -577,8 +602,9 @@ void VolumeScreenWebSpeedControl::RemoveInvalidTimingTask()
 	for (auto iter = timingTaskDlgList_.begin();
 		iter != timingTaskDlgList_.end();)
 	{
-		if (!(*iter)->isTasking())
+		if (!(*iter)->isTasking() && !(*iter)->isVisible() )
 		{
+			delete *iter;
 			iter = timingTaskDlgList_.erase(iter);
 		}
 		else
