@@ -30,16 +30,18 @@ using namespace std;
 
 void traceFun(LPCTSTR lpszFormat, ...);
 
-#ifdef _DEBUG
-#define TRACE_WY(formatStr, ...) do {traceFun(_T("%s, %d"), __FUNCTION__, __LINE__);\
-	traceFun(formatStr, __VA_ARGS__); OutputDebugString(_T("\r\n")); }while (0);
-#else
-#define TRACE_WY //
-#endif
+ #ifdef _DEBUG
+ #define TRACEWW(formatStr, ...) do {traceFun(_T("%s, %d"), __FUNCTION__, __LINE__);\
+ 	traceFun(formatStr, __VA_ARGS__); OutputDebugString(_T("\r\n")); }while (0);
+ #else
+ #define TRACEWW 
+ #endif
 
-#define TRACE TRACE_WY
-#define TRACE_WW TRACE_WY
-#define TRACEFUN TRACE_WY("")
+#ifdef _DEBUG
+#define TRACEFUN  traceFun(_T("%s, %d\n"), __FUNCTION__, __LINE__);
+#else
+#define TRACEFUN 
+#endif
 
 #ifdef _UNICODE
 #define  tstring std::wstring

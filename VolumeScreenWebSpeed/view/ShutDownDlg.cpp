@@ -52,9 +52,10 @@ bool ShutDownDlg::RunShutDownCMD(INT64 sec, bool Cancel)
     return ret;
 }
 
-INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message,
-                                              WPARAM wParam, LPARAM lParam)
+bool ShutDownDlg::DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
+	LRESULT* lResult)
 {
+	HWND hWnd = m_hWnd;
     int wmId, wmEvent;
     if (message == WM_COMMAND)
     {
@@ -88,8 +89,11 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message,
                 }
                 INT64 totalSec = static_cast<INT64>(hour * 60 * 60) +
                     static_cast<INT64>(min * 60) + static_cast<INT64>(sec);
-                if (totalSec != 0)
-                    ShutDownDlg::RunShutDownCMD(totalSec, false);
+				if (totalSec != 0)
+				{
+					ShutDownDlg::RunShutDownCMD(totalSec, false);
+					setControlState(false);
+				}
                 else
                     assert(totalSec);
 
@@ -98,13 +102,14 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message,
             case ID_CANCEL_SHUTDOW:
             {
                 ShutDownDlg::RunShutDownCMD(0, true);
+				setControlState(true);
                 break;
             }
             case IDCANCEL:
-            DestroyWindow(hWnd);
-            break;
+				setVisible(false);
+				break;
             default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
+				break;
         }
     }
     else if (message == WM_INITDIALOG)
@@ -116,24 +121,36 @@ INT_PTR CALLBACK ShutDownDlg::ShutDownWndProc(HWND hWnd, UINT message,
         GetWindowRect(hWnd, &rect);
         int xPos = (x - (rect.right - rect.left)) / 2;
         int yPos = (y - (rect.bottom - rect.top)) / 2;
-        MoveWindow(hWnd, xPos, yPos, rect.right - rect.left, 
+        ::MoveWindow(hWnd, xPos, yPos, rect.right - rect.left, 
                    rect.bottom - rect.top, TRUE);
+		setControlState(true);
     }
     return 0;
 }
 
-
-bool ShutDownDlg::CreateDlg(HWND hwnd)
+void ShutDownDlg::setControlState(bool enable)
 {
-    HWND dlg = CreateDialogParamA((HINSTANCE)GetModuleHandle(NULL),
-                                  MAKEINTRESOURCE(IDD_DIALOG_SHUT_DOWN),
-                                  hwnd, ShutDownWndProc, 0);
-    assert(dlg);
-    UpdateWindow(dlg);
-    SetWindowPos(dlg, HWND_TOPMOST, 0, 0, 0, 0,
-                 SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE);
-	SetWindowPos(dlg, HWND_NOTOPMOST, 0, 0, 0, 0,
-			     SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE);
+	ShowWindow(GetDlgItem(m_hWnd, IDC_STATIC_ShutDowningTip), !enable);
+	
+	EnableWindow(GetDlgItem(m_hWnd, IDC_EDIT_HOUR), enable);
+	EnableWindow(GetDlgItem(m_hWnd, IDC_EDIT_MIN), enable);
+	EnableWindow(GetDlgItem(m_hWnd, IDC_EDIT_SEC), enable);
 
-    return true;
+	EnableWindow(GetDlgItem(m_hWnd, IDOK), enable);
+}
+
+bool ShutDownDlg::CreateDlgE(HWND hwnd)
+{
+	return __super::CreateDlg(hwnd, IDD_DIALOG_SHUT_DOWN);
+}
+
+void ShutDownDlg::ShowDlg()
+{
+	setVisible(true);
+	activeWindow();
+}
+
+bool ShutDownDlg::isTasking()
+{
+	return !IsWindowEnabled(GetDlgItem(m_hWnd, IDOK));
 }

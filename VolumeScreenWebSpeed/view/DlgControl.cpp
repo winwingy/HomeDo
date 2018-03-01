@@ -58,46 +58,31 @@ INT_PTR CALLBACK DlgControl::StaDlgProc(HWND hWnd, UINT message,
 	return 0;
 }
 
-bool DlgControl::CreateDlg(HWND hwnd, int dlgId, 
-	int x, int y, int width, int height)
+bool DlgControl::CreateDlg(HWND hwnd, int dlgId)
 {
 	m_hWnd = CreateDialogParam((HINSTANCE)GetModuleHandle(NULL),
 		MAKEINTRESOURCE(dlgId), hwnd, StaDlgProc, 
 		reinterpret_cast<LPARAM>(this));
 	assert(m_hWnd);
-	MoveWindow(m_hWnd, x, y, width, height, TRUE);
-	UpdateWindow(m_hWnd);
     return true;
-}
-
-bool DlgControl::CreateDlg(HWND hwnd, int dlgId, int width, int height)
-{
-	RECT rect;
-	SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-	int cx = rect.right - rect.left;
-	int cy = rect.bottom - rect.top;
-
-	int x = (cx - width) / 2;
-	int y = (cy - height) / 2;
-	return CreateDlg(hwnd, dlgId, x, y, width, height);
 }
 
 void DlgControl::setVisible(bool vis)
 {
 	ShowWindow(m_hWnd, vis ? SW_SHOWNORMAL : SW_HIDE);
+}
 
-	if (vis)
-	{
-		HWND hCurWnd = NULL;
-		DWORD dwMyID;
-		DWORD   dwCurID;
-		hCurWnd = ::GetForegroundWindow();
-		dwMyID = ::GetCurrentThreadId();
-		dwCurID = ::GetWindowThreadProcessId(hCurWnd, NULL);
-		::AttachThreadInput(dwCurID, dwMyID, TRUE);
-		::SetForegroundWindow(m_hWnd);
-		::AttachThreadInput(dwCurID, dwMyID, FALSE);
-	}
+void DlgControl::activeWindow()
+{
+	HWND hCurWnd = NULL;
+	DWORD dwMyID;
+	DWORD   dwCurID;
+	hCurWnd = ::GetForegroundWindow();
+	dwMyID = ::GetCurrentThreadId();
+	dwCurID = ::GetWindowThreadProcessId(hCurWnd, NULL);
+	::AttachThreadInput(dwCurID, dwMyID, TRUE);
+	::SetForegroundWindow(m_hWnd);
+	::AttachThreadInput(dwCurID, dwMyID, FALSE);
 }
 
 bool DlgControl::isVisible()
@@ -108,4 +93,30 @@ bool DlgControl::isVisible()
 void DlgControl::setDelteOnClose(bool del /*= false*/)
 {
 	m_delOnClose = del;
+}
+
+void DlgControl::MoveWindow(int x, int y)
+{
+	RECT rcThis;
+	GetWindowRect(m_hWnd, &rcThis);
+	int w = (rcThis.right - rcThis.left);
+	int h = (rcThis.bottom - rcThis.top);
+	::MoveWindow(m_hWnd, x, y, w, h, TRUE);
+}
+
+void DlgControl::showCenter()
+{
+	RECT rect;
+	SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+	int cx = rect.right - rect.left;
+	int cy = rect.bottom - rect.top;
+
+	RECT rcThis;
+	GetWindowRect(m_hWnd, &rcThis);
+	int w = (rcThis.right - rcThis.left);
+	int h = (rcThis.bottom - rcThis.top);
+
+	int x = (cx - w) / 2;
+	int y = (cy - h) / 2;
+	MoveWindow(x, y);
 }

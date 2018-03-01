@@ -13,6 +13,7 @@ class VolumeCtrlWrapper;
 class ScreenSaveControllor;
 class TaskDo;
 class TimingTaskDlg;
+class ShutDownDlg;
 
 class VolumeScreenWebSpeedControl
 {
@@ -67,14 +68,15 @@ private:
     void OpenConfig();
     void SetMouseSpeed(bool isGameSpeed);
 	void RemoveInvalidTimingTask();
-	void OnCommandNewTask();
-
+	void OnTaskList();
+	void OnTaskNew();
+	void ShowShutDownDlg();
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
     std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;
     vector<string> powerOnStartProgress_;
     std::unique_ptr<ScreenSaveControllor> screenSaveControllor_;
-
+	ShutDownDlg* shutDownDlg_;
 	std::vector<TimingTaskDlg*> timingTaskDlgList_;
 	NOTIFYICONDATA nid_;
 };

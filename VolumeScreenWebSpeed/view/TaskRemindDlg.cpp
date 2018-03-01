@@ -31,8 +31,7 @@ void TaskRemindDlg::ShowDlg(HWND hWnd)
 	int width = 428;
 	int height = 140;
 
-	MoveWindow(m_hWnd, rect.right - width, 
-		rect.bottom - height, width, height, TRUE);
+	MoveWindow(rect.right - width, rect.bottom - height);
 
 	SetWindowPos(m_hWnd, 0, 0, 0, 0, 0, 
 		SWP_SHOWWINDOW|SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOSIZE);

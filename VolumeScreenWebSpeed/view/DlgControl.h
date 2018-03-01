@@ -6,12 +6,16 @@ public:
     virtual ~DlgControl(void);
 	void setVisible(bool vis);
 	bool isVisible();
+	void showCenter();
+	void activeWindow();
+
+	void MoveWindow(int x, int y);
+	void setSize(int width, int height);
+
 	void setDelteOnClose(bool del = false);
 
 protected:
-	virtual bool CreateDlg(HWND hwnd, int dlgId, int x, int y,
-		int width, int height);
-	virtual bool CreateDlg(HWND hwnd, int dlgId, int width, int height);
+	virtual bool CreateDlg(HWND hwnd, int dlgId);
 	virtual bool DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
 		LRESULT* lResult);
 	

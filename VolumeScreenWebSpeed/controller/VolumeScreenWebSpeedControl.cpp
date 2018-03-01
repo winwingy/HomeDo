@@ -85,6 +85,7 @@ VolumeScreenWebSpeedControl::VolumeScreenWebSpeedControl(void)
     , powerOnStartProgress_()
     , screenSaveControllor_(new ScreenSaveControllor())
 	, timingTaskDlgList_()
+	, shutDownDlg_(nullptr)
 {
 
 }
@@ -160,11 +161,18 @@ void VolumeScreenWebSpeedControl::InitGeneralHotKey(HWND hWnd)
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyShutDown", "");
     bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_SHUT_DOWN);
 
+	hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyTaskList", "");
+	bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_TASK_LIST);
+
+	hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyTaskNew", "");
+	bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_TASK_NEW);
+
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyMouseSpeedWeb", "");
     bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_MOUSESPEED_WEB);
 
     hotkey = config_->GetValue(CONFIG_SET_HOTKEY, "HotKeyMouseSpeedGame", "");
     bRet = RgeisterStringHotKey(hotkey, hWnd, WinDefine::HOTKEY_MOUSESPEED_GAME);
+
 }
 
 void VolumeScreenWebSpeedControl::InitHotKey(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -320,14 +328,14 @@ void VolumeScreenWebSpeedControl::RaiseToken()
                                 TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken);
         char szRet[10] = { 0 };
         sprintf_s(szRet, _countof(szRet), "%d", bRet);
-        TRACE_WW(szRet);
-        TRACE_WW("\n");
+        TRACEWW(szRet);
+        TRACEWW("\n");
         //OpenProcessToken（）这个函数的作用是打开一个进程的访问令牌   
         //GetCurrentProcess（）函数的作用是得到本进程的句柄   
         bRet = LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tkp.Privileges[0].Luid);
         sprintf_s(szRet, _countof(szRet), "%d", bRet);
-        TRACE_WW(szRet);
-        TRACE_WW("\n");
+        TRACEWW(szRet);
+        TRACEWW("\n");
         //LookupPrivilegeValue（）的作用是修改进程的权限   
         tkp.PrivilegeCount = 1;
         //赋给本进程特权   
@@ -336,8 +344,8 @@ void VolumeScreenWebSpeedControl::RaiseToken()
                                      (PTOKEN_PRIVILEGES)NULL, 0);
         //AdjustTokenPrivileges（）的作用是通知Windows   NT修改本进程的权利  
         sprintf_s(szRet, _countof(szRet), "%d", bRet);
-        TRACE_WW(szRet);
-        TRACE_WW("\n");
+        TRACEWW(szRet);
+        TRACEWW("\n");
         bPrivi = true;
     }
 }
@@ -413,10 +421,19 @@ void VolumeScreenWebSpeedControl::OnHotKey(HWND hWnd, UINT uMsg,
         }
         case  WinDefine::HOTKEY_SHUT_DOWN:
         {
-            ShutDownDlg dlg;
-            dlg.CreateDlg(NULL);
+			ShowShutDownDlg();	
             break;
         }
+		case  WinDefine::HOTKEY_TASK_LIST:
+		{
+			OnTaskList();
+			break;
+		}
+		case  WinDefine::HOTKEY_TASK_NEW:
+		{
+			OnTaskNew();
+			break;
+		}
         case  WinDefine::HOTKEY_MOUSESPEED_WEB:
         {
             SetMouseSpeed(false);
@@ -485,13 +502,46 @@ void VolumeScreenWebSpeedControl::OnTimer(
     screenSaveControllor_->OnTimer(hWnd, uMsg, idEvent, dwTime);
 }
 
-void VolumeScreenWebSpeedControl::OnCommandNewTask()
+void VolumeScreenWebSpeedControl::OnTaskList()
+{
+	RemoveInvalidTimingTask();
+
+	for (auto per : timingTaskDlgList_)
+	{
+		per->setVisible(true);
+	}
+
+	if (timingTaskDlgList_.empty())
+	{
+		ToastWindow* toastWindow = new ToastWindow();
+		toastWindow->setDelOnClose(true);
+		RECT rect;
+		SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+		toastWindow->Create(nullptr, rect.right - 200,
+			rect.bottom - 30, 200, 30);
+		toastWindow->Show(1000, _T("没有在运行的任务"));
+		OnTaskNew();
+	}
+}
+
+void VolumeScreenWebSpeedControl::OnTaskNew()
 {
 	RemoveInvalidTimingTask();
 	TimingTaskDlg* pDlg = new TimingTaskDlg;
-	pDlg->CreateDlg(NULL);
+	pDlg->CreateDlgE(NULL);
 	pDlg->setVisible(true);
+	pDlg->activeWindow();
 	timingTaskDlgList_.push_back(pDlg);
+}
+
+void VolumeScreenWebSpeedControl::ShowShutDownDlg()
+{
+	if (!shutDownDlg_)
+	{
+		shutDownDlg_ = new ShutDownDlg;
+		shutDownDlg_->CreateDlgE(nullptr);
+	}
+	shutDownDlg_->ShowDlg();
 }
 
 bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
@@ -505,35 +555,17 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 		{
 		case enTray_timingClose:
 		{
-			ShutDownDlg dlg;
-			dlg.CreateDlg(NULL);
+			ShowShutDownDlg();
 			break;
 		}		
 		case enTray_timingPopup:
 		{
-			RemoveInvalidTimingTask();
-
-			for (auto per : timingTaskDlgList_)
-			{
-				per->setVisible(true);
-			}
-
-			if (timingTaskDlgList_.empty())
-			{
-				ToastWindow* toastWindow = new ToastWindow();
-				toastWindow->setDelOnClose(true);
-				RECT rect;
-				SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-				toastWindow->Create(nullptr, rect.right - 200,
-					rect.bottom - 30, 200, 30);
-				toastWindow->Show(1000, _T("没有在运行的任务"));
-				OnCommandNewTask();
-			}
+			OnTaskList();
 			break;
 		}
 		case enTray_timingPopupNew:
 		{
-			OnCommandNewTask();
+			OnTaskNew();
 			break;
 		}
 		case enTray_exit:
@@ -546,6 +578,13 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 					per->setVisible(true);
 				}
 				MessageBox(hWnd, _T("还有任务在运行，请先取消"), 
+					_T("警告"), MB_OK);
+				break;
+			}
+
+			if (shutDownDlg_ && shutDownDlg_->isTasking())
+			{
+				MessageBox(hWnd, _T("定时关机任务在运行，请先取消"),
 					_T("警告"), MB_OK);
 				break;
 			}
@@ -573,7 +612,7 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 			HMENU hMenu;
 			hMenu = CreatePopupMenu();
 			AppendMenu(hMenu, MF_STRING, enTray_timingClose, "定时关机");
-			AppendMenu(hMenu, MF_STRING, enTray_timingPopup, "定时任务");
+			AppendMenu(hMenu, MF_STRING, enTray_timingPopup, "定时任务列表");
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopupNew, "新建定时任务");
 			AppendMenu(hMenu, MF_STRING, enTray_exit, "退出");
 			TrackPopupMenu(hMenu, TPM_LEFTBUTTON, pt.x, pt.y, NULL, hWnd, nullptr);

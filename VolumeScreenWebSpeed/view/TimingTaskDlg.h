@@ -5,7 +5,7 @@ class TimingTaskDlg : public DlgControl
 public:
     TimingTaskDlg(void);
     ~TimingTaskDlg(void);
-	void CreateDlg(HWND hWnd);
+	void CreateDlgE(HWND hWnd);
 	bool isTasking();
 
 protected:

@@ -10,7 +10,7 @@ CMyVolumeCtrl::CMyVolumeCtrl(void)
     m_guidMyContext(GUID_NULL)
 {
     m_eWinType = vGetWindowsType();
-    TRACE_WY("Now windows is %d", m_eWinType);
+    TRACEWW("Now windows is %d", m_eWinType);
     if (WindowsVista == m_eWinType || Windows7 == m_eWinType)
     {
         vInitEndPoint();
@@ -49,7 +49,7 @@ int CMyVolumeCtrl::GetVolume()
         {
 
             unsigned int nXPVol = vGetVolume(0);
-            TRACE("XP vol = %d, nowmax = %d", nXPVol, dwNowMaxVol);
+            TRACEWW("XP vol = %d, nowmax = %d", nXPVol, dwNowMaxVol);
             nVol = nXPVol;
         }
         break;
@@ -476,7 +476,7 @@ WindowsType CMyVolumeCtrl::vGetWindowsType()
     WindowsType eType = UnknownOS;
     if (GetVersionEx(&info))
     {
-        TRACE("GetVersionEx: MajorVer = %d, MinVer = %d, BuildNo = %d", info.dwMajorVersion, info.dwMinorVersion, info.dwBuildNumber);
+        TRACEWW("GetVersionEx: MajorVer = %d, MinVer = %d, BuildNo = %d", info.dwMajorVersion, info.dwMinorVersion, info.dwBuildNumber);
         if (info.dwMajorVersion <= 5)//XP or early
         {
             eType = WindowsXP;

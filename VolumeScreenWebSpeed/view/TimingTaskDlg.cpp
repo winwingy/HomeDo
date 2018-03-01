@@ -44,9 +44,9 @@ TimingTaskDlg::~TimingTaskDlg(void)
 	int a = 1;
 }
 
-void TimingTaskDlg::CreateDlg(HWND hWnd)
+void TimingTaskDlg::CreateDlgE(HWND hWnd)
 {
-	__super::CreateDlg(hWnd, IDD_DIALOG_TASK, 700, 510);
+	__super::CreateDlg(hWnd, IDD_DIALOG_TASK);
 }
 
 bool TimingTaskDlg::isTasking()

@@ -1,14 +1,18 @@
 #pragma once
-class ShutDownDlg
+#include "DlgControl.h"
+class ShutDownDlg : public DlgControl
 {
 public:
     ShutDownDlg(void);
     ~ShutDownDlg(void);
-    bool CreateDlg(HWND hwnd);
+	bool CreateDlgE(HWND hwnd);
+    void ShowDlg();
+	bool isTasking();
 
 private:
     static bool RunShutDownCMD(INT64 sec, bool Cancel);
-    static INT_PTR CALLBACK ShutDownWndProc(HWND hWnd, UINT message,
-                                            WPARAM wParam, LPARAM lParam);
+	virtual bool DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
+		LRESULT* lResult) override;
+	void setControlState(bool enable);
 };
 
