@@ -15,6 +15,7 @@
 #include "TaskDoMgr.h"
 #include "../view/TimingTaskDlg.h"
 #include "view/ToastWindow.h"
+#include "Resource.h"
 #pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
@@ -358,8 +359,8 @@ void VolumeScreenWebSpeedControl::InitTaskBar(HWND hWnd)
 	nid_.uID = 0;
 	nid_.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	nid_.uCallbackMessage = WM_TaskBarMsg;
-	nid_.hIcon = (HICON)LoadImage(NULL, "icon_show.ico",
-		IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	nid_.hIcon = (HICON)LoadIcon(GetModuleHandle(NULL),
+		MAKEINTRESOURCE(IDI_ICON_SHOW));
 	_tcscpy_s(nid_.szTip, APP_NAME);
 	Shell_NotifyIcon(NIM_ADD, &nid_);
 }
@@ -607,6 +608,7 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 	{
 		if (WM_LBUTTONDOWN == lParam || WM_RBUTTONDOWN == lParam)
 		{
+			SetActiveWindow(hWnd); //失去焦点时菜单自动消失
 			POINT pt;
 			GetCursorPos(&pt);
 			HMENU hMenu;
@@ -615,14 +617,15 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopup, "定时任务列表");
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopupNew, "新建定时任务");
 			AppendMenu(hMenu, MF_STRING, enTray_exit, "退出");
-			TrackPopupMenu(hMenu, TPM_LEFTBUTTON, pt.x, pt.y, NULL, hWnd, nullptr);
+			TrackPopupMenu(hMenu, TPM_LEFTBUTTON, pt.x, pt.y,
+				NULL, hWnd, nullptr);
+			DestroyMenu(hMenu);
 			int a = 1;
 		}
 		break;
 	}
 	case WM_DESTROY:
 	{
-		
 		break;
 	}	
 	default:

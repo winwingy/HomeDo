@@ -91,10 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="icon1.ico" />
     <None Include="icon_show.ico" />
-    <None Include="small.ico" />
-    <None Include="VolumeScreenWebSpeed.ico" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

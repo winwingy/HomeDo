@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "WindowControl.h"
+#include "resource.h"
 
 namespace
 {
@@ -18,15 +19,13 @@ bool WindowControl::MyRegisterClass(HINSTANCE hInstance,
     wcex.cbWndExtra = 0;
     wcex.hInstance = hInstance;
     //任务切换时看到的图标（16*16）、 exe上的图标（32*32）
-    wcex.hIcon = (HICON)LoadImage(NULL, "icon_show.ico",
-                                  IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	wcex.hIcon = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON_SHOW));
     wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
     wcex.lpszClassName = szWindowClass;
     //窗口右上角图标、 任务栏图标、 任务管理器看到的图标（16*16）
-    wcex.hIconSm = (HICON)LoadImage(NULL, "icon_show.ico",
-                                    IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	wcex.hIconSm = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON_SHOW));
     bool ret = false;
     WNDCLASS reg = { 0 };
     bool isReg = !!::GetClassInfo(hInst_, szWindowClass, &reg);

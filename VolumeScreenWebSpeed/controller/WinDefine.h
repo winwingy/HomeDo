@@ -23,7 +23,12 @@ typedef unsigned int uint;
 #define APP_NAME "wingy管理工具"
 
 extern uint WM_TASKBARCREATED;
-#define WM_TaskBarMsg WM_USER + 5000
+
+enum enWMMsg
+{
+	WM_TaskBarMsg = WM_USER + 2000,
+
+};
 
 
 enum enTray_menu

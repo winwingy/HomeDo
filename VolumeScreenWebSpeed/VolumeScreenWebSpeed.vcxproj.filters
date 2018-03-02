@@ -19,16 +19,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="icon1.ico">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="icon_show.ico">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="small.ico">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="VolumeScreenWebSpeed.ico">
       <Filter>资源文件</Filter>
     </None>
     <None Include="ReadMe.txt" />
