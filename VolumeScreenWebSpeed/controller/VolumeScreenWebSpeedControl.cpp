@@ -353,6 +353,10 @@ void VolumeScreenWebSpeedControl::RaiseToken()
 
 void VolumeScreenWebSpeedControl::InitTaskBar(HWND hWnd)
 {
+	int IsShowTray = config_->GetValue(CONFIG_SET, "IsShowTray", 0);
+	if (!IsShowTray)
+		return;
+	
 	WM_TASKBARCREATED = RegisterWindowMessage(_T("TaskbarCreated"));	
 	nid_.cbSize = sizeof(nid_);
 	nid_.hWnd = hWnd;
