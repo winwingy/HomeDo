@@ -8,6 +8,7 @@
 #include <iomanip>
 #include "TaskRemindDlg.h"
 #include "tool/windowTool.h"
+#include "tool/config.h"
 
 
 namespace
@@ -58,12 +59,16 @@ void TimingTaskDlg::initControl()
 {
 	SendMessage(m_hRadioCountDown, BM_SETCHECK, BST_CHECKED, 0);
 	SetWindowText(m_hEditHour, _T("1"));
-	SetWindowText(m_hEditMin, _T(""));
+	tstring countTime = Config::GetShared()->GetValue(_T("TimingTask"),
+		_T("TimeMinDefault"), _T("20"));
+	SetWindowText(m_hEditMin, countTime.c_str());
 	SetWindowText(m_hEditSec, _T(""));
 
 	SendMessage(m_hRadioRepeatNo, BM_SETCHECK, BST_CHECKED, 0);
 
-	SetWindowText(m_hEditBoxText, _T("1小时任务提醒"));
+	tstring text =  Config::GetShared()->GetValue(_T("TimingTask"),
+		_T("ShowTextDefault"), _T("打包"));
+	SetWindowText(m_hEditBoxText, text.c_str());
 }
 
 
