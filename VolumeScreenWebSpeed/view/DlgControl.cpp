@@ -21,6 +21,15 @@ DlgControl::~DlgControl(void)
 bool DlgControl::DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
 	LRESULT* lResult)
 {
+	switch (message)
+	{
+	case WM_CLOSE:
+	{
+		int a = 1;
+		DestroyWindow(m_hWnd);
+		break;
+	}
+	}
 	return false;
 }
 
@@ -88,7 +97,8 @@ void DlgControl::activeWindow()
 
 void DlgControl::close()
 {
-	::SendMessage(m_hWnd, WM_CLOSE, 0, 0);
+	//SendMessage(m_hWnd, WM_CLOSE, 0, 0);
+	DestroyWindow(m_hWnd);
 }
 
 bool DlgControl::isVisible()

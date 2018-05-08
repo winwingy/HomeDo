@@ -118,7 +118,6 @@
     <ClCompile Include="tool\windowTool.cpp" />
     <ClCompile Include="view\ChangeTitleDlg.cpp" />
     <ClCompile Include="view\DlgControl.cpp" />
-    <ClCompile Include="view\NotScreenSaveDlg.cpp" />
     <ClCompile Include="view\ShutDownDlg.cpp" />
     <ClCompile Include="view\TaskRemindDlg.cpp" />
     <ClCompile Include="view\TimingTaskDlg.cpp" />
@@ -145,7 +144,6 @@
     <ClInclude Include="tool\windowTool.h" />
     <ClInclude Include="view\ChangeTitleDlg.h" />
     <ClInclude Include="view\DlgControl.h" />
-    <ClInclude Include="view\NotScreenSaveDlg.h" />
     <ClInclude Include="view\ShutDownDlg.h" />
     <ClInclude Include="view\TaskRemindDlg.h" />
     <ClInclude Include="view\TimingTaskDlg.h" />

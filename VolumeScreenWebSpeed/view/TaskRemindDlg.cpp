@@ -53,12 +53,12 @@ bool TaskRemindDlg::DlgProc(UINT message, WPARAM wParam,
 		{
 		case IDOK:
 		{
-			DestroyWindow(hWnd);
+			close();
 			break;
 		}
 		case IDCANCEL:
 		{
-			DestroyWindow(hWnd);
+			close();
 			break;
 		}
 		default:

@@ -312,7 +312,7 @@ void TimingTaskDlg::close()
 	}
 	else
 	{
-		DestroyWindow(m_hWnd);
+		__super::close();
 	}
 }
 
@@ -362,6 +362,12 @@ bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 	{
 		onTimer(message, wParam, lParam);
 		break;
+	}
+	case WM_CLOSE:
+	{
+		close();
+		*lResult = TRUE;
+		return true;
 	}
 	case WM_INITDIALOG:
 	{

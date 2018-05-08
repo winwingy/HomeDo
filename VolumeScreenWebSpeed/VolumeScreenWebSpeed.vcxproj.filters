@@ -42,9 +42,6 @@
     <ClCompile Include="tool\StringPathHelper.cpp">
       <Filter>tool</Filter>
     </ClCompile>
-    <ClCompile Include="view\NotScreenSaveDlg.cpp">
-      <Filter>view</Filter>
-    </ClCompile>
     <ClCompile Include="view\ShutDownDlg.cpp">
       <Filter>view</Filter>
     </ClCompile>
@@ -115,9 +112,6 @@
     </ClInclude>
     <ClInclude Include="tool\StringPathHelper.h">
       <Filter>tool</Filter>
-    </ClInclude>
-    <ClInclude Include="view\NotScreenSaveDlg.h">
-      <Filter>view</Filter>
     </ClInclude>
     <ClInclude Include="view\ShutDownDlg.h">
       <Filter>view</Filter>

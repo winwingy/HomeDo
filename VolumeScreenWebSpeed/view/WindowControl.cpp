@@ -118,6 +118,11 @@ bool WindowControl::WndProc(UINT message, WPARAM wParam,
             handle = OnCreate(hWnd_, message, wParam, lParam, lResult);
             break;
         }
+		case WM_CLOSE:
+		{
+			DestroyWindow(hWnd_);
+			break;
+		}
         case WM_TIMER:
         {
             handle = OnTimer(hWnd_, message, static_cast<UINT_PTR>(wParam),

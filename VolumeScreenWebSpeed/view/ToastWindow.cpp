@@ -31,12 +31,7 @@ bool ToastWindow::WndProc(
             KillTimer(hWnd_, wParam);
 			PostMessage(hWnd_, WM_CLOSE, 0, 0);
             break;
-        }
-        case WM_CLOSE:
-        {
-			DestroyWindow(hWnd_);
-            break;
-        }
+        }  
         case WM_PAINT:
         {
             PAINTSTRUCT ps = { 0 };

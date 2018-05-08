@@ -11,7 +11,7 @@ ChangeTitleDlg::ChangeTitleDlg(void)
 
 ChangeTitleDlg::~ChangeTitleDlg(void)
 {
-
+	int a = 1;
 }
 
 void ChangeTitleDlg::CreateDlgE(HWND hWnd)
@@ -57,6 +57,16 @@ bool ChangeTitleDlg::DlgProc(UINT message, WPARAM wParam,
 	}
 	case WM_INITDIALOG:
 	{
+		break;
+	}
+	case WM_CLOSE:
+	{
+		int a = 1;
+		break;
+	}
+	case WM_DESTROY:
+	{
+		int a = 1;
 		break;
 	}
 	default:

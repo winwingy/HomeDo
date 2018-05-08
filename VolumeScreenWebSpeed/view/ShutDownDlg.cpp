@@ -112,6 +112,12 @@ bool ShutDownDlg::DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
 				break;
         }
     }
+	else if (message == WM_CLOSE)
+	{
+		setVisible(false);
+		*lResult = TRUE;
+		return true;
+	}
     else if (message == WM_INITDIALOG)
     {
         SetFocus(GetDlgItem(hWnd, IDC_EDIT_HOUR));
