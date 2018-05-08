@@ -17,6 +17,7 @@
 #define IDD_DIALOG_NOT_SCREEN_SAVE      132
 #define IDD_DIALOG_TASK                 134
 #define IDD_DIALOG_TASK_REMIND          135
+#define IDD_DIALOG_TITLE                143
 #define IDC_EDIT_HOUR                   1000
 #define IDC_EDIT_MIN                    1001
 #define IDC_EDIT_MIN2                   1002
@@ -34,9 +35,14 @@
 #define IDC_RADIO_RepeatNo              1011
 #define IDC_EDIT1                       1012
 #define IDC_EDIT_TaskBoxText            1012
+#define IDC_EDIT_ORC_TITLE              1012
 #define IDC_STATIC_RemainTime           1013
+#define IDC_EDIT_ORC_TITLE2             1013
+#define IDC_EDIT_NEW_TITLE              1013
 #define IDC_STATIC_TaskText             1014
 #define IDC_STATIC_ShutDowningTip       1015
+#define IDC_STATIC_ORC                  1016
+#define IDC_STATIC_ORC2                 1017
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -44,9 +50,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        143
+#define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

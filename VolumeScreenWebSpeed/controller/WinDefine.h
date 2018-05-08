@@ -20,6 +20,9 @@ typedef unsigned int uint;
 #define CONFIG_SET_KILLNAME_BEGIN  "[KillNameBegin]"
 #define CONFIG_SET_KILLNAME_END  "[KillNameEnd]"
 
+#define CONFIG_SET_NAMEWINDOW_BEGIN  "[NameWindowBegin]"
+#define CONFIG_SET_NAMEWINDOW_END  "[NameWindowEnd]"
+
 #define APP_NAME "wingy管理工具"
 
 extern uint WM_TASKBARCREATED;
@@ -36,6 +39,8 @@ enum enTray_menu
 	enTray_timingClose,
 	enTray_timingPopup,
 	enTray_timingPopupNew,
+	enTray_closeNameWindow,
+	enTray_changeWindowTitle,
 	enTray_exit
 };
 

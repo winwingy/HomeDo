@@ -8,6 +8,7 @@ public:
 	bool isVisible();
 	void showCenter();
 	void activeWindow();
+	void close();
 
 	void MoveWindow(int x, int y);
 	void setSize(int width, int height);

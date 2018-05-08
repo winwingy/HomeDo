@@ -70,7 +70,11 @@ private:
 	void RemoveInvalidTimingTask();
 	void OnTaskList();
 	void OnTaskNew();
+	void OnCloseNameWindow();
+	void OnChangeWindowTitle();
 	void ShowShutDownDlg();
+
+	HWND hWnd_;
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
     std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;

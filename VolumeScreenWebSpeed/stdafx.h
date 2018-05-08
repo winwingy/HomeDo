@@ -26,6 +26,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <map>
+#include <functional>
 using namespace std;
 
 void traceFun(LPCTSTR lpszFormat, ...);

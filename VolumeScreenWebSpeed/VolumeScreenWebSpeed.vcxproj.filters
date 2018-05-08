@@ -99,6 +99,9 @@
     <ClCompile Include="tool\windowTool.cpp">
       <Filter>tool</Filter>
     </ClCompile>
+    <ClCompile Include="view\ChangeTitleDlg.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tool\config.h">
@@ -172,6 +175,9 @@
     </ClInclude>
     <ClInclude Include="tool\windowTool.h">
       <Filter>tool</Filter>
+    </ClInclude>
+    <ClInclude Include="view\ChangeTitleDlg.h">
+      <Filter>view</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

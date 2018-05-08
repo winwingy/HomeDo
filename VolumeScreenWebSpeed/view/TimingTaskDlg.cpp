@@ -58,7 +58,7 @@ bool TimingTaskDlg::isTasking()
 void TimingTaskDlg::initControl()
 {
 	SendMessage(m_hRadioCountDown, BM_SETCHECK, BST_CHECKED, 0);
-	SetWindowText(m_hEditHour, _T("1"));
+	SetWindowText(m_hEditHour, _T("0"));
 	tstring countTime = Config::GetShared()->GetValue(_T("TimingTask"),
 		_T("TimeMinDefault"), _T("20"));
 	SetWindowText(m_hEditMin, countTime.c_str());

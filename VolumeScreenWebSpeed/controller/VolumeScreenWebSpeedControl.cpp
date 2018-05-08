@@ -16,6 +16,8 @@
 #include "../view/TimingTaskDlg.h"
 #include "view/ToastWindow.h"
 #include "Resource.h"
+#include "tool/windowTool.h"
+#include "view/ChangeTitleDlg.h"
 #pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
@@ -81,7 +83,8 @@ namespace
 }
 
 VolumeScreenWebSpeedControl::VolumeScreenWebSpeedControl(void)
-    : config_(Config::GetShared())
+	: hWnd_(nullptr)
+	, config_(Config::GetShared())
     , volumeCtrlWrapper_(new VolumeCtrlWrapper())
     , powerOnStartProgress_()
     , screenSaveControllor_(new ScreenSaveControllor())
@@ -221,6 +224,8 @@ void VolumeScreenWebSpeedControl::InitTaskMgr(HWND hWnd)
 void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
                               WPARAM wParam, LPARAM lParam)
 {
+	hWnd_ = hWnd;
+
     RaiseToken();
 
 	InitTaskBar(hWnd);
@@ -539,6 +544,75 @@ void VolumeScreenWebSpeedControl::OnTaskNew()
 	timingTaskDlgList_.push_back(pDlg);
 }
 
+
+BOOL CALLBACK EnumWindowsProcCloseWindow(HWND hwnd, LPARAM lParam)
+{
+	tstring text = WindowTool::GetWindowText(hwnd);
+	vector<string> nameList = *((vector<string>*)lParam);
+	for (UINT i = 0; i < nameList.size(); ++i)
+	{
+		if (text == nameList[i])
+		{
+			PostMessage(hwnd, WM_CLOSE, 0, 0);
+		}
+	}
+	return TRUE;
+}
+
+void VolumeScreenWebSpeedControl::OnCloseNameWindow()
+{
+	vector<string> nameList;
+	config_->GetList(CONFIG_SET_NAMEWINDOW_BEGIN, CONFIG_SET_NAMEWINDOW_END,
+		&nameList);
+	if (nameList.empty())
+		return;
+
+	EnumWindows(EnumWindowsProcCloseWindow, (LPARAM)&nameList);
+}
+
+struct ChangeWindowTitleData
+{
+	tstring orcTitle;
+	tstring toTitle;
+	HWND hWnd;
+};
+
+BOOL CALLBACK EnumWindowsProcChangeWindowTitle(HWND hwnd, LPARAM lParam)
+{
+	tstring text = WindowTool::GetWindowText(hwnd);
+	ChangeWindowTitleData titleData = *((ChangeWindowTitleData*)lParam);
+	if (text.size() > 0 && text.find(titleData.orcTitle) != tstring::npos)
+	{
+		int ret = MessageBox(titleData.hWnd, text.c_str(), "是这个标题么",
+			MB_YESNOCANCEL);
+		if (IDYES == ret)
+			SetWindowText(hwnd, titleData.toTitle.c_str());
+		else if(IDCANCEL == ret)
+			return FALSE;
+	}
+	return TRUE;
+}
+
+void VolumeScreenWebSpeedControl::OnChangeWindowTitle()
+{
+	auto changeFun = [this](const tstring& orcTitle,
+		const tstring& toTitle)
+	{
+		ChangeWindowTitleData titleData;
+		titleData.orcTitle = orcTitle;
+		titleData.toTitle = toTitle;
+		titleData.hWnd = hWnd_;
+		EnumWindows(EnumWindowsProcChangeWindowTitle, (LPARAM)&titleData);
+	};
+
+	ChangeTitleDlg* pTitle = new ChangeTitleDlg();
+	pTitle->CreateDlgE(hWnd_);
+	pTitle->setDelteOnClose(true);
+	pTitle->showCenter();
+	pTitle->activeWindow();
+	pTitle->setChangeEvent(changeFun);
+}
+
 void VolumeScreenWebSpeedControl::ShowShutDownDlg()
 {
 	if (!shutDownDlg_)
@@ -571,6 +645,16 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 		case enTray_timingPopupNew:
 		{
 			OnTaskNew();
+			break;
+		}
+		case enTray_closeNameWindow:
+		{
+			OnCloseNameWindow();
+			break;
+		}
+		case enTray_changeWindowTitle:
+		{
+			OnChangeWindowTitle();
 			break;
 		}
 		case enTray_exit:
@@ -620,6 +704,9 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 			AppendMenu(hMenu, MF_STRING, enTray_timingClose, "定时关机");
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopup, "定时任务列表");
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopupNew, "新建定时任务");
+			//AppendMenu(hMenu, MF_STRING, enTray_closeNameWindow, "关闭弹窗");
+			AppendMenu(hMenu, MF_STRING, enTray_changeWindowTitle,
+				"改窗口标题");
 			AppendMenu(hMenu, MF_STRING, enTray_exit, "退出");
 			TrackPopupMenu(hMenu, TPM_LEFTBUTTON, pt.x, pt.y,
 				NULL, hWnd, nullptr);

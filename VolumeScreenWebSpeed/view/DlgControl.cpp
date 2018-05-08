@@ -5,6 +5,7 @@
 #include "../resource.h"
 #include <time.h>
 #include <assert.h>
+#include "tool/windowTool.h"
 
 
 DlgControl::DlgControl(void)
@@ -85,6 +86,11 @@ void DlgControl::activeWindow()
 	::AttachThreadInput(dwCurID, dwMyID, FALSE);
 }
 
+void DlgControl::close()
+{
+	::SendMessage(m_hWnd, WM_CLOSE, 0, 0);
+}
+
 bool DlgControl::isVisible()
 {
 	return !!::IsWindowVisible(m_hWnd);
@@ -119,4 +125,6 @@ void DlgControl::showCenter()
 	int x = (cx - w) / 2;
 	int y = (cy - h) / 2;
 	MoveWindow(x, y);
+	setVisible(true);
 }
+
