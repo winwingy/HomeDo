@@ -93,6 +93,11 @@ void DlgControl::activeWindow()
 	::AttachThreadInput(dwCurID, dwMyID, TRUE);
 	::SetForegroundWindow(m_hWnd);
 	::AttachThreadInput(dwCurID, dwMyID, FALSE);
+
+	SetWindowPos(m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	SetWindowPos(m_hWnd, HWND_NOTOPMOST, 0, 0, 0, 0,
+		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 }
 
 void DlgControl::close()

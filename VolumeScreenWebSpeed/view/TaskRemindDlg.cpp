@@ -32,9 +32,7 @@ void TaskRemindDlg::ShowDlg(HWND hWnd)
 	int height = 140;
 
 	MoveWindow(rect.right - width, rect.bottom - height);
-
-	SetWindowPos(m_hWnd, 0, 0, 0, 0, 0, 
-		SWP_SHOWWINDOW|SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOSIZE);
+	DlgControl::activeWindow();
 }
 
 bool TaskRemindDlg::DlgProc(UINT message, WPARAM wParam,

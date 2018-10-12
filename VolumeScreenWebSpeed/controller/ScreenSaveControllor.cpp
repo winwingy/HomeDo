@@ -3,26 +3,12 @@
 #include "WinDefine.h"
 #include "../tool/config.h"
 #include "../view/ToastWindow.h"
+#include "tool/BeepSound.h"
 
 
 namespace
 {
-    void PlaySoundHappy(int beg, int end)
-    {
-        unsigned FREQUENCY[] = { 392, 392, 440, 392, 523, 494,
-            392, 392, 440, 392, 587, 523,
-            392, 392, 784, 659, 523, 494, 440,
-            689, 689, 523, 587, 523 };
 
-        unsigned DELAY[] = { 375, 125, 500, 500, 500, 1000,
-            375, 125, 500, 500, 500, 1000,
-            375, 125, 500, 500, 500, 500, 1000,
-            375, 125, 500, 500, 500, 1000 };
-        for (int i = beg; i < end; i++)  //ÏÈÌî10¶ÌÐ©
-        {
-            Beep(FREQUENCY[i], DELAY[i]);
-        }
-    }
 }
 
 ScreenSaveControllor::ScreenSaveControllor(void)
@@ -38,7 +24,7 @@ ScreenSaveControllor::~ScreenSaveControllor(void)
 
 }
 
-void ScreenSaveControllor::ShowToastWindow(bool IsNotScreenSave, int timeMin)
+void ScreenSaveControllor::ShowNoScreenToast(bool IsNotScreenSave, int timeMin)
 {
     int showScreeenSaveToast = config_->GetValue(
         CONFIG_SET, "ShowScreeenSaveToast", 0);
@@ -75,7 +61,7 @@ void ScreenSaveControllor::StopNotScreenSave(HWND hwnd, bool playSound)
     KillTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE_MAX);
     if (playSound)
     {
-        PlaySoundHappy(0, 2);
+        playSkyCityShort();
     }
 }
 
@@ -119,8 +105,8 @@ void ScreenSaveControllor::OnHotKeyNotScreenSave(
         CONFIG_SET, "notScreenSavePerInputMAXTimeMin", 80);
     SetTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE_MAX,
              notScreenSavePerInputMAXTimeMin * 60 * 1000, nullptr);
-    ShowToastWindow(true, notScreenSavePerInputMAXTimeMin);
-    PlaySoundHappy(0, 6);
+    ShowNoScreenToast(true, notScreenSavePerInputMAXTimeMin);
+    playSkyCityLong();
 }
 
 void ScreenSaveControllor::OnHotKey(

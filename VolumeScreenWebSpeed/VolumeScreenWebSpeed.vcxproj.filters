@@ -99,6 +99,9 @@
     <ClCompile Include="view\ChangeTitleDlg.cpp">
       <Filter>view</Filter>
     </ClCompile>
+    <ClCompile Include="tool\BeepSound.cpp">
+      <Filter>tool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tool\config.h">
@@ -172,6 +175,9 @@
     </ClInclude>
     <ClInclude Include="view\ChangeTitleDlg.h">
       <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="tool\BeepSound.h">
+      <Filter>tool</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
