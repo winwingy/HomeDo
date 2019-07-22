@@ -104,7 +104,8 @@ void ScreenSaveControllor::OnHotKeyNotScreenSave(
     int notScreenSavePerInputMAXTimeMin = config->GetValue(
         CONFIG_SET, "notScreenSavePerInputMAXTimeMin", 80);
     SetTimer(hwnd, WinDefine::TIMER_NOT_SCREEN_SAVE_MAX,
-             notScreenSavePerInputMAXTimeMin * 60 * 1000, nullptr);
+             ((unsigned int)notScreenSavePerInputMAXTimeMin) * 60 * 1000,
+			 nullptr);
     ShowNoScreenToast(true, notScreenSavePerInputMAXTimeMin);
     playSkyCityLong();
 }

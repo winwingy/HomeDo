@@ -30,6 +30,7 @@ TimingTaskDlg::TimingTaskDlg(void)
 	m_hRadioRepeatNo = nullptr;
 
 	m_hEditBoxText = nullptr;
+	m_hEditRunCMD = nullptr;
 
 	m_hStaRemainTime = nullptr;
 	m_hBtnCancelTask = nullptr;
@@ -69,6 +70,8 @@ void TimingTaskDlg::initControl()
 	tstring text =  Config::GetShared()->GetValue(_T("TimingTask"),
 		_T("ShowTextDefault"), _T("´ò°ü"));
 	SetWindowText(m_hEditBoxText, text.c_str());
+
+	SetWindowText(m_hEditRunCMD, "rundll32.exe powrProf.dll,SetSuspendState");
 }
 
 
@@ -261,6 +264,10 @@ void TimingTaskDlg::resetState()
 void TimingTaskDlg::timerEnd(UINT message, WPARAM wParam,
 	LPARAM lParam)
 {
+	tstring runCmd(2048, char(0));
+	GetWindowText(m_hEditRunCMD, (TCHAR*)runCmd.c_str(), 2048);
+	system(runCmd.c_str());
+
 	TaskRemindDlg* pRemind = new TaskRemindDlg;
 	pRemind->ShowDlg(nullptr);
 	pRemind->setRemindText(WindowTool::GetWindowText(m_hEditBoxText));
@@ -381,6 +388,7 @@ bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 		m_hRadioRepeatNo = GetDlgItem(m_hWnd, IDC_RADIO_RepeatNo);
 
 		m_hEditBoxText = GetDlgItem(m_hWnd, IDC_EDIT_TaskBoxText);
+		m_hEditRunCMD = GetDlgItem(m_hWnd, IDC_EDIT_TaskBoxRunCMD);
 
 		m_hStaRemainTime = GetDlgItem(m_hWnd, IDC_STATIC_RemainTime);
 		m_hBtnCancelTask = GetDlgItem(m_hWnd, ID_CancelTask);

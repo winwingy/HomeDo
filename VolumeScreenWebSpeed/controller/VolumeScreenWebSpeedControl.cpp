@@ -702,6 +702,7 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 			HMENU hMenu;
 			hMenu = CreatePopupMenu();
 			AppendMenu(hMenu, MF_STRING, enTray_timingClose, "定时关机");
+
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopup, "定时任务列表");
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopupNew, "新建定时任务");
 			//AppendMenu(hMenu, MF_STRING, enTray_closeNameWindow, "关闭弹窗");
