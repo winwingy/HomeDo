@@ -40,12 +40,12 @@
 #define IDC_EDIT_ORC_TITLE2             1013
 #define IDC_EDIT_NEW_TITLE              1013
 #define IDC_STATIC_TaskText             1014
-#define IDC_EDIT_TaskBoxText2           1014
-#define IDC_EDIT_TaskBoxRunCMD          1014
 #define IDC_STATIC_ShutDowningTip       1015
 #define IDC_STATIC_ORC                  1016
 #define IDC_STATIC_ORC2                 1017
 #define IDC_STATIC3                     1017
+#define IDC_COMBO_RUNCMD                1018
+#define IDC_COMBO2                      1019
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -55,7 +55,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1018
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

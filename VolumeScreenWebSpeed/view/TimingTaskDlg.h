@@ -39,7 +39,7 @@ private:
 	HWND m_hRadioRepeatNo;
 
 	HWND m_hEditBoxText;
-	HWND m_hEditRunCMD;
+	HWND m_hComboRunCMD;
 
 	HWND m_hStaRemainTime;
 	HWND m_hBtnCancelTask;

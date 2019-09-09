@@ -30,7 +30,7 @@ TimingTaskDlg::TimingTaskDlg(void)
 	m_hRadioRepeatNo = nullptr;
 
 	m_hEditBoxText = nullptr;
-	m_hEditRunCMD = nullptr;
+	m_hComboRunCMD = nullptr;
 
 	m_hStaRemainTime = nullptr;
 	m_hBtnCancelTask = nullptr;
@@ -71,7 +71,13 @@ void TimingTaskDlg::initControl()
 		_T("ShowTextDefault"), _T("´ò°ü"));
 	SetWindowText(m_hEditBoxText, text.c_str());
 
-	SetWindowText(m_hEditRunCMD, "rundll32.exe powrProf.dll,SetSuspendState");
+	vector<string> listText;
+	Config::GetShared()->GetList(_T("[RunCMDBegin]"), 
+		_T("[RunCMDEnd]"), &listText);
+	for (auto& per : listText)
+	{
+		SendMessage(m_hComboRunCMD, CB_ADDSTRING, 0, (LPARAM)per.c_str());
+	}
 }
 
 
@@ -264,9 +270,16 @@ void TimingTaskDlg::resetState()
 void TimingTaskDlg::timerEnd(UINT message, WPARAM wParam,
 	LPARAM lParam)
 {
-	tstring runCmd(2048, char(0));
-	GetWindowText(m_hEditRunCMD, (TCHAR*)runCmd.c_str(), 2048);
-	system(runCmd.c_str());
+	DWORD selIndex = SendMessage(m_hComboRunCMD, CB_GETCURSEL, 0, 0);
+	if (selIndex != CB_ERR)
+	{
+		DWORD textLen = SendMessage(m_hComboRunCMD, CB_GETLBTEXTLEN, 
+			selIndex, 0);
+		tstring runCmd2(textLen+1, char(0));
+		SendMessage(m_hComboRunCMD, CB_GETLBTEXT,
+			selIndex, (LPARAM)runCmd2.data());	
+		system(runCmd2.c_str());
+	}
 
 	TaskRemindDlg* pRemind = new TaskRemindDlg;
 	pRemind->ShowDlg(nullptr);
@@ -388,7 +401,7 @@ bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 		m_hRadioRepeatNo = GetDlgItem(m_hWnd, IDC_RADIO_RepeatNo);
 
 		m_hEditBoxText = GetDlgItem(m_hWnd, IDC_EDIT_TaskBoxText);
-		m_hEditRunCMD = GetDlgItem(m_hWnd, IDC_EDIT_TaskBoxRunCMD);
+		m_hComboRunCMD = GetDlgItem(m_hWnd, IDC_COMBO_RUNCMD);
 
 		m_hStaRemainTime = GetDlgItem(m_hWnd, IDC_STATIC_RemainTime);
 		m_hBtnCancelTask = GetDlgItem(m_hWnd, ID_CancelTask);

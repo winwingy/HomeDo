@@ -167,7 +167,7 @@ bool Config::GetList(const string& listBegin, const string& listEnd,
         if (text.empty())
             break;
         
-        int readed = file.Read(&text[0], 1, static_cast<size_t>(fileSize));
+        int readed = file.Read((char*)text.data(), 1, static_cast<size_t>(fileSize));
         if (readed <= 0)
             break;
 
