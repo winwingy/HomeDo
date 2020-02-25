@@ -207,7 +207,7 @@ void VolumeScreenWebSpeedControl::InitPowerOnStartProgress(HWND hWnd)
 
 	int isLockScreen = config_->GetValue(
 		CONFIG_POWER_ON_START_PROGRESS, "IsLockScreen", 1);
-	if (IsLockScreen)
+	if (isLockScreen)
 	{
 
 	}
@@ -543,16 +543,17 @@ void VolumeScreenWebSpeedControl::OnTaskList()
 	}
 }
 
-void VolumeScreenWebSpeedControl::OnTaskNew()
+void VolumeScreenWebSpeedControl::OnTaskNew(
+	TimingTaskDlg::enTask_type taskType /*= TimingTaskDlg::enTask_type_normal*/)
 {
 	RemoveInvalidTimingTask();
 	TimingTaskDlg* pDlg = new TimingTaskDlg;
 	pDlg->CreateDlgE(NULL);
+	pDlg->setTaskType(taskType);
 	pDlg->setVisible(true);
 	pDlg->activeWindow();
 	timingTaskDlgList_.push_back(pDlg);
 }
-
 
 BOOL CALLBACK EnumWindowsProcCloseWindow(HWND hwnd, LPARAM lParam)
 {
@@ -656,6 +657,16 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 			OnTaskNew();
 			break;
 		}
+		case enTray_timingSleep:
+		{
+			OnTaskNew(TimingTaskDlg::enTask_type_sleep);
+			break;
+		}
+		case enTray_timingLogoff:
+		{
+			OnTaskNew(TimingTaskDlg::enTask_type_loginoff);
+			break;
+		}
 		case enTray_closeNameWindow:
 		{
 			OnCloseNameWindow();
@@ -714,6 +725,14 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopup, "定时任务列表");
 			AppendMenu(hMenu, MF_STRING, enTray_timingPopupNew, "新建定时任务");
+
+			HMENU hMeSub = CreateMenu();
+			AppendMenu(hMeSub, MF_STRING, enTray_timingSleep,
+				"新建睡眠任务");
+			AppendMenu(hMeSub, MF_STRING, enTray_timingLogoff,
+				"新建注销任务");
+			AppendMenu(hMenu, MF_POPUP, (unsigned int)hMeSub, "新建CMD任务");
+
 			//AppendMenu(hMenu, MF_STRING, enTray_closeNameWindow, "关闭弹窗");
 			AppendMenu(hMenu, MF_STRING, enTray_changeWindowTitle,
 				"改窗口标题");

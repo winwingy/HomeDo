@@ -9,6 +9,7 @@
 #include "TaskRemindDlg.h"
 #include "tool/windowTool.h"
 #include "tool/config.h"
+#include "tool/StringPathHelper.h"
 
 
 namespace
@@ -56,7 +57,7 @@ bool TimingTaskDlg::isTasking()
 	return m_tasking;
 }
 
-void TimingTaskDlg::initControl()
+void TimingTaskDlg::initControl(enTask_type taskType)
 {
 	SendMessage(m_hRadioCountDown, BM_SETCHECK, BST_CHECKED, 0);
 	SetWindowText(m_hEditHour, _T("0"));
@@ -68,18 +69,54 @@ void TimingTaskDlg::initControl()
 	SendMessage(m_hRadioRepeatNo, BM_SETCHECK, BST_CHECKED, 0);
 
 	tstring text =  Config::GetShared()->GetValue(_T("TimingTask"),
-		_T("ShowTextDefault"), _T("打包"));
+		_T("ShowTextDefault"), _T("任务"));
 	SetWindowText(m_hEditBoxText, text.c_str());
+
+	SendMessage(m_hComboRunCMD, CB_RESETCONTENT, 0, 0);
+	m_itemDataList.clear();
 
 	vector<string> listText;
 	Config::GetShared()->GetList(_T("[RunCMDBegin]"), 
 		_T("[RunCMDEnd]"), &listText);
 	for (auto& per : listText)
 	{
-		SendMessage(m_hComboRunCMD, CB_ADDSTRING, 0, (LPARAM)per.c_str());
+		vector<string> detailList;
+		StringPathHelper::SplitStringBySign(per, "||", &detailList);
+		if (detailList.size() < 2)
+			continue;
+
+		comBoItemData itemData;
+		itemData.title = detailList[0];
+		itemData.cmd = detailList[1];
+		itemData.showText = detailList[2];
+		itemData.totalSec = StringPathHelper::StringToInt(detailList[3]);
+		m_itemDataList.push_back(itemData);
+		
+		std::string cmdStr = detailList[0] + "||" + detailList[1];
+		SendMessage(m_hComboRunCMD, CB_ADDSTRING, 0, (LPARAM)cmdStr.c_str());		
 	}
+	SendMessage(m_hComboRunCMD, CB_SETCURSEL, taskType, 0);
+	onComboSelChange();
 }
 
+TimingTaskDlg::comBoItemData TimingTaskDlg::getItemData(int index)
+{
+	if (index >= 0 && index < (int)m_itemDataList.size())
+	{
+		return m_itemDataList[index];
+	}
+	return comBoItemData();
+}
+
+TimingTaskDlg::comBoItemData TimingTaskDlg::getSelItemData()
+{
+	DWORD selIndex = SendMessage(m_hComboRunCMD, CB_GETCURSEL, 0, 0);
+	if (selIndex != CB_ERR)
+	{
+		return getItemData(selIndex);
+	}
+	return comBoItemData();
+}
 
 void TimingTaskDlg::getTimerText(int* hour, int* min, int* sec)
 {
@@ -278,7 +315,17 @@ void TimingTaskDlg::timerEnd(UINT message, WPARAM wParam,
 		tstring runCmd2(textLen+1, char(0));
 		SendMessage(m_hComboRunCMD, CB_GETLBTEXT,
 			selIndex, (LPARAM)runCmd2.data());	
-		system(runCmd2.c_str());
+		std::vector<string> runCmd2List;
+		StringPathHelper::SplitStringBySign(runCmd2, "||", &runCmd2List);
+		string runFinal = runCmd2;
+		if (runCmd2List.size() >= 2)
+		{
+			runFinal = runCmd2List[1];
+		}
+		if (runFinal != "None")
+		{
+			system(runCmd2.c_str());
+		}
 	}
 
 	TaskRemindDlg* pRemind = new TaskRemindDlg;
@@ -336,6 +383,44 @@ void TimingTaskDlg::close()
 	}
 }
 
+void TimingTaskDlg::onComboMsg(int wmId, int wmEvent, LPARAM lParam)
+{
+	switch (wmEvent)
+	{
+		case CBN_SELCHANGE:
+		{
+			onComboSelChange();
+			break;
+		}
+	default:
+		break;
+	}
+
+}
+
+void TimingTaskDlg::onComboSelChange()
+{
+	comBoItemData itemData = getSelItemData();
+	if (!itemData.cmd.empty())
+	{
+		SetWindowText(m_hEditBoxText, itemData.showText.c_str());
+		setShowTime(itemData.totalSec);
+	}
+}
+
+void TimingTaskDlg::setShowTime(int totalSec)
+{
+	int hour = totalSec / 60 / 60;
+	int mininute = totalSec / 60 % 60;
+	int sec = totalSec % 60;
+	SetWindowText(m_hEditHour,
+		StringPathHelper::IntToString(hour).c_str());
+	SetWindowText(m_hEditMin,
+		StringPathHelper::IntToString(mininute).c_str());
+	SetWindowText(m_hEditSec,
+		StringPathHelper::IntToString(sec).c_str());
+}
+
 bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 	LPARAM lParam, LRESULT* lResult)
 {
@@ -373,6 +458,11 @@ bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 			setHourState();
 			break;
 		}
+		case IDC_COMBO_RUNCMD:
+		{
+			onComboMsg(wmId, wmEvent, lParam);
+			break;
+		}
 		default:
 			break;
 		}
@@ -408,7 +498,12 @@ bool TimingTaskDlg::DlgProc(UINT message, WPARAM wParam,
 
 		m_hBtnOK = GetDlgItem(m_hWnd, IDOK);
 
-		initControl();
+		initControl(enTask_type_normal);
+		break;
+	}
+	case WM_INITSTATE:
+	{
+		initControl((enTask_type)wParam);
 		break;
 	}
 	default:
@@ -428,4 +523,9 @@ void TimingTaskDlg::setControlEnable(bool enable)
 	EnableWindow(m_hRadioRepeatNo, enable);
 	EnableWindow(m_hEditBoxText, enable);
 	EnableWindow(m_hBtnOK, enable);	
+}
+
+void TimingTaskDlg::setTaskType(enTask_type taskType)
+{
+	PostMessage(m_hWnd, WM_INITSTATE, (WPARAM)taskType, 0);
 }

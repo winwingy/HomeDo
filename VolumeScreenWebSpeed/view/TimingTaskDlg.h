@@ -1,20 +1,41 @@
 #pragma once
 #include "DlgControl.h"
+#include <map>
 class TimingTaskDlg : public DlgControl
 {
 public:
     TimingTaskDlg(void);
     ~TimingTaskDlg(void);
+
 	void CreateDlgE(HWND hWnd);
+	enum 
+	{
+		WM_INITSTATE = WM_USER + 6780,
+	};
+	enum enTask_type
+	{
+		enTask_type_normal,
+		enTask_type_sleep,
+		enTask_type_showdown,
+		enTask_type_loginoff,
+	};
+	void setTaskType(enTask_type taskType);
 	bool isTasking();
 
 protected:
+	struct comBoItemData
+	{
+		std::string title;
+		std::string cmd;
+		std::string showText;
+		int totalSec = 0;
+	};
 	virtual bool DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
 		LRESULT* lResult);
 
 private:
-	void initControl();
-	void setControlEnable(bool enable);	
+	void initControl(enTask_type taskType);
+	void setControlEnable(bool enable);
 	void onBtnOk();
 	void getTimerText(int* hour, int* min, int* sec);
 	bool isBtnChecked(HWND hWnd);
@@ -27,7 +48,11 @@ private:
 	void close();
 	void resetState();
 	void timerEnd(UINT message, WPARAM wParam, LPARAM lParam);
-
+	void onComboMsg(int wmId, int wmEvent, LPARAM lParam);
+	void setShowTime(int totalSec);
+	TimingTaskDlg::comBoItemData getItemData(int index);
+	TimingTaskDlg::comBoItemData getSelItemData();
+	void onComboSelChange();
 private:
 	HWND m_hRadioCountDown;
 	HWND m_hRadioFixTime;
@@ -47,6 +72,5 @@ private:
 
 	INT64 m_remainTimeSec;
 	bool m_tasking;
-
+	std::vector<comBoItemData> m_itemDataList;
 };
-

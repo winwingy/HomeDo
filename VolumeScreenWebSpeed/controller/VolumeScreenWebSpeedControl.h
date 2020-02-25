@@ -3,6 +3,7 @@
 #include <shellapi.h>
 #include <string>
 #include <vector>
+#include "view\TimingTaskDlg.h"
 
 using std::string;
 using std::wstring;
@@ -69,11 +70,11 @@ private:
     void SetMouseSpeed(bool isGameSpeed);
 	void RemoveInvalidTimingTask();
 	void OnTaskList();
-	void OnTaskNew();
+	void OnTaskNew(TimingTaskDlg::enTask_type taskType = 
+		TimingTaskDlg::enTask_type_normal);
 	void OnCloseNameWindow();
 	void OnChangeWindowTitle();
 	void ShowShutDownDlg();
-
 	HWND hWnd_;
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;

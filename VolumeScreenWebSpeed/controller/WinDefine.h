@@ -39,6 +39,8 @@ enum enTray_menu
 	enTray_timingClose,
 	enTray_timingPopup,
 	enTray_timingPopupNew,
+	enTray_timingSleep,
+	enTray_timingLogoff,
 	enTray_closeNameWindow,
 	enTray_changeWindowTitle,
 	enTray_exit
