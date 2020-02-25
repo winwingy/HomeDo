@@ -204,6 +204,15 @@ void VolumeScreenWebSpeedControl::InitPowerOnStartProgress(HWND hWnd)
     }
     SetTimer(hWnd, WinDefine::TIMER_POWER_ON_START_PROGRESS, progressTime, 
              nullptr);
+
+	int isLockScreen = config_->GetValue(
+		CONFIG_POWER_ON_START_PROGRESS, "IsLockScreen", 1);
+	if (IsLockScreen)
+	{
+
+	}
+
+
 }
 
 void VolumeScreenWebSpeedControl::InitProgressSetting(HWND hWnd)
