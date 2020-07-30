@@ -18,6 +18,7 @@ public:
 		enTask_type_sleep,
 		enTask_type_showdown,
 		enTask_type_loginoff,
+		enTask_type_restart,
 	};
 	void setTaskType(enTask_type taskType);
 	bool isTasking();

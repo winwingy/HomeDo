@@ -15,6 +15,7 @@ class ScreenSaveControllor;
 class TaskDo;
 class TimingTaskDlg;
 class ShutDownDlg;
+class MonitorBusyApp;
 
 class VolumeScreenWebSpeedControl
 {
@@ -60,6 +61,8 @@ private:
     void InitPowerOnStartProgress(HWND hWnd);
     void InitProgressSetting(HWND hWnd);
 	void InitTaskMgr(HWND hWnd);
+	void InitMonitorBusy(HWND hWnd);
+	
 
     void OnKillProcess(HWND hWnd);
     void OnPowerOnStartProgressTimer(HWND hwnd, UINT uMsg,
@@ -78,6 +81,7 @@ private:
 	HWND hWnd_;
     vector<ProgressToIDHotKey> progressToIDHotkeyList_;
     Config* config_;
+	std::unique_ptr<MonitorBusyApp> monitorBusyApp_;
     std::unique_ptr<VolumeCtrlWrapper> volumeCtrlWrapper_;
     vector<string> powerOnStartProgress_;
     std::unique_ptr<ScreenSaveControllor> screenSaveControllor_;

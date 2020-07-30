@@ -18,6 +18,7 @@
 #include "Resource.h"
 #include "tool/windowTool.h"
 #include "view/ChangeTitleDlg.h"
+#include "MonitorBusyApp.h"
 #pragma comment(lib, "Kernel32.lib")
 using namespace std;
 
@@ -90,6 +91,7 @@ VolumeScreenWebSpeedControl::VolumeScreenWebSpeedControl(void)
     , screenSaveControllor_(new ScreenSaveControllor())
 	, timingTaskDlgList_()
 	, shutDownDlg_(nullptr)
+	, monitorBusyApp_(new MonitorBusyApp())
 {
 
 }
@@ -230,6 +232,19 @@ void VolumeScreenWebSpeedControl::InitTaskMgr(HWND hWnd)
 	// ... other task
 }
 
+void VolumeScreenWebSpeedControl::InitMonitorBusy(HWND hWnd)
+{
+	int IsMonitorBusyApp = config_->GetValue(
+		CONFIG_POWER_ON_START_PROGRESS, "IsMonitorBusyApp", 1);
+	if (1 == IsMonitorBusyApp)
+	{
+		monitorBusyApp_->init();
+		int timeMs = 3 * 60 * 1000;  //10 * 1000; 
+		SetTimer(hWnd, WinDefine::TIMER_MONITOR_BUSY_APP,
+			timeMs, nullptr);
+	}
+}
+
 void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
                               WPARAM wParam, LPARAM lParam)
 {
@@ -246,6 +261,8 @@ void VolumeScreenWebSpeedControl::OnCreate(HWND hWnd, UINT uMsg,
     InitProgressSetting(hWnd);
 
 	InitTaskMgr(hWnd);
+
+	InitMonitorBusy(hWnd);
 }
 
 BOOL CALLBACK EnumWindowsProc(
@@ -513,10 +530,14 @@ void VolumeScreenWebSpeedControl::OnTimer(
             OnPowerOnStartProgressTimer(hWnd, uMsg, idEvent, dwTime);
             break;
         }
+		case WinDefine::TIMER_MONITOR_BUSY_APP:
+		{
+			monitorBusyApp_->OnTimer(hWnd, uMsg, idEvent, dwTime);
+			break;
+		}
         default:
         break;
     }
-    
     volumeCtrlWrapper_->OnTimer(hWnd, uMsg, idEvent, dwTime);
     screenSaveControllor_->OnTimer(hWnd, uMsg, idEvent, dwTime);
 }
@@ -667,6 +688,11 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 			OnTaskNew(TimingTaskDlg::enTask_type_loginoff);
 			break;
 		}
+		case enTray_timingRestart:
+		{
+			OnTaskNew(TimingTaskDlg::enTask_type_restart);
+			break;
+		}
 		case enTray_closeNameWindow:
 		{
 			OnCloseNameWindow();
@@ -728,9 +754,11 @@ bool VolumeScreenWebSpeedControl::WndProc(HWND hWnd,
 
 			HMENU hMeSub = CreateMenu();
 			AppendMenu(hMeSub, MF_STRING, enTray_timingSleep,
-				"新建睡眠任务");
+				"新建休眠任务");
 			AppendMenu(hMeSub, MF_STRING, enTray_timingLogoff,
 				"新建注销任务");
+			AppendMenu(hMeSub, MF_STRING, enTray_timingRestart,
+				"新建重启任务");
 			AppendMenu(hMenu, MF_POPUP, (unsigned int)hMeSub, "新建CMD任务");
 
 			//AppendMenu(hMenu, MF_STRING, enTray_closeNameWindow, "关闭弹窗");

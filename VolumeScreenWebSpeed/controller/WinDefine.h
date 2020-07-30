@@ -41,6 +41,7 @@ enum enTray_menu
 	enTray_timingPopupNew,
 	enTray_timingSleep,
 	enTray_timingLogoff,
+	enTray_timingRestart,
 	enTray_closeNameWindow,
 	enTray_changeWindowTitle,
 	enTray_exit
@@ -81,6 +82,7 @@ public:
         TIMER_NOT_SCREEN_SAVE,
         TIMER_NOT_SCREEN_SAVE_MAX,
         TIMER_POWER_ON_START_PROGRESS,
+		TIMER_MONITOR_BUSY_APP,
         TIMER_TOAST,
     };
     WinDefine(void);

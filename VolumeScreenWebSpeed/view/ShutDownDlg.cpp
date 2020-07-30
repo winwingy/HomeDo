@@ -130,6 +130,8 @@ bool ShutDownDlg::DlgProc(UINT message, WPARAM wParam, LPARAM lParam,
         ::MoveWindow(hWnd, xPos, yPos, rect.right - rect.left, 
                    rect.bottom - rect.top, TRUE);
 		setControlState(true);
+
+		::SetWindowText(GetDlgItem(hWnd, IDC_EDIT_SEC), "3");
     }
     return 0;
 }

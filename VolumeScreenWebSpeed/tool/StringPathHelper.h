@@ -21,4 +21,12 @@ public:
     static string ToUpperString(const string& strLower);
     static void ReplaceString(
         string& orc, const string& findWhat, const string& replaceTo);
+
+	static int64_t toInt64(FILETIME ft)
+	{
+		LARGE_INTEGER li;
+		li.LowPart = ft.dwLowDateTime;
+		li.HighPart = ft.dwHighDateTime;
+		return li.QuadPart;
+	}
 };

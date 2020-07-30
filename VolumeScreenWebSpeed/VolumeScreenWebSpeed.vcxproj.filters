@@ -102,6 +102,9 @@
     <ClCompile Include="tool\BeepSound.cpp">
       <Filter>tool</Filter>
     </ClCompile>
+    <ClCompile Include="controller\MonitorBusyApp.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tool\config.h">
@@ -178,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="tool\BeepSound.h">
       <Filter>tool</Filter>
+    </ClInclude>
+    <ClInclude Include="controller\MonitorBusyApp.h">
+      <Filter>controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

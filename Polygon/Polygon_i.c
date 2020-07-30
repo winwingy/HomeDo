@@ -6,7 +6,7 @@
 
 
  /* File created by MIDL compiler version 8.00.0603 */
-/* at Sat Dec 10 10:04:14 2016
+/* at Tue Jul 28 16:49:38 2020
  */
 /* Compiler settings for Polygon.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
