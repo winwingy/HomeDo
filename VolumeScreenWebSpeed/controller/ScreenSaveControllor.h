@@ -19,5 +19,7 @@ private:
     HWND hWnd_;
     HWND forcegroundHwnd_;
     Config* config_;
+	bool isInScreenSave = false;
+
 };
 

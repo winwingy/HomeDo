@@ -63,10 +63,14 @@ void ScreenSaveControllor::StopNotScreenSave(HWND hwnd, bool playSound)
     {
         playSkyCityShort();
     }
+	isInScreenSave = false;
 }
 
 bool ScreenSaveControllor::InitControllor(HWND hWnd)
 {
+	int timerLockScreenMs = config_->GetValue(CONFIG_SET,
+		"TimerLockScreenSec", 60*5) * 1000;
+	SetTimer(hWnd, WinDefine::TIMER_LOCK_SCREEN, timerLockScreenMs, NULL);
     return true;
 }
 
@@ -91,6 +95,27 @@ void ScreenSaveControllor::OnTimer(
     {
         StopNotScreenSave(hwnd, true);
     }
+	else if (WinDefine::TIMER_LOCK_SCREEN == idEvent)
+	{
+		int isLock = config_->GetValue(CONFIG_SET,
+			"IsTimerLockScreen", 1);
+		if (!isInScreenSave && isLock)
+		{
+			LASTINPUTINFO plii;
+			plii.cbSize = sizeof(plii);
+			if (GetLastInputInfo(&plii))
+			{
+				int timerLockScreenMs = config_->GetValue(CONFIG_SET,
+					"TimerLockScreenSec", 60 * 5) * 1000;
+				DWORD dwTime = GetTickCount() - plii.dwTime;
+				if (dwTime > (DWORD)timerLockScreenMs)
+				{
+					system("rundll32.exe user32.dll,LockWorkStation");
+				}
+			}	
+		}
+	}
+
 }
 
 void ScreenSaveControllor::OnHotKeyNotScreenSave(
@@ -108,6 +133,7 @@ void ScreenSaveControllor::OnHotKeyNotScreenSave(
 			 nullptr);
     ShowNoScreenToast(true, notScreenSavePerInputMAXTimeMin);
     playSkyCityLong();
+	isInScreenSave = true;
 }
 
 void ScreenSaveControllor::OnHotKey(
