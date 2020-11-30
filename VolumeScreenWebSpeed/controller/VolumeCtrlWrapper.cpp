@@ -67,7 +67,14 @@ void VolumeCtrlWrapper::OnHotKey(
         }
         int volumeNow = myVolumeCtrl_->GetVolume();   //得到的值偏小1
         if (idHotKey == WinDefine::HOTKEY_VOLUME_UP)
-            volumeNow += perVolumeGap_;
+		{
+			volumeNow += perVolumeGap_;
+			BOOL mute = myVolumeCtrl_->GetMute();
+			if (mute)
+			{
+				myVolumeCtrl_->SetMute(FALSE);
+			}
+		} 
         else
             volumeNow -= perVolumeGap_;
 
